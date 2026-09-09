@@ -1,4 +1,4 @@
-﻿[gd_scene load_steps=30 format=3 uid="uid://superzero_m01_slice"]
+[gd_scene load_steps=31 format=3 uid="uid://superzero_m01_slice"]
 
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/fodder.tscn" id="2_fodder"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://scenes/modules/connector_alley.tscn" id="11_alley"]
 [ext_resource type="PackedScene" path="res://scenes/modules/checkpoint_dress.tscn" id="12_check"]
 [ext_resource type="PackedScene" path="res://scenes/modules/boulevard_dress.tscn" id="13_blvd"]
+[ext_resource type="PackedScene" path="res://scenes/modules/crash_dress.tscn" id="14_crash"]
 [ext_resource type="Texture2D" path="res://textures/asphalt.png" id="tex_asphalt"]
 [ext_resource type="Texture2D" path="res://textures/concrete.png" id="tex_concrete"]
 [ext_resource type="Texture2D" path="res://textures/brick.png" id="tex_brick"]
@@ -150,29 +151,34 @@ size = Vector3(8, 0.02, 0.35)
 material = SubResource("Mat_warn")
 
 [node name="WreckA" type="CSGBox3D" parent="."]
+visible = false
 transform = Transform3D(0.92, 0, 0.4, 0, 1, 0, -0.4, 0, 0.92, -4, 0.7, 5)
 use_collision = true
 size = Vector3(4.5, 1.4, 2)
 material = SubResource("Mat_metal")
 
 [node name="WreckA_Stripe" type="CSGBox3D" parent="."]
+visible = false
 transform = Transform3D(0.92, 0, 0.4, 0, 1, 0, -0.4, 0, 0.92, -4, 1.1, 5)
 size = Vector3(4.6, 0.15, 2.05)
 material = SubResource("Mat_trim")
 
 [node name="WreckB" type="CSGBox3D" parent="."]
+visible = false
 transform = Transform3D(0.7, 0, -0.71, 0, 1, 0, 0.71, 0, 0.7, 5, 0.55, -6)
 use_collision = true
 size = Vector3(3.5, 1.1, 1.8)
 material = SubResource("Mat_metal")
 
 [node name="HeloNose" type="CSGBox3D" parent="."]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.2, 0)
 use_collision = true
 size = Vector3(3, 2.2, 5)
 material = SubResource("Mat_helo")
 
 [node name="HeloGlass" type="CSGBox3D" parent="."]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.6, 1.5, 0)
 size = Vector3(0.2, 1.2, 3.2)
 material = SubResource("Mat_glass")
@@ -574,4 +580,8 @@ transform = Transform3D(0.3, 0, 0.95, 0, 1, 0, -0.95, 0, 0.3, 66, 0, 3)
 
 [node name="WreckCar2" parent="." instance=ExtResource("9_car")]
 transform = Transform3D(0.9, 0, -0.4, 0, 1, 0, 0.4, 0, 0.9, -3, 0, 6)
+
+[node name="CrashDress" parent="." instance=ExtResource("14_crash")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
 

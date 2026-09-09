@@ -1,26 +1,18 @@
-[gd_scene load_steps=7 format=3 uid="uid://superzero_hunter"]
+[gd_scene load_steps=4 format=3 uid="uid://superzero_hunter"]
 
 [ext_resource type="Script" path="res://scripts/enemies/hunter.gd" id="1"]
+[ext_resource type="ArrayMesh" path="res://meshes/elite_hunter.obj" id="2_mesh"]
 
 [sub_resource type="CapsuleShape3D" id="shape"]
 radius = 0.4
 height = 1.7
 
-[sub_resource type="CapsuleMesh" id="body"]
-radius = 0.32
-height = 1.2
-
-[sub_resource type="SphereMesh" id="head"]
-radius = 0.22
-
 [sub_resource type="StandardMaterial3D" id="mat"]
-albedo_color = Color(0.95, 0.45, 0.15, 1)
-
-[sub_resource type="StandardMaterial3D" id="mat_glow"]
-albedo_color = Color(1.0, 0.75, 0.2, 1)
+albedo_color = Color(1.0, 0.55, 0.2, 1)
+roughness = 0.75
 emission_enabled = true
-emission = Color(1.0, 0.5, 0.1, 1)
-emission_energy_multiplier = 1.2
+emission = Color(0.9, 0.4, 0.05, 1)
+emission_energy_multiplier = 0.45
 
 [node name="Hunter" type="CharacterBody3D"]
 script = ExtResource("1")
@@ -30,21 +22,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 shape = SubResource("shape")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1.1, 0, 0, 0, 1, 0, 0, 0, 0.8, 0, 0.75, 0)
-mesh = SubResource("body")
+mesh = ExtResource("2_mesh")
 surface_material_override/0 = SubResource("mat")
-
-[node name="Head" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0.1)
-mesh = SubResource("head")
-surface_material_override/0 = SubResource("mat_glow")
-
-[node name="BladeL" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 1.2, -0.45, 0.9, -0.2)
-mesh = SubResource("body")
-surface_material_override/0 = SubResource("mat_glow")
-
-[node name="BladeR" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 1.2, 0.45, 0.9, -0.2)
-mesh = SubResource("body")
-surface_material_override/0 = SubResource("mat_glow")
