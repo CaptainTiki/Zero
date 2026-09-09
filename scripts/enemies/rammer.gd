@@ -1,8 +1,6 @@
 extends CharacterBody3D
 class_name AlienRammer
 
-## Absorbs ordinary gun damage unless weak point is open during charge windup/recovery.
-
 @export var max_hp := 180.0
 @export var move_speed := 4.5
 @export var charge_speed := 12.0
@@ -21,13 +19,26 @@ var _timer := 0.0
 var _charge_dir := Vector3.ZERO
 var _player: Node3D
 var _weak_open := false
+var _flash_left := 0.0
+var _mat: StandardMaterial3D
+var _base_color := Color(0.85, 0.2, 0.15, 1)
+var _weak_color := Color(1.0, 0.85, 0.2, 1)
 
 func _ready() -> void:
 	_hp = max_hp
 	add_to_group("enemies")
 	add_to_group("elites")
+	var mesh := get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh:
+		_mat = StandardMaterial3D.new()
+		_mat.albedo_color = _base_color
+		mesh.material_override = _mat
 
 func _physics_process(delta: float) -> void:
+	if _flash_left > 0.0:
+		_flash_left = maxf(0.0, _flash_left - delta)
+	if _mat and _flash_left <= 0.0:
+		_mat.albedo_color = _weak_color if _weak_open else _base_color
 	if _player == null:
 		_player = get_tree().get_first_node_in_group("player") as Node3D
 	if _player == null:
@@ -78,13 +89,20 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 	move_and_slide()
 
+func _hit_fx() -> void:
+	_flash_left = 0.12
+	if _mat:
+		_mat.albedo_color = Color(1, 1, 1, 1)
+
 func take_damage(amount: float) -> void:
+	_hit_fx()
 	var mult := weak_gun_mult if _weak_open else body_gun_mult
 	_hp -= amount * mult
 	if _hp <= 0.0:
 		queue_free()
 
 func apply_melee_hit(amount: float, _from: Vector3) -> void:
+	_hit_fx()
 	_hp -= amount * melee_mult
 	if _hp <= 0.0:
 		queue_free()

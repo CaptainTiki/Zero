@@ -11,12 +11,24 @@ class_name AlienFodder
 var _hp := 0.0
 var _attack_timer := 0.0
 var _player: Node3D
+var _flash_left := 0.0
+var _mat: StandardMaterial3D
+var _base_color := Color(0.35, 0.85, 0.25, 1)
 
 func _ready() -> void:
 	_hp = max_hp
 	add_to_group("enemies")
+	var mesh := get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh:
+		_mat = StandardMaterial3D.new()
+		_mat.albedo_color = _base_color
+		mesh.material_override = _mat
 
 func _physics_process(delta: float) -> void:
+	if _flash_left > 0.0:
+		_flash_left = maxf(0.0, _flash_left - delta)
+		if _mat and _flash_left <= 0.0:
+			_mat.albedo_color = _base_color
 	_attack_timer = maxf(0.0, _attack_timer - delta)
 	if _player == null:
 		_player = get_tree().get_first_node_in_group("player") as Node3D
@@ -48,10 +60,20 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 	move_and_slide()
 
+func _hit_fx() -> void:
+	_flash_left = 0.12
+	if _mat:
+		_mat.albedo_color = Color(1, 1, 1, 1)
+
 func take_damage(amount: float) -> void:
+	_hit_fx()
 	_hp -= amount
 	if _hp <= 0.0:
 		queue_free()
 
-func apply_melee_hit(amount: float, _from: Vector3) -> void:
+func apply_melee_hit(amount: float, from: Vector3) -> void:
+	var push := global_position - from
+	push.y = 0.0
+	if push.length() > 0.01:
+		velocity += push.normalized() * 6.0
 	take_damage(amount)

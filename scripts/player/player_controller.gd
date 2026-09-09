@@ -82,10 +82,18 @@ func _try_melee() -> void:
 	if not melee_ray.is_colliding():
 		return
 	var col := melee_ray.get_collider()
+	var hit := false
 	if col and col.has_method("apply_melee_hit"):
 		col.apply_melee_hit(melee_damage, global_position)
+		hit = true
 	elif col and col.has_method("take_damage"):
 		col.take_damage(melee_damage)
+		hit = true
+	if hit:
+		var start := camera.position
+		var tw := create_tween()
+		tw.tween_property(camera, "position", start + Vector3(0, 0, 0.07), 0.04)
+		tw.tween_property(camera, "position", start, 0.08)
 
 func _try_fire() -> void:
 	gun_ray.force_raycast_update()
