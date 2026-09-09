@@ -1,80 +1,87 @@
-[gd_scene load_steps=8 format=3 uid="uid://sz_checkpoint_dress"]
+[gd_scene load_steps=9 format=3 uid="uid://sz_checkpoint_dress"]
 
 [ext_resource type="ArrayMesh" path="res://meshes/wall_straight_4.obj" id="1_wall"]
 [ext_resource type="ArrayMesh" path="res://meshes/wall_doorway.obj" id="2_door"]
 [ext_resource type="ArrayMesh" path="res://meshes/concrete_barrier.obj" id="3_bar"]
 [ext_resource type="ArrayMesh" path="res://meshes/floor_4x4.obj" id="4_floor"]
 [ext_resource type="ArrayMesh" path="res://meshes/crate.obj" id="5_crate"]
-[ext_resource type="Texture2D" path="res://textures/city_atlas.png" id="6_atlas"]
-
-[sub_resource type="StandardMaterial3D" id="MatAtlas"]
-albedo_texture = ExtResource("6_atlas")
-roughness = 0.9
+[ext_resource type="Material" path="res://materials/atlas_concrete.tres" id="6_conc"]
+[ext_resource type="Material" path="res://materials/atlas_asphalt.tres" id="7_asp"]
+[ext_resource type="Material" path="res://materials/atlas_metal.tres" id="8_metal"]
 
 [node name="CheckpointDress" type="Node3D"]
 
 [node name="FloorA" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.01, 0)
 mesh = ExtResource("4_floor")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_asp")
 
 [node name="FloorB" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
 mesh = ExtResource("4_floor")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_asp")
 
 [node name="FloorC" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.01, 0)
 mesh = ExtResource("4_floor")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_asp")
 
 [node name="RingN_A" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -10)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("6_conc")
 
 [node name="RingN_B" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("6_conc")
 
 [node name="RingN_C" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -10)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("6_conc")
 
 [node name="RingS_A" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 10)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("6_conc")
 
 [node name="RingS_B" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("6_conc")
 
 [node name="RingS_C" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 10)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("6_conc")
+
+[node name="RingW_N" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6, 0, -6)
+mesh = ExtResource("1_wall")
+surface_material_override/0 = ExtResource("6_conc")
+
+[node name="RingW_S" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6, 0, 6)
+mesh = ExtResource("1_wall")
+surface_material_override/0 = ExtResource("6_conc")
 
 [node name="EntryDoor" type="MeshInstance3D" parent="."]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -10, 0, 0)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6, 0, 0)
 mesh = ExtResource("2_door")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("6_conc")
 
 [node name="BarrierGunLane" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 3.5)
 mesh = ExtResource("3_bar")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("6_conc")
 
 [node name="BarrierFlank" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.9, 0, -0.4, 0, 1, 0, 0.4, 0, 0.9, 5, 0, -4)
 mesh = ExtResource("3_bar")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("6_conc")
 
 [node name="CrateCover" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 4)
 mesh = ExtResource("5_crate")
-surface_material_override/0 = SubResource("MatAtlas")
-
+surface_material_override/0 = ExtResource("8_metal")

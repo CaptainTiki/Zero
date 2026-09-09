@@ -224,6 +224,7 @@ size = Vector3(0.6, 6, 8)
 material = SubResource("Mat_brick")
 
 [node name="DoorTrim" type="CSGBox3D" parent="."]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.2, 2.2, 0)
 size = Vector3(0.25, 4.2, 6.2)
 material = SubResource("Mat_trim")

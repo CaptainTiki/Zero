@@ -1,7 +1,16 @@
-﻿# Mesh winding note (2026-09-09)
+﻿# SUPER ZERO — MESH_WINDING
 
-Kit graybox OBJs shipped with inverted face winding (CW when Godot expects CCW front faces), which caused see-through meshes with backface cull on.
+## Rule (locked after playtest `e3ec397`)
+- Export / author OBJs **CCW (counter-clockwise)** when viewed from outside.
+- Godot front-face = CCW with **backface cull ON**. Do **not** disable cull to hide winding bugs.
+- All Kit Mission 01 OBJs were inverted at first drop; fixed on `main` @ `e3ec397` (17 files reversed).
 
-Fix: reverse `f` winding in all `meshes/*.obj`. Do **not** disable backface culling.
+## Checklist before drop
+1. Faces wind CCW from exterior.
+2. Spot-check in Godot with cull on — no see-through walls/aliens.
+3. If strips/normals look wrong after import, check Flip V / normals — **not** cull.
+4. Weak-point islands stay on mesh; winding fix must not strip those polys.
 
-After pull: let Godot reimport OBJs (`.import` regenerated). If an old mesh still looks wrong, right-click the `.obj` → Reimport.
+## Kit export habit
+- Generate / write tools: emit CCW quads/tris.
+- Prefer fixing winding in source OBJ over engine workarounds.

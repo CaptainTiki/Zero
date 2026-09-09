@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://sz_boulevard_dress"]
+[gd_scene load_steps=10 format=3 uid="uid://sz_boulevard_dress"]
 
 [ext_resource type="ArrayMesh" path="res://meshes/wall_straight_4.obj" id="1_wall"]
 [ext_resource type="ArrayMesh" path="res://meshes/wall_tall.obj" id="2_tall"]
@@ -6,85 +6,82 @@
 [ext_resource type="ArrayMesh" path="res://meshes/crate.obj" id="4_crate"]
 [ext_resource type="ArrayMesh" path="res://meshes/car_body.obj" id="5_car"]
 [ext_resource type="ArrayMesh" path="res://meshes/pipe.obj" id="6_pipe"]
-[ext_resource type="Texture2D" path="res://textures/city_atlas.png" id="7_atlas"]
-
-[sub_resource type="StandardMaterial3D" id="MatAtlas"]
-albedo_texture = ExtResource("7_atlas")
-roughness = 0.9
+[ext_resource type="Material" path="res://materials/atlas_concrete.tres" id="7_conc"]
+[ext_resource type="Material" path="res://materials/atlas_metal.tres" id="8_metal"]
 
 [node name="BoulevardDress" type="Node3D"]
 
 [node name="WallN_A" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -7)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="WallN_B" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -7)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="WallN_C" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -7)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="WallN_D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -7)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="WallN_E" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -7)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="WallS_A" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 7)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="WallS_B" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 7)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="WallS_C" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 7)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="WallS_D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 7)
 mesh = ExtResource("1_wall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="HunterPerch" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -9)
 mesh = ExtResource("2_tall")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="FlankCoverA" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.95, 0, 0.3, 0, 1, 0, -0.3, 0, 0.95, -5, 0, 3)
 mesh = ExtResource("3_bar")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="FlankCoverB" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.85, 0, -0.5, 0, 1, 0, 0.5, 0, 0.85, 3, 0, -3)
 mesh = ExtResource("3_bar")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("7_conc")
 
 [node name="FlankCrate" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 4)
 mesh = ExtResource("4_crate")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("8_metal")
 
 [node name="WreckScrap" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.4, 0, 0.9, 0, 1, 0, -0.9, 0, 0.4, 8, 0, 4)
 mesh = ExtResource("5_car")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("8_metal")
 
 [node name="PipeScrap" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.7, 0, 0.71, 0, 1, 0, -0.71, 0, 0.7, -8, 0.2, -4)
 mesh = ExtResource("6_pipe")
-surface_material_override/0 = SubResource("MatAtlas")
+surface_material_override/0 = ExtResource("8_metal")
