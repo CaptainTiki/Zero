@@ -1,0 +1,83 @@
+﻿[gd_scene load_steps=8 format=3 uid="uid://sz_connector_service_road"]
+
+[ext_resource type="ArrayMesh" path="res://meshes/wall_straight_4.obj" id="1_wall"]
+[ext_resource type="ArrayMesh" path="res://meshes/curb.obj" id="2_curb"]
+[ext_resource type="ArrayMesh" path="res://meshes/pipe.obj" id="3_pipe"]
+[ext_resource type="ArrayMesh" path="res://meshes/concrete_barrier.obj" id="4_bar"]
+[ext_resource type="ArrayMesh" path="res://meshes/crate.obj" id="5_crate"]
+[ext_resource type="ArrayMesh" path="res://meshes/dumpster.obj" id="6_dump"]
+[ext_resource type="ArrayMesh" path="res://meshes/floor_4x4.obj" id="7_floor"]
+
+[node name="ConnectorServiceRoad" type="Node3D"]
+
+[node name="FloorPadA" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.01, 0)
+mesh = ExtResource("7_floor")
+
+[node name="FloorPadB" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+mesh = ExtResource("7_floor")
+
+[node name="FloorPadC" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.01, 0)
+mesh = ExtResource("7_floor")
+
+[node name="WallN_A" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -6.2)
+mesh = ExtResource("1_wall")
+
+[node name="WallN_B" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.2)
+mesh = ExtResource("1_wall")
+
+[node name="WallN_C" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -6.2)
+mesh = ExtResource("1_wall")
+
+[node name="WallS_A" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 6.2)
+mesh = ExtResource("1_wall")
+
+[node name="WallS_B" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6.2)
+mesh = ExtResource("1_wall")
+
+[node name="WallS_C" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 6.2)
+mesh = ExtResource("1_wall")
+
+[node name="CurbN_A" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -5.4)
+mesh = ExtResource("2_curb")
+
+[node name="CurbN_B" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.4)
+mesh = ExtResource("2_curb")
+
+[node name="CurbS_A" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 5.4)
+mesh = ExtResource("2_curb")
+
+[node name="CurbS_B" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 5.4)
+mesh = ExtResource("2_curb")
+
+[node name="PipeScrap" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.7, 0, 0.71, 0, 1, 0, -0.71, 0, 0.7, -5, 0.2, 3.5)
+mesh = ExtResource("3_pipe")
+
+[node name="BarrierA" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.95, 0, 0.3, 0, 1, 0, -0.3, 0, 0.95, -3, 0, 3.2)
+mesh = ExtResource("4_bar")
+
+[node name="BarrierB" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.9, 0, -0.4, 0, 1, 0, 0.4, 0, 0.9, 3, 0, -3.5)
+mesh = ExtResource("4_bar")
+
+[node name="CrateDress" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 2.5)
+mesh = ExtResource("5_crate")
+
+[node name="DumpsterDress" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.2, 0, 0.98, 0, 1, 0, -0.98, 0, 0.2, -1, 0, -4.5)
+mesh = ExtResource("6_dump")

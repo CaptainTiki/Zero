@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=3 uid="uid://sz_building_row"]
+
+[ext_resource type="Texture2D" path="res://textures/brick.png" id="tex_brick"]
+[ext_resource type="Texture2D" path="res://textures/plaster.png" id="tex_plast"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_brick"]
+albedo_texture = ExtResource("tex_brick")
+uv1_scale = Vector3(2, 2, 2)
+
+[sub_resource type="StandardMaterial3D" id="Mat_plast"]
+albedo_texture = ExtResource("tex_plast")
+albedo_color = Color(0.85, 0.8, 0.95, 1)
+uv1_scale = Vector3(2, 2, 2)
+
+[sub_resource type="StandardMaterial3D" id="Mat_glass"]
+albedo_color = Color(0.4, 0.7, 0.85, 0.5)
+transparency = 1
+
+[node name="BuildingRow" type="Node3D"]
+
+[node name="BlockA" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
+use_collision = true
+size = Vector3(8, 8, 5)
+material = SubResource("Mat_brick")
+
+[node name="BlockB" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 3.5, 0.5)
+use_collision = true
+size = Vector3(8, 7, 5)
+material = SubResource("Mat_plast")
+
+[node name="WinA1" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3, 2.6)
+size = Vector3(1.6, 1.4, 0.15)
+material = SubResource("Mat_glass")
+
+[node name="WinA2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 5, 2.6)
+size = Vector3(1.6, 1.4, 0.15)
+material = SubResource("Mat_glass")
+
+[node name="WinB1" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 3, 3.1)
+size = Vector3(1.6, 1.4, 0.15)
+material = SubResource("Mat_glass")
+
+[node name="WinB2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 4.5, 3.1)
+size = Vector3(1.6, 1.4, 0.15)
+material = SubResource("Mat_glass")

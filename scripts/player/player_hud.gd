@@ -9,14 +9,12 @@ func _ready() -> void:
 	if hurt:
 		hurt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		hurt.color = Color(0.8, 0.05, 0.05, 0.0)
-	set_status(false, 100.0, 100.0)
-	hint.text = "WASD · Mouse · LMB melee · RMB fire · E grab/throw · Esc"
+	hint.text = "1 fists · 2 pistol · LMB use · RMB ADS · E throw · Esc"
 
-func set_has_gun(has_gun: bool) -> void:
-	set_status(has_gun, 100.0, 100.0)
-
-func set_status(has_gun: bool, hp: float, max_hp: float) -> void:
-	weapon.text = "WEAPON: SIDEARM" if has_gun else "WEAPON: FISTS / MELEE"
+func set_status(weapon_name: String, hp: float, max_hp: float, has_gun: bool, ads: bool) -> void:
+	var extra := " (ADS)" if ads else ""
+	var locked := "" if has_gun or weapon_name == "FISTS" else ""
+	weapon.text = "WEAPON: %s%s" % [weapon_name, extra]
 	if hp_label:
 		hp_label.text = "HP: %d / %d" % [int(hp), int(max_hp)]
 

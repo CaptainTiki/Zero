@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://superzero_player"]
+[gd_scene load_steps=10 format=3 uid="uid://superzero_player"]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/player_hud.gd" id="2_hud"]
@@ -13,6 +13,20 @@ height = 1.8
 
 [sub_resource type="StandardMaterial3D" id="Mat_player"]
 albedo_color = Color(0.2, 0.55, 0.95, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_skin"]
+albedo_color = Color(0.9, 0.72, 0.55, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_fist"]
+size = Vector3(0.14, 0.14, 0.28)
+
+[sub_resource type="StandardMaterial3D" id="Mat_gun"]
+albedo_color = Color(0.15, 0.15, 0.17, 1)
+metallic = 0.6
+roughness = 0.35
+
+[sub_resource type="BoxMesh" id="Mesh_gun"]
+size = Vector3(0.08, 0.14, 0.32)
 
 [node name="Player" type="CharacterBody3D" groups=["player"]]
 collision_layer = 2
@@ -40,6 +54,41 @@ target_position = Vector3(0, 0, -2.2)
 [node name="GunRay" type="RayCast3D" parent="Head/Camera3D"]
 target_position = Vector3(0, 0, -40)
 
+[node name="ViewFists" type="Node3D" parent="Head/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, -0.25, -0.4)
+
+[node name="RightFist" type="MeshInstance3D" parent="Head/Camera3D/ViewFists"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0, 0)
+mesh = SubResource("Mesh_fist")
+surface_material_override/0 = SubResource("Mat_skin")
+
+[node name="LeftFist" type="MeshInstance3D" parent="Head/Camera3D/ViewFists"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.28, -0.02, 0.05)
+mesh = SubResource("Mesh_fist")
+surface_material_override/0 = SubResource("Mat_skin")
+
+[node name="ViewPistol" type="Node3D" parent="Head/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, -0.22, -0.45)
+visible = false
+
+[node name="GunMesh" type="MeshInstance3D" parent="Head/Camera3D/ViewPistol"]
+mesh = SubResource("Mesh_gun")
+surface_material_override/0 = SubResource("Mat_gun")
+
+[node name="GunSlide" type="MeshInstance3D" parent="Head/Camera3D/ViewPistol"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, -0.02)
+mesh = SubResource("Mesh_gun")
+surface_material_override/0 = SubResource("Mat_gun")
+
+[node name="MuzzleFlash" type="OmniLight3D" parent="Head/Camera3D/ViewPistol"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -0.25)
+light_color = Color(1, 0.85, 0.4, 1)
+light_energy = 0.0
+omni_range = 2.5
+
+[node name="SFX" type="AudioStreamPlayer" parent="."]
+volume_db = -4.0
+
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("2_hud")
 
@@ -64,11 +113,11 @@ color = Color(0.85, 0.05, 0.05, 0)
 [node name="Hint" type="Label" parent="HUD/Root"]
 offset_left = 16.0
 offset_top = 16.0
-offset_right = 720.0
+offset_right = 820.0
 offset_bottom = 48.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 16
-text = "WASD · Mouse · LMB melee · RMB fire · E grab/throw · Esc"
+text = "1 fists · 2 pistol · LMB use · RMB ADS · E throw · Esc"
 
 [node name="Weapon" type="Label" parent="HUD/Root"]
 offset_left = 16.0
@@ -77,7 +126,7 @@ offset_right = 400.0
 offset_bottom = 80.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 18
-text = "WEAPON: FISTS / MELEE"
+text = "WEAPON: FISTS"
 
 [node name="HP" type="Label" parent="HUD/Root"]
 offset_left = 16.0

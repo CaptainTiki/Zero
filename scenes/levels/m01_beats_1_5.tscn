@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://superzero_m01_slice"]
+﻿[gd_scene load_steps=30 format=3 uid="uid://superzero_m01_slice"]
 
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/fodder.tscn" id="2_fodder"]
@@ -7,12 +7,23 @@
 [ext_resource type="PackedScene" path="res://scenes/props/throwable_crate.tscn" id="5_crate"]
 [ext_resource type="Script" path="res://scripts/levels/m01_slice.gd" id="6_level"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/hunter.tscn" id="7_hunter"]
+[ext_resource type="PackedScene" path="res://scenes/modules/building_row.tscn" id="8_brow"]
+[ext_resource type="PackedScene" path="res://scenes/modules/wreck_car.tscn" id="9_car"]
+[ext_resource type="PackedScene" path="res://scenes/modules/connector_service_road.tscn" id="10_svc"]
+[ext_resource type="PackedScene" path="res://scenes/modules/connector_alley.tscn" id="11_alley"]
+[ext_resource type="PackedScene" path="res://scenes/modules/checkpoint_dress.tscn" id="12_check"]
+[ext_resource type="PackedScene" path="res://scenes/modules/boulevard_dress.tscn" id="13_blvd"]
+[ext_resource type="Texture2D" path="res://textures/asphalt.png" id="tex_asphalt"]
+[ext_resource type="Texture2D" path="res://textures/concrete.png" id="tex_concrete"]
+[ext_resource type="Texture2D" path="res://textures/brick.png" id="tex_brick"]
+[ext_resource type="Texture2D" path="res://textures/metal.png" id="tex_metal"]
+[ext_resource type="Texture2D" path="res://textures/plaster.png" id="tex_plaster"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
-sky_top_color = Color(0.35, 0.45, 0.72, 1)
-sky_horizon_color = Color(0.95, 0.62, 0.48, 1)
-ground_bottom_color = Color(0.22, 0.2, 0.2, 1)
-ground_horizon_color = Color(0.55, 0.4, 0.35, 1)
+sky_top_color = Color(0.28, 0.42, 0.7, 1)
+sky_horizon_color = Color(0.78, 0.7, 0.62, 1)
+ground_bottom_color = Color(0.18, 0.17, 0.16, 1)
+ground_horizon_color = Color(0.4, 0.36, 0.32, 1)
 
 [sub_resource type="Sky" id="Sky"]
 sky_material = SubResource("SkyMat")
@@ -21,38 +32,53 @@ sky_material = SubResource("SkyMat")
 background_mode = 2
 sky = SubResource("Sky")
 ambient_light_source = 2
-ambient_light_color = Color(0.7, 0.68, 0.72, 1)
-ambient_light_sky_contribution = 0.7
+ambient_light_color = Color(0.45, 0.48, 0.55, 1)
+ambient_light_energy = 0.55
+ambient_light_sky_contribution = 0.35
 tonemap_mode = 2
-glow_enabled = true
-glow_intensity = 0.35
+tonemap_exposure = 0.85
+glow_enabled = false
 fog_enabled = true
-fog_light_color = Color(0.75, 0.6, 0.5, 1)
-fog_density = 0.0012
+fog_light_color = Color(0.65, 0.62, 0.58, 1)
+fog_density = 0.0007
+adjustment_enabled = true
+adjustment_contrast = 1.12
+adjustment_saturation = 1.05
 
 [sub_resource type="StandardMaterial3D" id="Mat_asphalt"]
-albedo_color = Color(0.28, 0.3, 0.34, 1)
+albedo_color = Color(0.85, 0.85, 0.88, 1)
+albedo_texture = ExtResource("tex_asphalt")
 roughness = 0.95
+uv1_scale = Vector3(8, 8, 8)
 
 [sub_resource type="StandardMaterial3D" id="Mat_concrete"]
-albedo_color = Color(0.62, 0.6, 0.58, 1)
+albedo_color = Color(0.95, 0.93, 0.9, 1)
+albedo_texture = ExtResource("tex_concrete")
 roughness = 0.88
+uv1_scale = Vector3(4, 4, 4)
 
 [sub_resource type="StandardMaterial3D" id="Mat_brick"]
-albedo_color = Color(0.72, 0.42, 0.34, 1)
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("tex_brick")
 roughness = 0.82
+uv1_scale = Vector3(3, 3, 3)
 
 [sub_resource type="StandardMaterial3D" id="Mat_brick2"]
-albedo_color = Color(0.55, 0.48, 0.62, 1)
+albedo_color = Color(0.85, 0.82, 0.95, 1)
+albedo_texture = ExtResource("tex_plaster")
 roughness = 0.85
+uv1_scale = Vector3(3, 3, 3)
 
 [sub_resource type="StandardMaterial3D" id="Mat_metal"]
-albedo_color = Color(0.45, 0.52, 0.58, 1)
+albedo_color = Color(0.9, 0.92, 0.95, 1)
+albedo_texture = ExtResource("tex_metal")
 metallic = 0.55
 roughness = 0.4
+uv1_scale = Vector3(2, 2, 2)
 
 [sub_resource type="StandardMaterial3D" id="Mat_warn"]
 albedo_color = Color(0.95, 0.78, 0.25, 1)
+roughness = 0.7
 
 [sub_resource type="StandardMaterial3D" id="Mat_glass"]
 albedo_color = Color(0.45, 0.75, 0.85, 0.55)
@@ -66,9 +92,11 @@ albedo_color = Color(0.35, 0.7, 0.55, 1)
 albedo_color = Color(0.92, 0.9, 0.75, 1)
 
 [sub_resource type="StandardMaterial3D" id="Mat_helo"]
-albedo_color = Color(0.35, 0.55, 0.4, 1)
+albedo_color = Color(0.55, 0.7, 0.5, 1)
+albedo_texture = ExtResource("tex_metal")
 metallic = 0.3
 roughness = 0.5
+uv1_scale = Vector3(2, 2, 2)
 
 [node name="M01_Beats_1_5" type="Node3D"]
 script = ExtResource("6_level")
@@ -78,21 +106,21 @@ environment = SubResource("Env")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.8, -0.5, 0.33, 0, 0.55, 0.83, -0.6, -0.66, 0.44, 0, 20, 0)
-light_color = Color(1, 0.88, 0.75, 1)
-light_energy = 1.25
+light_color = Color(1, 0.95, 0.88, 1)
+light_energy = 1.05
 shadow_enabled = true
 
 [node name="Fill" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 7, 0)
-light_color = Color(0.55, 0.65, 0.95, 1)
-light_energy = 1.8
-omni_range = 45.0
+light_color = Color(0.55, 0.62, 0.8, 1)
+light_energy = 0.7
+omni_range = 35.0
 
 [node name="NeonHint" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 4, -8)
-light_color = Color(0.4, 0.9, 0.85, 1)
-light_energy = 2.2
-omni_range = 12.0
+light_color = Color(0.4, 0.85, 0.8, 1)
+light_energy = 1.0
+omni_range = 10.0
 
 [node name="SpineFloor" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, -0.25, 0)
@@ -520,3 +548,30 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0.3, 2)
 
 [node name="FodderEnd2" parent="." instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112, 0.3, -2)
+
+
+[node name="ServiceRoadDress" parent="." instance=ExtResource("10_svc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 0)
+[node name="AlleyDress" parent="." instance=ExtResource("11_alley")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -10)
+
+[node name="CheckpointDress" parent="." instance=ExtResource("12_check")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 0, 0)
+[node name="BoulevardDress" parent="." instance=ExtResource("13_blvd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86, 0, 0)
+
+[node name="BuildRow_L" parent="." instance=ExtResource("8_brow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, -14)
+
+[node name="BuildRow_R" parent="." instance=ExtResource("8_brow")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 0, 14)
+
+[node name="BuildRow_Blvd" parent="." instance=ExtResource("8_brow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0, -16)
+
+[node name="WreckCar1" parent="." instance=ExtResource("9_car")]
+transform = Transform3D(0.3, 0, 0.95, 0, 1, 0, -0.95, 0, 0.3, 66, 0, 3)
+
+[node name="WreckCar2" parent="." instance=ExtResource("9_car")]
+transform = Transform3D(0.9, 0, -0.4, 0, 1, 0, 0.4, 0, 0.9, -3, 0, 6)
+
