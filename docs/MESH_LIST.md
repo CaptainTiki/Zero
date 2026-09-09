@@ -49,16 +49,20 @@ Mission 01 overnight visual sprint · PS1/low-poly · Y-up · meters
 | `dumpster.obj` | 364 | dumpster | Cover + heavy throw |
 | `car_body.obj` | 364 | sedan hull | Beat 4 throw / cover |
 | `concrete_barrier.obj` | 862 | **~2.0 × 0.5 × 0.8** jersey | Street block, medium lift |
-| `wreck_helo_chunk.obj` | 4422 | ~4.5+ m chunky landmark | **Beats 1–2 crash landmark** (non-liftable core) |
+| `wreck_helo_chunk.obj` | 14932 | ~7.3 L × 2.6 W × 3.2 H fuselage/cabin/mast/skids/tires | **Beats 1–2 crash landmark** (non-liftable core) |
 
 ### Enemy silhouette OBJs (replace/augment CSG in scenes)
 | File | Bytes | Height / read | Weak points | Beat |
 |------|------:|---------------|-------------|------|
-| `alien_squishy.obj` | 3628 | **~1.3 m** soft bulbous fodder | None — full body damage | Beats 1–5 fodder |
-| `elite_rammer.obj` | 4410 | **~2.1 m** low/wide, shoulder plates, snout | **L/R shoulder plates** + **proud chest core** | Beat 3 teach |
-| `elite_hunter.obj` | 6516 | **~2.6 m** tall lanky, head crest, blade arms | **Head crest** + **exposed back joint** | Beat 5 pursue |
+| `alien_squishy.obj` | 5952 | **~1.48 m** soft bulbous fodder (big head + stubby limbs) | None — full body damage | Beats 1–5 fodder |
+| `elite_rammer.obj` | 8620 | **~2.10 m** low/wide, fat shoulders, snout | **L/R shoulder plates** + **proud chest core** | Beat 3 teach |
+| `elite_hunter.obj` | 8620 | **~2.76 m** tall lanky, crest + long limbs | **Head crest** + **exposed back joint** | Beat 5 pursue |
 
 ---
+
+
+### Geometry-first shape pass (Kit · mesh-only)
+Replaced `alien_squishy`, `elite_rammer`, `elite_hunter`, `wreck_helo_chunk` with **chunkier PS1 mass blocks** readable at ~10 m (big cubes/extrusions, not thin planes). Weak-point islands kept as **protruding geometry** (hazard UV). Atlas / wall OBJs untouched this pass. CCW winding, cull ON.
 
 ## Scene modules (`res://scenes/modules/`)
 | Scene | Role |

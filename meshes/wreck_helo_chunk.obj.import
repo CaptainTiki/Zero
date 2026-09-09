@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://miy3844oda3r"
+path="res://.godot/imported/wreck_helo_chunk.obj-2cfc8f2f48b48ba8851ed2036a44a55f.mesh"
+
+[deps]
+
+files=["res://.godot/imported/wreck_helo_chunk.obj-2cfc8f2f48b48ba8851ed2036a44a55f.mesh"]
+
+source_file="res://meshes/wreck_helo_chunk.obj"
+dest_files=["res://.godot/imported/wreck_helo_chunk.obj-2cfc8f2f48b48ba8851ed2036a44a55f.mesh", "res://.godot/imported/wreck_helo_chunk.obj-2cfc8f2f48b48ba8851ed2036a44a55f.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
