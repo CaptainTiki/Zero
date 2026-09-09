@@ -7,6 +7,7 @@ class_name PlayerController
 @export var mouse_sensitivity := 0.0025
 @export var melee_damage := 25.0
 @export var melee_cooldown := 0.45
+@export var max_hp := 100.0
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _yaw := 0.0
@@ -14,6 +15,8 @@ var _pitch := 0.0
 var _melee_timer := 0.0
 var _has_gun := false
 var _held_prop: Node3D
+var _hp := 100.0
+var _hurt_cd := 0.0
 
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var head: Node3D = $Head
@@ -22,9 +25,11 @@ var _held_prop: Node3D
 @onready var hud: CanvasLayer = $HUD
 
 func _ready() -> void:
+	_hp = max_hp
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	melee_ray.enabled = true
 	gun_ray.enabled = true
+	_update_hud()
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -46,6 +51,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	_melee_timer = maxf(0.0, _melee_timer - delta)
+	_hurt_cd = maxf(0.0, _hurt_cd - delta)
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
 
@@ -71,8 +77,30 @@ func _physics_process(delta: float) -> void:
 
 func grant_gun() -> void:
 	_has_gun = true
-	if hud and hud.has_method("set_has_gun"):
-		hud.set_has_gun(true)
+	_update_hud()
+
+func take_damage(amount: float) -> void:
+	if _hurt_cd > 0.0:
+		return
+	_hurt_cd = 0.35
+	_hp = maxf(0.0, _hp - amount)
+	_update_hud()
+	if hud and hud.has_method("flash_hurt"):
+		hud.flash_hurt()
+	var start := camera.position
+	var tw := create_tween()
+	tw.tween_property(camera, "position", start + Vector3(0.05, -0.04, 0.05), 0.04)
+	tw.tween_property(camera, "position", start, 0.1)
+	if _hp <= 0.0:
+		_hp = max_hp
+		global_position = Vector3(0, 0.5, 4)
+		_update_hud()
+
+func _update_hud() -> void:
+	if hud and hud.has_method("set_status"):
+		hud.set_status(_has_gun, _hp, max_hp)
+	elif hud and hud.has_method("set_has_gun"):
+		hud.set_has_gun(_has_gun)
 
 func _try_melee() -> void:
 	if _melee_timer > 0.0:

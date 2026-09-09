@@ -52,14 +52,23 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="HurtFlash" type="ColorRect" parent="HUD/Root"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.85, 0.05, 0.05, 0)
+
 [node name="Hint" type="Label" parent="HUD/Root"]
 offset_left = 16.0
 offset_top = 16.0
-offset_right = 640.0
+offset_right = 720.0
 offset_bottom = 48.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 16
-text = "WASD · Mouse · LMB melee · RMB fire · E throw · Esc"
+text = "WASD · Mouse · LMB melee · RMB fire · E grab/throw · Esc"
 
 [node name="Weapon" type="Label" parent="HUD/Root"]
 offset_left = 16.0
@@ -69,6 +78,15 @@ offset_bottom = 80.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 18
 text = "WEAPON: FISTS / MELEE"
+
+[node name="HP" type="Label" parent="HUD/Root"]
+offset_left = 16.0
+offset_top = 80.0
+offset_right = 300.0
+offset_bottom = 112.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+text = "HP: 100 / 100"
 
 [node name="Crosshair" type="Label" parent="HUD/Root"]
 anchors_preset = 8
