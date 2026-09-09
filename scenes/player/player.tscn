@@ -1,0 +1,88 @@
+[gd_scene load_steps=6 format=3 uid="uid://superzero_player"]
+
+[ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/player/player_hud.gd" id="2_hud"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_player"]
+albedo_color = Color(0.2, 0.55, 0.95, 1)
+
+[node name="Player" type="CharacterBody3D" groups=["player"]]
+collision_layer = 2
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = SubResource("Mat_player")
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+current = true
+fov = 80.0
+
+[node name="MeleeRay" type="RayCast3D" parent="Head/Camera3D"]
+target_position = Vector3(0, 0, -2.2)
+
+[node name="GunRay" type="RayCast3D" parent="Head/Camera3D"]
+target_position = Vector3(0, 0, -40)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("2_hud")
+
+[node name="Root" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Hint" type="Label" parent="HUD/Root"]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 640.0
+offset_bottom = 48.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "WASD · Mouse · LMB melee · RMB fire · E throw · Esc"
+
+[node name="Weapon" type="Label" parent="HUD/Root"]
+offset_left = 16.0
+offset_top = 48.0
+offset_right = 400.0
+offset_bottom = 80.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+text = "WEAPON: FISTS / MELEE"
+
+[node name="Crosshair" type="Label" parent="HUD/Root"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -12.0
+offset_right = 8.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 22
+text = "+"
+horizontal_alignment = 1

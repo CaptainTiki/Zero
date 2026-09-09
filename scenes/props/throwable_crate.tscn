@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://superzero_crate"]
+
+[ext_resource type="Script" path="res://scripts/props/throwable_prop.gd" id="1"]
+
+[sub_resource type="BoxShape3D" id="shape"]
+size = Vector3(1.2, 1.2, 1.2)
+
+[sub_resource type="BoxMesh" id="mesh"]
+size = Vector3(1.2, 1.2, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="mat"]
+albedo_color = Color(0.55, 0.4, 0.2, 1)
+
+[node name="ThrowableCrate" type="RigidBody3D"]
+mass = 40.0
+contact_monitor = true
+max_contacts_reported = 4
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("shape")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("mesh")
+surface_material_override/0 = SubResource("mat")
