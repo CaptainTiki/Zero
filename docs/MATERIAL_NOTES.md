@@ -4,7 +4,7 @@ Shared atlas UV assignment for Mission 01 city / prop / enemy placeholders.
 ## Atlas file
 - Path: `res://textures/city_atlas.png`
 - Size: **512 × 512** RGB PNG
-- Style: PS1/low-poly flat-ish strips (concrete, asphalt, metal, glass, trim)
+- Style: PS1/low-poly flat-ish strips (concrete, asphalt, metal, glass, trim); **soft / large-texel PS1 pass** (brick~concrete pattern ~2–4× bigger, slight blur, less micro-repeat)
 
 ## UV space (0–1), pixel regions
 

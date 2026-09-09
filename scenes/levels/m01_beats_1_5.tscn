@@ -1,11 +1,11 @@
-[gd_scene load_steps=31 format=3 uid="uid://superzero_m01_slice"]
+[gd_scene format=3 uid="uid://brtb7skvxui82"]
 
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/fodder.tscn" id="2_fodder"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/rammer.tscn" id="3_rammer"]
 [ext_resource type="PackedScene" path="res://scenes/props/gun_pickup.tscn" id="4_gun"]
 [ext_resource type="PackedScene" path="res://scenes/props/throwable_crate.tscn" id="5_crate"]
-[ext_resource type="Script" path="res://scripts/levels/m01_slice.gd" id="6_level"]
+[ext_resource type="Script" uid="uid://dod02nf7j20k6" path="res://scripts/levels/m01_slice.gd" id="6_level"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/hunter.tscn" id="7_hunter"]
 [ext_resource type="PackedScene" path="res://scenes/modules/building_row.tscn" id="8_brow"]
 [ext_resource type="PackedScene" path="res://scenes/modules/wreck_car.tscn" id="9_car"]
@@ -14,11 +14,11 @@
 [ext_resource type="PackedScene" path="res://scenes/modules/checkpoint_dress.tscn" id="12_check"]
 [ext_resource type="PackedScene" path="res://scenes/modules/boulevard_dress.tscn" id="13_blvd"]
 [ext_resource type="PackedScene" path="res://scenes/modules/crash_dress.tscn" id="14_crash"]
-[ext_resource type="Texture2D" path="res://textures/asphalt.png" id="tex_asphalt"]
-[ext_resource type="Texture2D" path="res://textures/concrete.png" id="tex_concrete"]
-[ext_resource type="Texture2D" path="res://textures/brick.png" id="tex_brick"]
-[ext_resource type="Texture2D" path="res://textures/metal.png" id="tex_metal"]
-[ext_resource type="Texture2D" path="res://textures/plaster.png" id="tex_plaster"]
+[ext_resource type="Texture2D" uid="uid://bgj3ckjogk2k6" path="res://textures/asphalt.png" id="tex_asphalt"]
+[ext_resource type="Texture2D" uid="uid://dslupe342kjih" path="res://textures/brick.png" id="tex_brick"]
+[ext_resource type="Texture2D" uid="uid://bitgesc4ejyek" path="res://textures/concrete.png" id="tex_concrete"]
+[ext_resource type="Texture2D" uid="uid://vvhhxuaafwy6" path="res://textures/metal.png" id="tex_metal"]
+[ext_resource type="Texture2D" uid="uid://dh6ipxnpf7go1" path="res://textures/plaster.png" id="tex_plaster"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
 sky_top_color = Color(0.28, 0.42, 0.7, 1)
@@ -34,11 +34,10 @@ background_mode = 2
 sky = SubResource("Sky")
 ambient_light_source = 2
 ambient_light_color = Color(0.45, 0.48, 0.55, 1)
-ambient_light_energy = 0.55
 ambient_light_sky_contribution = 0.35
+ambient_light_energy = 0.55
 tonemap_mode = 2
 tonemap_exposure = 0.85
-glow_enabled = false
 fog_enabled = true
 fog_light_color = Color(0.65, 0.62, 0.58, 1)
 fog_density = 0.0007
@@ -52,14 +51,42 @@ albedo_texture = ExtResource("tex_asphalt")
 roughness = 0.95
 uv1_scale = Vector3(8, 8, 8)
 
+[sub_resource type="StandardMaterial3D" id="Mat_lane"]
+albedo_color = Color(0.92, 0.9, 0.75, 1)
+
 [sub_resource type="StandardMaterial3D" id="Mat_concrete"]
 albedo_color = Color(0.95, 0.93, 0.9, 1)
 albedo_texture = ExtResource("tex_concrete")
 roughness = 0.88
 uv1_scale = Vector3(4, 4, 4)
 
+[sub_resource type="StandardMaterial3D" id="Mat_warn"]
+albedo_color = Color(0.95, 0.78, 0.25, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_metal"]
+albedo_color = Color(0.9, 0.92, 0.95, 1)
+albedo_texture = ExtResource("tex_metal")
+metallic = 0.55
+roughness = 0.4
+uv1_scale = Vector3(2, 2, 2)
+
+[sub_resource type="StandardMaterial3D" id="Mat_trim"]
+albedo_color = Color(0.35, 0.7, 0.55, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_helo"]
+albedo_color = Color(0.55, 0.7, 0.5, 1)
+albedo_texture = ExtResource("tex_metal")
+metallic = 0.3
+roughness = 0.5
+uv1_scale = Vector3(2, 2, 2)
+
+[sub_resource type="StandardMaterial3D" id="Mat_glass"]
+transparency = 1
+albedo_color = Color(0.45, 0.75, 0.85, 0.55)
+roughness = 0.15
+
 [sub_resource type="StandardMaterial3D" id="Mat_brick"]
-albedo_color = Color(1, 1, 1, 1)
 albedo_texture = ExtResource("tex_brick")
 roughness = 0.82
 uv1_scale = Vector3(3, 3, 3)
@@ -70,519 +97,478 @@ albedo_texture = ExtResource("tex_plaster")
 roughness = 0.85
 uv1_scale = Vector3(3, 3, 3)
 
-[sub_resource type="StandardMaterial3D" id="Mat_metal"]
-albedo_color = Color(0.9, 0.92, 0.95, 1)
-albedo_texture = ExtResource("tex_metal")
-metallic = 0.55
-roughness = 0.4
-uv1_scale = Vector3(2, 2, 2)
-
-[sub_resource type="StandardMaterial3D" id="Mat_warn"]
-albedo_color = Color(0.95, 0.78, 0.25, 1)
-roughness = 0.7
-
-[sub_resource type="StandardMaterial3D" id="Mat_glass"]
-albedo_color = Color(0.45, 0.75, 0.85, 0.55)
-transparency = 1
-roughness = 0.15
-
-[sub_resource type="StandardMaterial3D" id="Mat_trim"]
-albedo_color = Color(0.35, 0.7, 0.55, 1)
-
-[sub_resource type="StandardMaterial3D" id="Mat_lane"]
-albedo_color = Color(0.92, 0.9, 0.75, 1)
-
-[sub_resource type="StandardMaterial3D" id="Mat_helo"]
-albedo_color = Color(0.55, 0.7, 0.5, 1)
-albedo_texture = ExtResource("tex_metal")
-metallic = 0.3
-roughness = 0.5
-uv1_scale = Vector3(2, 2, 2)
-
-[node name="M01_Beats_1_5" type="Node3D"]
+[node name="M01_Beats_1_5" type="Node3D" unique_id=354062153]
 script = ExtResource("6_level")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=149585045]
 environment = SubResource("Env")
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=2016631680]
 transform = Transform3D(0.8, -0.5, 0.33, 0, 0.55, 0.83, -0.6, -0.66, 0.44, 0, 20, 0)
 light_color = Color(1, 0.95, 0.88, 1)
 light_energy = 1.05
 shadow_enabled = true
 
-[node name="Fill" type="OmniLight3D" parent="."]
+[node name="Fill" type="OmniLight3D" parent="." unique_id=1112684068]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 7, 0)
 light_color = Color(0.55, 0.62, 0.8, 1)
 light_energy = 0.7
 omni_range = 35.0
 
-[node name="NeonHint" type="OmniLight3D" parent="."]
+[node name="NeonHint" type="OmniLight3D" parent="." unique_id=37598589]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 4, -8)
 light_color = Color(0.4, 0.85, 0.8, 1)
-light_energy = 1.0
 omni_range = 10.0
 
-[node name="SpineFloor" type="CSGBox3D" parent="."]
+[node name="SpineFloor" type="CSGBox3D" parent="." unique_id=948959776]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, -0.25, 0)
 use_collision = true
 size = Vector3(130, 0.5, 16)
 material = SubResource("Mat_asphalt")
 
-[node name="LaneLine1" type="CSGBox3D" parent="."]
+[node name="LaneLine1" type="CSGBox3D" parent="." unique_id=1835523626]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.02, 0)
 size = Vector3(70, 0.02, 0.25)
 material = SubResource("Mat_lane")
 
-[node name="LaneLine2" type="CSGBox3D" parent="."]
+[node name="LaneLine2" type="CSGBox3D" parent="." unique_id=1531364781]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95, 0.02, 0)
 size = Vector3(30, 0.02, 0.25)
 material = SubResource("Mat_lane")
 
-[node name="CrashPad" type="CSGBox3D" parent="."]
+[node name="CrashPad" type="CSGBox3D" parent="." unique_id=1206633058]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
 use_collision = true
 size = Vector3(22, 0.35, 22)
 material = SubResource("Mat_concrete")
 
-[node name="CrashPaint" type="CSGBox3D" parent="."]
+[node name="CrashPaint" type="CSGBox3D" parent="." unique_id=1154713270]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 size = Vector3(8, 0.02, 0.35)
 material = SubResource("Mat_warn")
 
-[node name="WreckA" type="CSGBox3D" parent="."]
-visible = false
+[node name="WreckA" type="CSGBox3D" parent="." unique_id=1052545441]
 transform = Transform3D(0.92, 0, 0.4, 0, 1, 0, -0.4, 0, 0.92, -4, 0.7, 5)
+visible = false
 use_collision = true
 size = Vector3(4.5, 1.4, 2)
 material = SubResource("Mat_metal")
 
-[node name="WreckA_Stripe" type="CSGBox3D" parent="."]
-visible = false
+[node name="WreckA_Stripe" type="CSGBox3D" parent="." unique_id=1120935971]
 transform = Transform3D(0.92, 0, 0.4, 0, 1, 0, -0.4, 0, 0.92, -4, 1.1, 5)
+visible = false
 size = Vector3(4.6, 0.15, 2.05)
 material = SubResource("Mat_trim")
 
-[node name="WreckB" type="CSGBox3D" parent="."]
-visible = false
+[node name="WreckB" type="CSGBox3D" parent="." unique_id=1746217616]
 transform = Transform3D(0.7, 0, -0.71, 0, 1, 0, 0.71, 0, 0.7, 5, 0.55, -6)
+visible = false
 use_collision = true
 size = Vector3(3.5, 1.1, 1.8)
 material = SubResource("Mat_metal")
 
-[node name="HeloNose" type="CSGBox3D" parent="."]
-visible = false
+[node name="HeloNose" type="CSGBox3D" parent="." unique_id=1614359674]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.2, 0)
+visible = false
 use_collision = true
 size = Vector3(3, 2.2, 5)
 material = SubResource("Mat_helo")
 
-[node name="HeloGlass" type="CSGBox3D" parent="."]
-visible = false
+[node name="HeloGlass" type="CSGBox3D" parent="." unique_id=1161039513]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.6, 1.5, 0)
+visible = false
 size = Vector3(0.2, 1.2, 3.2)
 material = SubResource("Mat_glass")
 
-[node name="Wall_Crash_N" type="CSGBox3D" parent="."]
+[node name="Wall_Crash_N" type="CSGBox3D" parent="." unique_id=319205100]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -11)
 use_collision = true
 size = Vector3(22, 6, 0.6)
 material = SubResource("Mat_brick")
 
-[node name="Win_Crash_N1" type="CSGBox3D" parent="."]
+[node name="Win_Crash_N1" type="CSGBox3D" parent="." unique_id=1018699838]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 3.2, -10.6)
 size = Vector3(2.2, 1.6, 0.2)
 material = SubResource("Mat_glass")
 
-[node name="Win_Crash_N2" type="CSGBox3D" parent="."]
+[node name="Win_Crash_N2" type="CSGBox3D" parent="." unique_id=196742887]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 3.2, -10.6)
 size = Vector3(2.2, 1.6, 0.2)
 material = SubResource("Mat_glass")
 
-[node name="Wall_Crash_S" type="CSGBox3D" parent="."]
+[node name="Wall_Crash_S" type="CSGBox3D" parent="." unique_id=1643497664]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 11)
 use_collision = true
 size = Vector3(22, 6, 0.6)
 material = SubResource("Mat_brick")
 
-[node name="Wall_Crash_W" type="CSGBox3D" parent="."]
+[node name="Wall_Crash_W" type="CSGBox3D" parent="." unique_id=375772843]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 3, 0)
 use_collision = true
 size = Vector3(0.6, 6, 22)
 material = SubResource("Mat_brick")
 
-[node name="Wall_Crash_E_L" type="CSGBox3D" parent="."]
+[node name="Wall_Crash_E_L" type="CSGBox3D" parent="." unique_id=1177612644]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 3, -7)
 use_collision = true
 size = Vector3(0.6, 6, 8)
 material = SubResource("Mat_brick")
 
-[node name="Wall_Crash_E_R" type="CSGBox3D" parent="."]
+[node name="Wall_Crash_E_R" type="CSGBox3D" parent="." unique_id=198127485]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 3, 7)
 use_collision = true
 size = Vector3(0.6, 6, 8)
 material = SubResource("Mat_brick")
 
-[node name="DoorTrim" type="CSGBox3D" parent="."]
-visible = false
+[node name="DoorTrim" type="CSGBox3D" parent="." unique_id=1945995798]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.2, 2.2, 0)
+visible = false
 size = Vector3(0.25, 4.2, 6.2)
 material = SubResource("Mat_trim")
 
-[node name="Bldg_L1" type="CSGBox3D" parent="."]
+[node name="Bldg_L1" type="CSGBox3D" parent="." unique_id=1492900213]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 5, -12)
 use_collision = true
 size = Vector3(14, 10, 6)
 material = SubResource("Mat_brick")
 
-[node name="Win_L1a" type="CSGBox3D" parent="."]
+[node name="Win_L1a" type="CSGBox3D" parent="." unique_id=447874074]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 4, -8.9)
 size = Vector3(1.8, 1.5, 0.15)
 material = SubResource("Mat_glass")
 
-[node name="Win_L1b" type="CSGBox3D" parent="."]
+[node name="Win_L1b" type="CSGBox3D" parent="." unique_id=1193276567]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 4, -8.9)
 size = Vector3(1.8, 1.5, 0.15)
 material = SubResource("Mat_glass")
 
-[node name="Win_L1c" type="CSGBox3D" parent="."]
+[node name="Win_L1c" type="CSGBox3D" parent="." unique_id=54393381]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23, 6.5, -8.9)
 size = Vector3(1.8, 1.5, 0.15)
 material = SubResource("Mat_glass")
 
-[node name="Bldg_R1" type="CSGBox3D" parent="."]
+[node name="Bldg_R1" type="CSGBox3D" parent="." unique_id=1908026603]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 4, 12)
 use_collision = true
 size = Vector3(16, 8, 6)
 material = SubResource("Mat_brick2")
 
-[node name="Win_R1a" type="CSGBox3D" parent="."]
+[node name="Win_R1a" type="CSGBox3D" parent="." unique_id=531008030]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 3.5, 8.9)
 size = Vector3(1.8, 1.5, 0.15)
 material = SubResource("Mat_glass")
 
-[node name="Win_R1b" type="CSGBox3D" parent="."]
+[node name="Win_R1b" type="CSGBox3D" parent="." unique_id=100145775]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 3.5, 8.9)
 size = Vector3(1.8, 1.5, 0.15)
 material = SubResource("Mat_glass")
 
-[node name="Awning_R1" type="CSGBox3D" parent="."]
+[node name="Awning_R1" type="CSGBox3D" parent="." unique_id=1313301437]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2.2, 8.5)
 size = Vector3(8, 0.15, 1.5)
 material = SubResource("Mat_warn")
 
-[node name="Hall_N" type="CSGBox3D" parent="."]
+[node name="Hall_N" type="CSGBox3D" parent="." unique_id=1159736620]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2.5, -6)
 use_collision = true
 size = Vector3(26, 5, 0.5)
 material = SubResource("Mat_concrete")
 
-[node name="Hall_S" type="CSGBox3D" parent="."]
+[node name="Hall_S" type="CSGBox3D" parent="." unique_id=1288851455]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2.5, 6)
 use_collision = true
 size = Vector3(26, 5, 0.5)
 material = SubResource("Mat_concrete")
 
-[node name="HallStripe" type="CSGBox3D" parent="."]
+[node name="HallStripe" type="CSGBox3D" parent="." unique_id=1745491490]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 1.2, -5.7)
 size = Vector3(26, 0.3, 0.12)
 material = SubResource("Mat_trim")
 
-[node name="AlleyFloor" type="CSGBox3D" parent="."]
+[node name="AlleyFloor" type="CSGBox3D" parent="." unique_id=1723592057]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.1, -10)
 use_collision = true
 size = Vector3(8, 0.3, 10)
 material = SubResource("Mat_asphalt")
 
-[node name="Dumpster" type="CSGBox3D" parent="."]
+[node name="Dumpster" type="CSGBox3D" parent="." unique_id=1538618803]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0.9, -11)
 use_collision = true
 size = Vector3(2.4, 1.6, 1.4)
 material = SubResource("Mat_trim")
 
-[node name="CheckFloor" type="CSGBox3D" parent="."]
+[node name="CheckFloor" type="CSGBox3D" parent="." unique_id=79360919]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, -0.1, 0)
 use_collision = true
 size = Vector3(24, 0.35, 22)
 material = SubResource("Mat_concrete")
 
-[node name="Check_N" type="CSGBox3D" parent="."]
+[node name="Check_N" type="CSGBox3D" parent="." unique_id=886231698]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 3, -11)
 use_collision = true
 size = Vector3(24, 6, 0.6)
 material = SubResource("Mat_metal")
 
-[node name="Check_S" type="CSGBox3D" parent="."]
+[node name="Check_S" type="CSGBox3D" parent="." unique_id=1768789486]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 3, 11)
 use_collision = true
 size = Vector3(24, 6, 0.6)
 material = SubResource("Mat_metal")
 
-[node name="CheckBanner" type="CSGBox3D" parent="."]
+[node name="CheckBanner" type="CSGBox3D" parent="." unique_id=356514808]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 5.2, -10.6)
 size = Vector3(10, 0.8, 0.15)
 material = SubResource("Mat_warn")
 
-[node name="Barricade" type="CSGBox3D" parent="."]
+[node name="Barricade" type="CSGBox3D" parent="." unique_id=45713776]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0.6, 4)
 use_collision = true
 size = Vector3(4, 1.2, 0.4)
 material = SubResource("Mat_warn")
 
-[node name="Sandbags" type="CSGBox3D" parent="."]
+[node name="Sandbags" type="CSGBox3D" parent="." unique_id=1967791357]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 0.5, -5)
 use_collision = true
 size = Vector3(3, 1, 1.2)
 material = SubResource("Mat_concrete")
 
-[node name="Check_E_L" type="CSGBox3D" parent="."]
+[node name="Check_E_L" type="CSGBox3D" parent="." unique_id=743530062]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 3, -6)
 use_collision = true
 size = Vector3(0.6, 6, 8)
 material = SubResource("Mat_metal")
 
-[node name="Check_E_R" type="CSGBox3D" parent="."]
+[node name="Check_E_R" type="CSGBox3D" parent="." unique_id=830556379]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 3, 6)
 use_collision = true
 size = Vector3(0.6, 6, 8)
 material = SubResource("Mat_metal")
 
-[node name="StreetCar" type="CSGBox3D" parent="."]
+[node name="StreetCar" type="CSGBox3D" parent="." unique_id=1381708514]
 transform = Transform3D(0.2, 0, 0.98, 0, 1, 0, -0.98, 0, 0.2, 68, 0.7, 2)
 use_collision = true
 size = Vector3(4.5, 1.4, 2)
 material = SubResource("Mat_metal")
 
-[node name="StreetCarRoof" type="CSGBox3D" parent="."]
+[node name="StreetCarRoof" type="CSGBox3D" parent="." unique_id=1293819615]
 transform = Transform3D(0.2, 0, 0.98, 0, 1, 0, -0.98, 0, 0.2, 68, 1.35, 2)
 size = Vector3(3.2, 0.35, 1.7)
 material = SubResource("Mat_glass")
 
-[node name="Bldg_L2" type="CSGBox3D" parent="."]
+[node name="Bldg_L2" type="CSGBox3D" parent="." unique_id=335230640]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 6, -14)
 use_collision = true
 size = Vector3(20, 12, 8)
 material = SubResource("Mat_brick")
 
-[node name="Win_L2a" type="CSGBox3D" parent="."]
+[node name="Win_L2a" type="CSGBox3D" parent="." unique_id=822081563]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 4, -9.9)
 size = Vector3(2, 1.6, 0.15)
 material = SubResource("Mat_glass")
 
-[node name="Win_L2b" type="CSGBox3D" parent="."]
+[node name="Win_L2b" type="CSGBox3D" parent="." unique_id=2099589320]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 7, -9.9)
 size = Vector3(2, 1.6, 0.15)
 material = SubResource("Mat_glass")
 
-[node name="Win_L2c" type="CSGBox3D" parent="."]
+[node name="Win_L2c" type="CSGBox3D" parent="." unique_id=1315120765]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74, 4, -9.9)
 size = Vector3(2, 1.6, 0.15)
 material = SubResource("Mat_glass")
 
-[node name="Bldg_R2" type="CSGBox3D" parent="."]
+[node name="Bldg_R2" type="CSGBox3D" parent="." unique_id=2141169757]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 5, 14)
 use_collision = true
 size = Vector3(18, 10, 8)
 material = SubResource("Mat_brick2")
 
-[node name="Sign_R2" type="CSGBox3D" parent="."]
+[node name="Sign_R2" type="CSGBox3D" parent="." unique_id=1375367997]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 4.5, 9.9)
 size = Vector3(5, 1.2, 0.2)
 material = SubResource("Mat_trim")
 
-[node name="PlazaFloor" type="CSGBox3D" parent="."]
+[node name="PlazaFloor" type="CSGBox3D" parent="." unique_id=46625112]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, -0.1, 0)
 use_collision = true
 size = Vector3(28, 0.35, 20)
 material = SubResource("Mat_asphalt")
 
-[node name="PlazaCross" type="CSGBox3D" parent="."]
+[node name="PlazaCross" type="CSGBox3D" parent="." unique_id=1705138413]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 0.03, 0)
 size = Vector3(6, 0.02, 6)
 material = SubResource("Mat_lane")
 
-[node name="Blvd_N" type="CSGBox3D" parent="."]
+[node name="Blvd_N" type="CSGBox3D" parent="." unique_id=1214628339]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 3, -10)
 use_collision = true
 size = Vector3(28, 6, 0.5)
 material = SubResource("Mat_concrete")
 
-[node name="Blvd_S" type="CSGBox3D" parent="."]
+[node name="Blvd_S" type="CSGBox3D" parent="." unique_id=73878964]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 3, 10)
 use_collision = true
 size = Vector3(28, 6, 0.5)
 material = SubResource("Mat_concrete")
 
-[node name="ElevatedLedge" type="CSGBox3D" parent="."]
+[node name="ElevatedLedge" type="CSGBox3D" parent="." unique_id=1443122792]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86, 2.4, -7)
 use_collision = true
 size = Vector3(18, 0.4, 3.5)
 material = SubResource("Mat_metal")
 
-[node name="RampToLedge" type="CSGBox3D" parent="."]
+[node name="RampToLedge" type="CSGBox3D" parent="." unique_id=614312661]
 transform = Transform3D(0.93, 0, 0.36, 0, 1, 0, -0.36, 0, 0.93, 76, 1.1, -7)
 use_collision = true
 size = Vector3(10, 0.4, 3.2)
 material = SubResource("Mat_warn")
 
-[node name="Rail" type="CSGBox3D" parent="."]
+[node name="Rail" type="CSGBox3D" parent="." unique_id=54863748]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86, 2.9, -5.4)
 size = Vector3(18, 0.15, 0.15)
 material = SubResource("Mat_trim")
 
-[node name="EndPad" type="CSGBox3D" parent="."]
+[node name="EndPad" type="CSGBox3D" parent="." unique_id=1031051188]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, -0.1, 0)
 use_collision = true
 size = Vector3(20, 0.35, 16)
 material = SubResource("Mat_concrete")
 
-[node name="EndArchL" type="CSGBox3D" parent="."]
+[node name="EndArchL" type="CSGBox3D" parent="." unique_id=2116860588]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 3, -5)
 use_collision = true
 size = Vector3(0.6, 6, 6)
 material = SubResource("Mat_brick")
 
-[node name="EndArchR" type="CSGBox3D" parent="."]
+[node name="EndArchR" type="CSGBox3D" parent="." unique_id=1762889010]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 3, 5)
 use_collision = true
 size = Vector3(0.6, 6, 6)
 material = SubResource("Mat_brick")
 
-[node name="EndArchTop" type="CSGBox3D" parent="."]
+[node name="EndArchTop" type="CSGBox3D" parent="." unique_id=1301584918]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 5.8, 0)
 use_collision = true
 size = Vector3(0.6, 1, 10)
 material = SubResource("Mat_warn")
 
-[node name="Lamp1" type="CSGCylinder3D" parent="."]
+[node name="Lamp1" type="CSGCylinder3D" parent="." unique_id=345431316]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 2, 4.5)
 use_collision = true
 radius = 0.12
 height = 4.0
 material = SubResource("Mat_metal")
 
-[node name="Lamp1Head" type="CSGBox3D" parent="."]
+[node name="Lamp1Head" type="CSGBox3D" parent="." unique_id=177410074]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 4.1, 4.5)
 size = Vector3(0.7, 0.25, 0.4)
 material = SubResource("Mat_warn")
 
-[node name="Lamp2" type="CSGCylinder3D" parent="."]
+[node name="Lamp2" type="CSGCylinder3D" parent="." unique_id=242518063]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 2, -5)
 use_collision = true
 radius = 0.12
 height = 4.0
 material = SubResource("Mat_metal")
 
-[node name="Lamp2Head" type="CSGBox3D" parent="."]
+[node name="Lamp2Head" type="CSGBox3D" parent="." unique_id=86056345]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 4.1, -5)
 size = Vector3(0.7, 0.25, 0.4)
 material = SubResource("Mat_warn")
 
-[node name="Lamp3" type="CSGCylinder3D" parent="."]
+[node name="Lamp3" type="CSGCylinder3D" parent="." unique_id=1801427785]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 2, 5)
 use_collision = true
 radius = 0.12
 height = 4.0
 material = SubResource("Mat_metal")
 
-[node name="Lamp3Head" type="CSGBox3D" parent="."]
+[node name="Lamp3Head" type="CSGBox3D" parent="." unique_id=1545256765]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 4.1, 5)
 size = Vector3(0.7, 0.25, 0.4)
 material = SubResource("Mat_trim")
 
-[node name="Player" parent="." instance=ExtResource("1_player")]
+[node name="Player" parent="." unique_id=1628324186 instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 4)
 
-[node name="FodderCrash1" parent="." instance=ExtResource("2_fodder")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.3, -3)
-
-[node name="FodderCrash2" parent="." instance=ExtResource("2_fodder")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.3, -4)
-
-[node name="FodderCrash3" parent="." instance=ExtResource("2_fodder")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, -6)
-
-[node name="FodderHall1" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderHall1" parent="." unique_id=211550116 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0.3, 1)
 
-[node name="FodderHall2" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderHall2" parent="." unique_id=571805031 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0.3, -2)
 
-[node name="FodderAlley" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderAlley" parent="." unique_id=227465534 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0.3, -9)
 
-[node name="GunPickup" parent="." instance=ExtResource("4_gun")]
+[node name="GunPickup" parent="." unique_id=1629178582 instance=ExtResource("4_gun")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 0.8, 2)
 
-[node name="FodderCheck1" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderCheck1" parent="." unique_id=1719435456 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0.3, -2)
 
-[node name="FodderCheck2" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderCheck2" parent="." unique_id=936464193 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0.3, 3)
 
-[node name="FodderCheck3" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderCheck3" parent="." unique_id=418729968 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0.3, -6)
 
-[node name="Rammer" parent="." instance=ExtResource("3_rammer")]
+[node name="Rammer" parent="." unique_id=1202351208 instance=ExtResource("3_rammer")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 0.3, -3)
 
-[node name="ThrowableCrate" parent="." instance=ExtResource("5_crate")]
+[node name="ThrowableCrate" parent="." unique_id=1865120056 instance=ExtResource("5_crate")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0.9, 0)
 
-[node name="ThrowableCrate2" parent="." instance=ExtResource("5_crate")]
+[node name="ThrowableCrate2" parent="." unique_id=1178817562 instance=ExtResource("5_crate")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.9, -3)
 
-[node name="FodderStreet1" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderStreet1" parent="." unique_id=1451204190 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.3, 3)
 
-[node name="FodderStreet2" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderStreet2" parent="." unique_id=1855040236 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74, 0.3, -2)
 
-[node name="FodderBlvd1" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderBlvd1" parent="." unique_id=1666965433 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84, 0.3, 2)
 
-[node name="FodderBlvd2" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderBlvd2" parent="." unique_id=1583124449 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 0.3, -2)
 
-[node name="FodderBlvdElevated" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderBlvdElevated" parent="." unique_id=1817601044 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86, 2.8, -7)
 
-[node name="Hunter" parent="." instance=ExtResource("7_hunter")]
+[node name="Hunter" parent="." unique_id=772664313 instance=ExtResource("7_hunter")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98, 0.3, 0)
 
-[node name="FodderEnd1" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderEnd1" parent="." unique_id=264615846 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0.3, 2)
 
-[node name="FodderEnd2" parent="." instance=ExtResource("2_fodder")]
+[node name="FodderEnd2" parent="." unique_id=772144552 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112, 0.3, -2)
 
-
-[node name="ServiceRoadDress" parent="." instance=ExtResource("10_svc")]
+[node name="ServiceRoadDress" parent="." unique_id=308127507 instance=ExtResource("10_svc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 0)
-[node name="AlleyDress" parent="." instance=ExtResource("11_alley")]
+
+[node name="AlleyDress" parent="." unique_id=1549262602 instance=ExtResource("11_alley")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -10)
 
-[node name="CheckpointDress" parent="." instance=ExtResource("12_check")]
+[node name="CheckpointDress" parent="." unique_id=686789289 instance=ExtResource("12_check")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 0, 0)
-[node name="BoulevardDress" parent="." instance=ExtResource("13_blvd")]
+
+[node name="BoulevardDress" parent="." unique_id=209312180 instance=ExtResource("13_blvd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86, 0, 0)
 
-[node name="BuildRow_L" parent="." instance=ExtResource("8_brow")]
+[node name="BuildRow_L" parent="." unique_id=1838588759 instance=ExtResource("8_brow")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, -14)
 
-[node name="BuildRow_R" parent="." instance=ExtResource("8_brow")]
+[node name="BuildRow_R" parent="." unique_id=722643984 instance=ExtResource("8_brow")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 0, 14)
 
-[node name="BuildRow_Blvd" parent="." instance=ExtResource("8_brow")]
+[node name="BuildRow_Blvd" parent="." unique_id=1546060862 instance=ExtResource("8_brow")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0, -16)
 
-[node name="WreckCar1" parent="." instance=ExtResource("9_car")]
+[node name="WreckCar1" parent="." unique_id=2017520431 instance=ExtResource("9_car")]
 transform = Transform3D(0.3, 0, 0.95, 0, 1, 0, -0.95, 0, 0.3, 66, 0, 3)
 
-[node name="WreckCar2" parent="." instance=ExtResource("9_car")]
+[node name="WreckCar2" parent="." unique_id=1873951668 instance=ExtResource("9_car")]
 transform = Transform3D(0.9, 0, -0.4, 0, 1, 0, 0.4, 0, 0.9, -3, 0, 6)
 
-[node name="CrashDress" parent="." instance=ExtResource("14_crash")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
-
-
+[node name="CrashDress" parent="." unique_id=327587367 instance=ExtResource("14_crash")]
