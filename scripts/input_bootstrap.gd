@@ -8,6 +8,7 @@ func _ready() -> void:
 	_bind_key("jump", KEY_SPACE)
 	_bind_key("sprint", KEY_SHIFT)
 	_bind_key("interact", KEY_E)
+	_bind_key("kick", KEY_F)
 	_bind_key("weapon_fists", KEY_1)
 	_bind_key("weapon_pistol", KEY_2)
 	_bind_mouse("primary", MOUSE_BUTTON_LEFT)

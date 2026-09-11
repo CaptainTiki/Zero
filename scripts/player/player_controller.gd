@@ -12,6 +12,15 @@ enum Weapon { FISTS, PISTOL }
 @export var pistol_damage := 22.0
 @export var pistol_cooldown := 0.18
 @export var max_hp := 100.0
+@export var kick_range := 2.2
+@export var kick_damage := 10.0
+@export var kick_force := 11.0
+@export var kick_cooldown := 0.55
+
+var _kick_timer := 0.0
+var _kick_elapsed := -1.0
+var _kick_connected := false
+var _boot: Node3D
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _yaw := 0.0
@@ -51,6 +60,7 @@ func _ready() -> void:
 	_sfx_hurt = _load_sfx("res://audio/sfx/alien/hit_01.wav")
 	_refresh_weapon_visuals()
 	_update_hud()
+	_build_boot()
 
 func _load_sfx(path: String) -> AudioStream:
 	if ResourceLoader.exists(path):
@@ -89,6 +99,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		_set_weapon(Weapon.PISTOL)
 
 func _physics_process(delta: float) -> void:
+	_kick_timer = maxf(0.0, _kick_timer - delta)
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_action_just_pressed("kick") and _kick_timer <= 0.0:
+		_kick_timer = kick_cooldown
+		_kick_elapsed = 0.0
+		_kick_connected = false
+		_play(_sfx_melee)
+	_update_kick(delta)
 	_melee_timer = maxf(0.0, _melee_timer - delta)
 	_fire_timer = maxf(0.0, _fire_timer - delta)
 	_hurt_cd = maxf(0.0, _hurt_cd - delta)
@@ -123,6 +140,60 @@ func _physics_process(delta: float) -> void:
 			_try_fire()
 
 	_update_viewmodel_pose(delta)
+
+func _build_boot() -> void:
+	_boot = Node3D.new()
+	_boot.name = "ViewBoot"
+	camera.add_child(_boot)
+	var leather := StandardMaterial3D.new()
+	leather.albedo_color = Color(0.19, 0.12, 0.07)
+	var sole := StandardMaterial3D.new()
+	sole.albedo_color = Color(0.045, 0.04, 0.035)
+	var trousers := StandardMaterial3D.new()
+	trousers.albedo_color = Color(0.25, 0.29, 0.16)
+	_boot_piece(Vector3(0.23, 0.23, 0.55), Vector3.ZERO, leather)
+	_boot_piece(Vector3(0.25, 0.065, 0.58), Vector3(0, -0.14, 0), sole)
+	_boot_piece(Vector3(0.18, 0.2, 0.65), Vector3(0, 0.1, 0.48), trousers)
+	_boot.visible = false
+
+func _boot_piece(size: Vector3, offset: Vector3, material: Material) -> void:
+	var part := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	part.mesh = mesh
+	part.material_override = material
+	part.position = offset
+	part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_boot.add_child(part)
+
+func _update_kick(delta: float) -> void:
+	if _kick_elapsed < 0.0:
+		return
+	_kick_elapsed += delta
+	_boot.visible = true
+	var extension: float
+	if _kick_elapsed < 0.12:
+		extension = ease(clampf(_kick_elapsed / 0.12, 0.0, 1.0), 0.5)
+	elif _kick_elapsed < 0.19:
+		extension = 1.0
+	else:
+		extension = 1.0 - smoothstep(0.19, 0.40, _kick_elapsed)
+	# The toe reaches the same distance as the contact ray at full extension.
+	_boot.position = Vector3(0.3, -0.85, -0.35).lerp(Vector3(0.0, -0.25, -kick_range + 0.275), extension)
+	_boot.rotation.x = lerpf(-0.45, 0.0, extension)
+	if _kick_elapsed >= 0.12 and not _kick_connected:
+		_kick_connected = true
+		var origin := camera.global_position - camera.global_basis.y * 0.25
+		var query := PhysicsRayQueryParameters3D.create(origin, origin - camera.global_basis.z * kick_range, 1, [get_rid()])
+		var hit := get_world_3d().direct_space_state.intersect_ray(query)
+		if not hit.is_empty():
+			_play(_sfx_impact)
+			var target: Object = hit.collider
+			if target.has_method("apply_kick"):
+				target.apply_kick(kick_damage, global_position, kick_force)
+	if _kick_elapsed >= 0.40:
+		_kick_elapsed = -1.0
+		_boot.visible = false
 
 func grant_gun() -> void:
 	_has_gun = true

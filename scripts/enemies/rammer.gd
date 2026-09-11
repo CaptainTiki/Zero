@@ -14,6 +14,8 @@ class_name AlienRammer
 
 enum State { IDLE, CHASE, WINDUP, CHARGE, RECOVER }
 var _state: State = State.IDLE
+var _kick_stagger := 0.0
+var _kick_velocity := Vector3.ZERO
 var _hp := 0.0
 var _timer := 0.0
 var _charge_dir := Vector3.ZERO
@@ -35,6 +37,14 @@ func _ready() -> void:
 		mesh.material_override = _mat
 
 func _physics_process(delta: float) -> void:
+	if _kick_stagger > 0.0:
+		_kick_stagger = maxf(0.0, _kick_stagger - delta)
+		velocity.x = _kick_velocity.x
+		velocity.z = _kick_velocity.z
+		velocity.y -= float(ProjectSettings.get_setting("physics/3d/default_gravity")) * delta
+		move_and_slide()
+		_kick_velocity = _kick_velocity.move_toward(Vector3.ZERO, 24.0 * delta)
+		return
 	if _flash_left > 0.0:
 		_flash_left = maxf(0.0, _flash_left - delta)
 	if _mat and _flash_left <= 0.0:
@@ -106,3 +116,13 @@ func apply_melee_hit(amount: float, _from: Vector3) -> void:
 	_hp -= amount * melee_mult
 	if _hp <= 0.0:
 		queue_free()
+
+func apply_kick(amount: float, from: Vector3, force: float) -> void:
+	var direction := global_position - from
+	direction.y = 0.0
+	_kick_velocity = direction.normalized() * force
+	_kick_stagger = 0.4
+	_kick_velocity *= 0.45
+	_state = State.RECOVER
+	_timer = recover_time
+	take_damage(amount)

@@ -8,6 +8,8 @@ class_name AlienFodder
 @export var attack_damage := 8.0
 @export var attack_cooldown := 1.0
 
+var _kick_stagger := 0.0
+var _kick_velocity := Vector3.ZERO
 var _hp := 0.0
 var _attack_timer := 0.0
 var _player: Node3D
@@ -25,6 +27,14 @@ func _ready() -> void:
 		mesh.material_override = _mat
 
 func _physics_process(delta: float) -> void:
+	if _kick_stagger > 0.0:
+		_kick_stagger = maxf(0.0, _kick_stagger - delta)
+		velocity.x = _kick_velocity.x
+		velocity.z = _kick_velocity.z
+		velocity.y -= float(ProjectSettings.get_setting("physics/3d/default_gravity")) * delta
+		move_and_slide()
+		_kick_velocity = _kick_velocity.move_toward(Vector3.ZERO, 24.0 * delta)
+		return
 	if _flash_left > 0.0:
 		_flash_left = maxf(0.0, _flash_left - delta)
 		if _mat and _flash_left <= 0.0:
@@ -76,4 +86,11 @@ func apply_melee_hit(amount: float, from: Vector3) -> void:
 	push.y = 0.0
 	if push.length() > 0.01:
 		velocity += push.normalized() * 6.0
+	take_damage(amount)
+
+func apply_kick(amount: float, from: Vector3, force: float) -> void:
+	var direction := global_position - from
+	direction.y = 0.0
+	_kick_velocity = direction.normalized() * force
+	_kick_stagger = 0.4
 	take_damage(amount)

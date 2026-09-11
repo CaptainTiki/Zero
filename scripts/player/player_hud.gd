@@ -9,7 +9,7 @@ func _ready() -> void:
 	if hurt:
 		hurt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		hurt.color = Color(0.8, 0.05, 0.05, 0.0)
-	hint.text = "1 fists · 2 pistol · LMB use · RMB ADS · E throw · Esc"
+	hint.text = "1 fists · 2 pistol · LMB use · RMB ADS · F kick · E throw · Esc"
 
 func set_status(weapon_name: String, hp: float, max_hp: float, has_gun: bool, ads: bool) -> void:
 	var extra := " (ADS)" if ads else ""

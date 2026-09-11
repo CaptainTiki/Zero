@@ -4,7 +4,8 @@ Godot **4.7** graybox. Main scene: `scenes/levels/m01_beats_1_5.tscn`
 
 ## Controls
 - WASD move, mouse look, Shift sprint, Space jump
-- LMB melee, RMB fire (after yellow gun pickup)
+- LMB use selected weapon, RMB aim pistol; 1 fists / 2 pistol
+- F kick (works with either weapon): short reach, light damage, enemy knockback
 - E pick up / throw crate
 - Esc free / capture mouse
 
