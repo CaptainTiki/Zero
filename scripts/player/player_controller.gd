@@ -11,6 +11,11 @@ enum Weapon { FISTS, PISTOL }
 @export var melee_cooldown := 0.45
 @export var pistol_damage := 22.0
 @export var pistol_cooldown := 0.18
+@export var pistol_spread_degrees := 0.35
+@export var pistol_max_bloom_degrees := 4.0
+@export var pistol_bloom_per_shot := 1.1
+@export var pistol_bloom_recovery := 1.8
+@export var pistol_camera_kick_scale := 1.7
 @export var max_hp := 100.0
 @export var kick_range := 2.2
 @export var kick_damage := 10.0
@@ -25,6 +30,8 @@ var _boot: Node3D
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _yaw := 0.0
 var _pitch := 0.0
+var _recoil := Vector2.ZERO
+var _shot_bloom := 0.0
 var _melee_timer := 0.0
 var _fire_timer := 0.0
 var _has_gun := false
@@ -76,13 +83,15 @@ func _play(stream: AudioStream) -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		var sens := mouse_sensitivity * (0.65 if _ads else 1.0)
-		_yaw -= event.relative.x * sens
-		_pitch -= event.relative.y * sens
-		_pitch = clamp(_pitch, deg_to_rad(-85.0), deg_to_rad(85.0))
-		rotation.y = _yaw
-		head.rotation.x = _pitch
+		_apply_mouse_look(event.relative)
 		get_viewport().set_input_as_handled()
+
+func _apply_mouse_look(relative: Vector2) -> void:
+	var sens := mouse_sensitivity * (0.65 if _ads else 1.0)
+	_yaw -= relative.x * sens
+	_pitch = clampf(_pitch - relative.y * sens, deg_to_rad(-85.0), deg_to_rad(85.0))
+	rotation.y = _yaw
+	_apply_aim()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
@@ -99,6 +108,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_set_weapon(Weapon.PISTOL)
 
 func _physics_process(delta: float) -> void:
+	_update_recoil(delta)
 	_kick_timer = maxf(0.0, _kick_timer - delta)
 	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_action_just_pressed("kick") and _kick_timer <= 0.0:
 		_kick_timer = kick_cooldown
@@ -218,9 +228,17 @@ func _update_viewmodel_pose(delta: float) -> void:
 	var bob := sin(t) * 0.004
 	if _weapon == Weapon.PISTOL and view_pistol:
 		var target := Vector3(0.18, -0.16, -0.35) if _ads else Vector3(0.28, -0.22, -0.45)
-		view_pistol.position = view_pistol.position.lerp(target + Vector3(0, bob, 0), clampf(delta * 12.0, 0.0, 1.0))
+		var recoil_amount := _recoil.length() / deg_to_rad(1.8)
+		view_pistol.position = view_pistol.position.lerp(target + Vector3(0, bob + recoil_amount * 0.05, recoil_amount * 0.15), clampf(delta * 32.0, 0.0, 1.0))
 	if _weapon == Weapon.FISTS and view_fists:
 		view_fists.position = Vector3(0.2, -0.25, -0.4) + Vector3(0, bob, 0)
+
+func restore_health(amount: float) -> bool:
+	if amount <= 0.0 or _hp >= max_hp:
+		return false
+	_hp = minf(max_hp, _hp + amount)
+	_update_hud()
+	return true
 
 func take_damage(amount: float) -> void:
 	if _hurt_cd > 0.0:
@@ -281,21 +299,32 @@ func _try_fire() -> void:
 	_play(_sfx_gun)
 	if muzzle:
 		muzzle.light_energy = 4.5
-	# recoil
-	_pitch -= deg_to_rad(1.8)
-	_pitch = clamp(_pitch, deg_to_rad(-85.0), deg_to_rad(85.0))
-	head.rotation.x = _pitch
-	if view_pistol:
-		var tw := create_tween()
-		var start := view_pistol.position
-		tw.tween_property(view_pistol, "position", start + Vector3(0, 0.02, 0.06), 0.03)
-		tw.tween_property(view_pistol, "position", start, 0.08)
-	gun_ray.force_raycast_update()
-	if not gun_ray.is_colliding():
-		return
-	var col := gun_ray.get_collider()
+	# Accuracy follows the player's aim, independently of temporary visual kick.
+	var spread := deg_to_rad(pistol_spread_degrees + _shot_bloom) * (0.5 if _ads else 1.0)
+	var radius := sqrt(randf()) * tan(spread)
+	var angle := randf() * TAU
+	var direction := Vector3(cos(angle) * radius, sin(angle) * radius, -1.0).normalized()
+	var aim_basis := global_transform.basis * Basis(Vector3.RIGHT, _pitch)
+	direction = aim_basis * direction
+	var query := PhysicsRayQueryParameters3D.create(camera.global_position, camera.global_position + direction * gun_ray.target_position.length(), gun_ray.collision_mask, [get_rid()])
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	_shot_bloom = minf(pistol_max_bloom_degrees, _shot_bloom + pistol_bloom_per_shot)
+	_recoil += Vector2(deg_to_rad(randf_range(-0.45, 0.45)), deg_to_rad(randf_range(0.9, 1.4))) * (0.65 if _ads else 1.0)
+	_recoil = _recoil.limit_length(deg_to_rad(1.8))
+	_apply_aim()
+	var col = hit.get("collider")
 	if col and col.has_method("take_damage"):
 		col.take_damage(pistol_damage)
+
+func _apply_aim() -> void:
+	# Camera punch is tuned separately from the approved weapon animation.
+	head.rotation.x = clampf(_pitch + _recoil.y * pistol_camera_kick_scale, deg_to_rad(-85.0), deg_to_rad(85.0))
+	head.rotation.y = _recoil.x * pistol_camera_kick_scale
+
+func _update_recoil(delta: float) -> void:
+	_recoil = _recoil.move_toward(Vector2.ZERO, deg_to_rad(8.0) * delta)
+	_shot_bloom = move_toward(_shot_bloom, 0.0, pistol_bloom_recovery * delta)
+	_apply_aim()
 
 func _try_interact() -> void:
 	if _held_prop and is_instance_valid(_held_prop) and _held_prop.has_method("throw_forward"):

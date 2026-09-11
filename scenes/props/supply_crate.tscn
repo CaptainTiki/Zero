@@ -1,0 +1,35 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/props/supply_crate.gd" id="1"]
+[sub_resource type="BoxShape3D" id="shape"]
+size = Vector3(1.2, 1.2, 1.2)
+[sub_resource type="StandardMaterial3D" id="wood"]
+albedo_color = Color(0.52, 0.28, 0.1, 1)
+[sub_resource type="StandardMaterial3D" id="trim"]
+albedo_color = Color(0.8, 0.58, 0.28, 1)
+[sub_resource type="BoxMesh" id="body"]
+size = Vector3(1.2, 1.2, 1.2)
+material = SubResource("wood")
+[sub_resource type="BoxMesh" id="band"]
+size = Vector3(1.24, 0.15, 1.24)
+material = SubResource("trim")
+[node name="SupplyCrate" type="StaticBody3D"]
+script = ExtResource("1")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.6, 0)
+shape = SubResource("shape")
+[node name="Body" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.6, 0)
+mesh = SubResource("body")
+[node name="UpperBand" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.05, 0)
+mesh = SubResource("band")
+[node name="LowerBand" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.15, 0)
+mesh = SubResource("band")
+[node name="Label" type="Label3D" parent="."]
+position = Vector3(-0.625, 0.65, 0)
+rotation = Vector3(0, -1.5708, 0)
+text = "+ MEDICAL +"
+font_size = 48
+pixel_size = 0.003

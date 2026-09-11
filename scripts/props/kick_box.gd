@@ -4,11 +4,14 @@ extends CharacterBody3D
 @export var slide_speed := 13.0
 @export var slide_deceleration := 7.0
 @export var impact_damage := 25.0
-@export var impact_push := 9.0
+@export var impact_push := 14.0
+@export_range(0.0, 1.0) var impact_speed_retention := 0.65
 @export var minimum_hit_speed := 3.0
 
 var _slide := Vector3.ZERO
 var _armed := false
+var _impact_body: Node
+var _impact_clearance_time := 0.0
 
 func apply_kick(_damage: float, from: Vector3, _force: float) -> void:
 	var direction := global_position - from
@@ -17,8 +20,11 @@ func apply_kick(_damage: float, from: Vector3, _force: float) -> void:
 		return
 	_slide = direction.normalized() * slide_speed
 	_armed = true
+	_impact_body = null
+	_impact_clearance_time = 0.0
 
 func _physics_process(delta: float) -> void:
+	_impact_clearance_time = maxf(0.0, _impact_clearance_time - delta)
 	var speed := _slide.length()
 	if speed < minimum_hit_speed:
 		_armed = false
@@ -32,13 +38,25 @@ func _physics_process(delta: float) -> void:
 	for index in get_slide_collision_count():
 		var collision := get_slide_collision(index)
 		var body := collision.get_collider()
-		if body is Node and body.is_in_group("enemies") and _armed:
+		if body is Node and body.has_method("apply_prop_impact") and _armed:
 			_armed = false
+			_impact_body = body
+			_impact_clearance_time = 0.4
+			body.apply_prop_impact()
+			_slide *= impact_speed_retention
+		elif body is Node and body.is_in_group("enemies") and _armed:
+			_armed = false
+			_impact_body = body
+			_impact_clearance_time = 0.4
 			if body.has_method("apply_kick"):
 				body.apply_kick(impact_damage, global_position, impact_push)
 			elif body.has_method("take_damage"):
 				body.take_damage(impact_damage)
-			_slide *= 0.2
+			_slide *= impact_speed_retention
+		elif is_instance_valid(_impact_body) and body == _impact_body and _impact_clearance_time > 0.0:
+			# Keep momentum while the staggered target makes room. Physical
+			# collision stays enabled, so a trapped enemy still blocks the box.
+			pass
 		elif absf(collision.get_normal().y) < 0.5:
 			# Walls and the player stop the box; resting floor contact does not.
 			_slide = Vector3.ZERO

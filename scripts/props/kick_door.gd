@@ -2,12 +2,19 @@ extends StaticBody3D
 ## A latched door that swings away from the kicker and stays open.
 
 signal kicked_open
+signal opening_finished
 
 var is_open := false
 var _hinge: Node3D
 var _panel_collision: CollisionShape3D
+var _impact_audio: AudioStreamPlayer3D
 
 func _ready() -> void:
+	_impact_audio = AudioStreamPlayer3D.new()
+	_impact_audio.stream = AudioStreamWAV.load_from_file("res://audio/sfx/props/door_kick.wav")
+	_impact_audio.volume_db = -5.0
+	_impact_audio.position.y = 1.3
+	add_child(_impact_audio)
 	var paint := StandardMaterial3D.new()
 	paint.albedo_color = Color(0.28, 0.37, 0.32)
 	paint.roughness = 0.75
@@ -63,9 +70,11 @@ func apply_kick(_damage: float, from: Vector3, _force: float) -> void:
 	if is_open:
 		return
 	is_open = true
+	kicked_open.emit()
+	_impact_audio.play()
 	_panel_collision.set_deferred("disabled", true)
 	var swing := 1.0 if to_local(from).z >= 0.0 else -1.0
 	var tween := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 	tween.tween_property(_hinge, "rotation:y", swing * deg_to_rad(105.0), 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_hinge, "rotation:y", swing * deg_to_rad(96.0), 0.12).set_trans(Tween.TRANS_SINE)
-	kicked_open.emit()
+	tween.tween_callback(func(): opening_finished.emit())

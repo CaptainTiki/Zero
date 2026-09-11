@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" path="res://scenes/modules/crash_dress.tscn" id="14_crash"]
 [ext_resource type="PackedScene" path="res://scenes/props/kick_door.tscn" id="15_door"]
 [ext_resource type="PackedScene" path="res://scenes/props/kick_box.tscn" id="16_box"]
+[ext_resource type="PackedScene" path="res://scenes/props/supply_crate.tscn" id="17_supply"]
 [ext_resource type="Texture2D" uid="uid://bgj3ckjogk2k6" path="res://textures/asphalt.png" id="tex_asphalt"]
 [ext_resource type="Texture2D" uid="uid://dslupe342kjih" path="res://textures/brick.png" id="tex_brick"]
 [ext_resource type="Texture2D" uid="uid://bitgesc4ejyek" path="res://textures/concrete.png" id="tex_concrete"]
@@ -502,7 +503,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0.3, -2)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0.3, -9)
 
 [node name="GunPickup" parent="." unique_id=1629178582 instance=ExtResource("4_gun")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 0.8, 2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.8, 1)
 
 [node name="FodderCheck1" parent="." unique_id=1719435456 instance=ExtResource("2_fodder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0.3, -2)
@@ -575,9 +576,11 @@ transform = Transform3D(0.9, 0, -0.4, 0, 1, 0, 0.4, 0, 0.9, -3, 0, 6)
 
 [node name="CrashDress" parent="." unique_id=327587367 instance=ExtResource("14_crash")]
 
-[node name="CrashExitDoor" parent="." instance=ExtResource("15_door")]
-position = Vector3(11, 0.025, 0)
-rotation = Vector3(0, -1.5707963, 0)
+[node name="CrashExitDoor" parent="." unique_id=362980788 instance=ExtResource("15_door")]
+transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, 11, 0.025, 0)
 
-[node name="ServiceRoadKickBox" parent="." instance=ExtResource("16_box")]
-position = Vector3(15, 0.1, 0)
+[node name="ServiceRoadKickBox" parent="." unique_id=946983278 instance=ExtResource("16_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.1, 0)
+
+[node name="ServiceRoadSupplyCrate" parent="." unique_id=889947322 instance=ExtResource("17_supply")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.1, 2.5)

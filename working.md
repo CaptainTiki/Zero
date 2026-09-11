@@ -4,11 +4,27 @@ Last updated: September 11, 2026
 
 ## Resume here
 
-The next task is to improve the kickable metal box's response when an enemy is directly behind it. Discuss and implement this as the next small piece; do not launch into the entire roadmap.
+Latest pistol feedback: weapon-in-hand movement is approved/final for now. Preserve its recoil impulse and animation. Camera recoil now has a separate 1.7 multiplier for stronger reticle movement. Sustained-fire spread cap increased to 4 degrees, bloom gain to 1.1 per shot, recovery slowed to 1.8 degrees/sec; base first-shot spread stays 0.35 and ADS still halves spread. Goal: less reliable long-range rapid fire while preserving recoverable aim and the accepted weapon movement. Awaiting playtest.
+
+Pistol recoil: permanent downward aim drift was replaced with recoverable visual recoil and sustained-fire spread. User approved the direction but requested stronger, 9mm-like feel. Current tuning raises the upward impulse to 0.9–1.4 degrees with +/-0.45 sideways variation, capped at 1.8 degrees; recovery is 8 degrees/sec. Weapon lift/backward movement is stronger. Mouse aim remains independent and spread/damage/fire rate are unchanged by this latest tuning. Awaiting playtest.
+
+Latest dialogue tuning: Commander now says "The latch is damaged. You'll have to find another way round. Maybe try and find a ladder?" Waiting lets her finish; only opening the door cuts her off. Door emits `opening_finished` after its swing/rebound, then dialogue waits another 0.45 seconds before Zero's reply (about 0.75 seconds after contact). Tests pass interrupted, early-kick, and listen-to-completion paths. Awaiting user playtest of this revised timing.
+
+Door dialogue is implemented and awaiting playtest: approach within 5 units starts Commander VO/subtitle; opening the door interrupts it, plays a temporary metal impact, and starts Zero's "Fixed it." after 0.35 seconds. An early kick skips the explanation. One-shot beat, no pause or input capture, bottom-center speaker-labelled subtitles, no portraits. Windows Zira/David voices are temporary, not final performances. Files: `scripts/levels/door_dialogue.gd`, `audio/vo/temp/commander_door.wav`, `audio/vo/temp/zero_fixed_it.wav`, `audio/sfx/props/door_kick.wav`. Timing checks in `tests/door_dialogue_test.gd` pass approach/interruption/early kick/reply/no replay; level startup passes. User should judge subtitle placement, volume, and comic timing in play.
+
+User confirmed the revised crate break hitch and metal-box interaction are resolved ("that's got it!"). Supply crate/health interaction is accepted for this pass.
+
+Latest crate playtest: healing 68 to 93 and leaving the pickup at 100 HP both confirmed. User reported a break-time hitch and no response to the sliding metal box. Revision prepares reward/fragments at level load and reuses the crate mesh; a sufficiently fast armed metal-box impact now breaks the supply crate and retains reduced momentum. Automated supply tests (including actual sliding contact and carry-through) and level startup pass. User must retest the visible hitch; headless checks cannot establish rendering smoothness.
+
+The breakable medical supply crate is implemented and awaiting a user playtest. One sits at (17, 0.1, 2.5), just beyond the maintenance door beside the metal-box encounter. One kick or two pistol shots breaks it into temporary visual fragments and reveals a 25-health pack. Walk over the pack to collect it; it remains available at full health. No crate-specific sound yet.
+
+Reusable scenes: `scenes/props/supply_crate.tscn` and `scenes/props/health_pickup.tscn`. `tests/supply_crate_test.gd` passes kick/shoot break thresholds, single reward despite repeated hits, full-health preservation, health cap/25 HP healing, and cleanup. Main-level headless startup passed on Godot 4.6.3. Visual feel still needs user playtest.
+
+The metal-box revision was playtested and accepted as sufficient for pre-alpha. Awkward heavy-enemy/crowded contact remains a tuning backlog item.
 
 User playtest feedback: the box slides correctly with no enemies nearby, but with an enemy on the other side it gives little or no visible indication of moving. The desired response is **kick → visible box travel → enemy knocked backward → box continues with reduced velocity → slides to a stop**. Contact with a small enemy should feel like transferring momentum, not hitting an immovable wall.
 
-No box-response changes were made after this feedback; this file is the handoff.
+The box now retains 65% of its speed on impact, pushes with force 14, and preserves momentum for up to 0.4 seconds during continued contact with the struck enemy. Physical collisions remain enabled throughout; trapped enemies and scenery still block it. Damage remains one impact per kick.
 
 ## Direction and working approach
 
@@ -53,13 +69,15 @@ The joke should respond to the player's action. Voiceover and interruption handl
 - One blue-gray box with yellow bands sits just beyond the maintenance door at (15, 0.1, 0), near the first enemies.
 - Reusable scene: `scenes/props/kick_box.tscn`; behavior: `scripts/props/kick_box.gd`.
 - It is an upright `CharacterBody3D`, not a freely tumbling rigid body.
-- Current tuning: initial speed 13; deceleration 7; impact damage 25; impact push 9; minimum damaging speed 3.
+- Current tuning: initial speed 13; deceleration 7; impact damage 25; impact push 14; retained impact speed 65%; minimum damaging speed 3.
 - A kick arms an impact. It damages/staggers an enemy once, disarms, and is intended to slow afterward. A fresh kick can arm it again.
-- Empty-space motion was approved. Enemy-contact motion needs revision per the feedback above.
+- Empty-space motion was approved. Revised enemy-contact motion was accepted for pre-alpha; heavy-enemy/crowded contact remains a tuning backlog item.
 
 ## Next box iteration
 
-Inspect collision handling before merely increasing speed. The current implementation calls `move_and_slide()` against the enemy, reduces `_slide` to 20% on an armed enemy impact, and treats subsequent unarmed side collisions as stops. The enemy can consequently keep blocking the box even after receiving knockback. This is a likely cause, not a verified diagnosis of the user's exact encounter.
+The previous implementation reduced `_slide` to 20% on impact and treated subsequent unarmed side contacts as stops. The revision gives the struck enemy time to clear without cancelling the box's remaining momentum. It does not bypass collision or add continuous pushing/crushing.
+
+Validation on Godot 4.6.3: `tests/kick_box_test.gd` passes empty-space travel/stop, close and distant enemies, moving target, repeated kicks, wall/trapped target, multiple enemies, Hunter, and Rammer scenarios. Close-contact box travel was about 2.1 units after 0.3 seconds; the heavier Rammer and tightly packed enemies still resist travel. Main-level headless startup passed. A root-certificate-store warning appeared during checks; gameplay checks completed successfully. These checks establish motion/collision behavior, not subjective impact feel.
 
 Aim for:
 
