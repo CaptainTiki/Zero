@@ -14,6 +14,8 @@
 [ext_resource type="PackedScene" path="res://scenes/modules/checkpoint_dress.tscn" id="12_check"]
 [ext_resource type="PackedScene" path="res://scenes/modules/boulevard_dress.tscn" id="13_blvd"]
 [ext_resource type="PackedScene" path="res://scenes/modules/crash_dress.tscn" id="14_crash"]
+[ext_resource type="PackedScene" path="res://scenes/props/kick_door.tscn" id="15_door"]
+[ext_resource type="PackedScene" path="res://scenes/props/kick_box.tscn" id="16_box"]
 [ext_resource type="Texture2D" uid="uid://bgj3ckjogk2k6" path="res://textures/asphalt.png" id="tex_asphalt"]
 [ext_resource type="Texture2D" uid="uid://dslupe342kjih" path="res://textures/brick.png" id="tex_brick"]
 [ext_resource type="Texture2D" uid="uid://bitgesc4ejyek" path="res://textures/concrete.png" id="tex_concrete"]
@@ -572,3 +574,10 @@ transform = Transform3D(0.3, 0, 0.95, 0, 1, 0, -0.95, 0, 0.3, 66, 0, 3)
 transform = Transform3D(0.9, 0, -0.4, 0, 1, 0, 0.4, 0, 0.9, -3, 0, 6)
 
 [node name="CrashDress" parent="." unique_id=327587367 instance=ExtResource("14_crash")]
+
+[node name="CrashExitDoor" parent="." instance=ExtResource("15_door")]
+position = Vector3(11, 0.025, 0)
+rotation = Vector3(0, -1.5707963, 0)
+
+[node name="ServiceRoadKickBox" parent="." instance=ExtResource("16_box")]
+position = Vector3(15, 0.1, 0)

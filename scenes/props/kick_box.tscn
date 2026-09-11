@@ -1,0 +1,46 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/props/kick_box.gd" id="1"]
+
+[sub_resource type="BoxShape3D" id="shape"]
+size = Vector3(1.3, 1.5, 1.3)
+
+[sub_resource type="BoxMesh" id="box"]
+size = Vector3(1.3, 1.5, 1.3)
+
+[sub_resource type="StandardMaterial3D" id="metal"]
+albedo_color = Color(0.28, 0.36, 0.42, 1)
+metallic = 0.7
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="band"]
+size = Vector3(1.32, 0.16, 1.32)
+
+[sub_resource type="StandardMaterial3D" id="yellow"]
+albedo_color = Color(0.95, 0.65, 0.12, 1)
+metallic = 0.4
+roughness = 0.5
+
+[node name="KickBox" type="CharacterBody3D"]
+collision_layer = 1
+collision_mask = 3
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.75, 0)
+shape = SubResource("shape")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.75, 0)
+mesh = SubResource("box")
+material_override = SubResource("metal")
+
+[node name="UpperBand" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.25, 0)
+mesh = SubResource("band")
+material_override = SubResource("yellow")
+
+[node name="LowerBand" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.25, 0)
+mesh = SubResource("band")
+material_override = SubResource("yellow")
