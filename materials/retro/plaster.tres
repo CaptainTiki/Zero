@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_l27nq"]
+[ext_resource type="Texture2D" path="res://textures/plaster.png" id="2_l0lg2"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_l27nq")
+shader_parameter/surface_texture = ExtResource("2_l0lg2")
+shader_parameter/tint = Color(0.76862746, 0.6431373, 0.47058824, 1)
+shader_parameter/texels_per_metre = 24.0

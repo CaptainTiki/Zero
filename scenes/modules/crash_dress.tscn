@@ -4,59 +4,43 @@
 [ext_resource type="ArrayMesh" path="res://meshes/concrete_barrier.obj" id="2_bar"]
 [ext_resource type="ArrayMesh" path="res://meshes/crate.obj" id="3_crate"]
 [ext_resource type="ArrayMesh" path="res://meshes/dumpster.obj" id="4_dump"]
-[ext_resource type="Texture2D" path="res://textures/metal.png" id="5_metal"]
-[ext_resource type="Texture2D" path="res://textures/concrete.png" id="6_conc"]
-
-[sub_resource type="StandardMaterial3D" id="MatHelo"]
-albedo_texture = ExtResource("5_metal")
-albedo_color = Color(0.32, 0.38, 0.28, 1)
-roughness = 0.75
-metallic = 0.45
-
-[sub_resource type="StandardMaterial3D" id="MatConcrete"]
-albedo_texture = ExtResource("6_conc")
-albedo_color = Color(0.85, 0.85, 0.82, 1)
-roughness = 0.95
-
-[sub_resource type="StandardMaterial3D" id="MatMetal"]
-albedo_texture = ExtResource("5_metal")
-albedo_color = Color(0.55, 0.5, 0.45, 1)
-roughness = 0.7
-metallic = 0.4
+[ext_resource type="Material" path="res://materials/retro/metal_blue.tres" id="retro_metal_blue"]
+[ext_resource type="Material" path="res://materials/retro/concrete.tres" id="retro_concrete"]
+[ext_resource type="Material" path="res://materials/retro/dark.tres" id="retro_dark"]
 
 [node name="CrashDress" type="Node3D"]
 
 [node name="HeloChunk" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.98, 0, 0.2, 0, 1, 0, -0.2, 0, 0.98, -6.5, 0, 1.2)
 mesh = ExtResource("1_helo")
-surface_material_override/0 = SubResource("MatHelo")
+surface_material_override/0 = ExtResource("retro_metal_blue")
 
 [node name="HeloChunkB" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.5, 0, -0.87, 0, 0.85, 0, 0.87, 0, 0.5, 4.5, 0, -5.5)
 mesh = ExtResource("1_helo")
-surface_material_override/0 = SubResource("MatHelo")
+surface_material_override/0 = ExtResource("retro_metal_blue")
 
 [node name="BarrierA" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.92, 0, 0.4, 0, 1, 0, -0.4, 0, 0.92, -2, 0, 4)
 mesh = ExtResource("2_bar")
-surface_material_override/0 = SubResource("MatConcrete")
+surface_material_override/0 = ExtResource("retro_concrete")
 
 [node name="BarrierB" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.7, 0, -0.71, 0, 1, 0, 0.71, 0, 0.7, 3, 0, 3.5)
 mesh = ExtResource("2_bar")
-surface_material_override/0 = SubResource("MatConcrete")
+surface_material_override/0 = ExtResource("retro_concrete")
 
 [node name="BarrierC" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, -4)
 mesh = ExtResource("2_bar")
-surface_material_override/0 = SubResource("MatConcrete")
+surface_material_override/0 = ExtResource("retro_concrete")
 
 [node name="CrateScatter" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 5)
 mesh = ExtResource("3_crate")
-surface_material_override/0 = SubResource("MatMetal")
+surface_material_override/0 = ExtResource("retro_dark")
 
 [node name="Dumpster" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.9, 0, 0.44, 0, 1, 0, -0.44, 0, 0.9, 6, 0, 2)
 mesh = ExtResource("4_dump")
-surface_material_override/0 = SubResource("MatMetal")
+surface_material_override/0 = ExtResource("retro_dark")

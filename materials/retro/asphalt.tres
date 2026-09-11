@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_6ba3f"]
+[ext_resource type="Texture2D" path="res://textures/asphalt.png" id="2_8315i"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_6ba3f")
+shader_parameter/surface_texture = ExtResource("2_8315i")
+shader_parameter/tint = Color(0.46666667, 0.4862745, 0.45882353, 1)
+shader_parameter/texels_per_metre = 24.0

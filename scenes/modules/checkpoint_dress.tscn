@@ -5,23 +5,26 @@
 [ext_resource type="ArrayMesh" path="res://meshes/concrete_barrier.obj" id="3_bar"]
 [ext_resource type="ArrayMesh" path="res://meshes/floor_4x4.obj" id="4_floor"]
 [ext_resource type="ArrayMesh" path="res://meshes/crate.obj" id="5_crate"]
-[ext_resource type="Material" path="res://materials/atlas_concrete.tres" id="6_conc"]
-[ext_resource type="Material" path="res://materials/atlas_asphalt.tres" id="7_asp"]
-[ext_resource type="Material" path="res://materials/atlas_metal.tres" id="8_metal"]
+[ext_resource type="Material" path="res://materials/retro/concrete.tres" id="6_conc"]
+[ext_resource type="Material" path="res://materials/retro/asphalt.tres" id="7_asp"]
+[ext_resource type="Material" path="res://materials/retro/teal.tres" id="8_metal"]
 
 [node name="CheckpointDress" type="Node3D"]
 
 [node name="FloorA" type="MeshInstance3D" parent="."]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.01, 0)
 mesh = ExtResource("4_floor")
 surface_material_override/0 = ExtResource("7_asp")
 
 [node name="FloorB" type="MeshInstance3D" parent="."]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
 mesh = ExtResource("4_floor")
 surface_material_override/0 = ExtResource("7_asp")
 
 [node name="FloorC" type="MeshInstance3D" parent="."]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.01, 0)
 mesh = ExtResource("4_floor")
 surface_material_override/0 = ExtResource("7_asp")
@@ -67,6 +70,7 @@ mesh = ExtResource("1_wall")
 surface_material_override/0 = ExtResource("6_conc")
 
 [node name="EntryDoor" type="MeshInstance3D" parent="."]
+visible = false
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6, 0, 0)
 mesh = ExtResource("2_door")
 surface_material_override/0 = ExtResource("6_conc")

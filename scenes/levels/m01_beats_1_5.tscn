@@ -17,17 +17,32 @@
 [ext_resource type="PackedScene" path="res://scenes/props/kick_door.tscn" id="15_door"]
 [ext_resource type="PackedScene" path="res://scenes/props/kick_box.tscn" id="16_box"]
 [ext_resource type="PackedScene" path="res://scenes/props/supply_crate.tscn" id="17_supply"]
-[ext_resource type="Texture2D" uid="uid://bgj3ckjogk2k6" path="res://textures/asphalt.png" id="tex_asphalt"]
-[ext_resource type="Texture2D" uid="uid://dslupe342kjih" path="res://textures/brick.png" id="tex_brick"]
-[ext_resource type="Texture2D" uid="uid://bitgesc4ejyek" path="res://textures/concrete.png" id="tex_concrete"]
-[ext_resource type="Texture2D" uid="uid://vvhhxuaafwy6" path="res://textures/metal.png" id="tex_metal"]
-[ext_resource type="Texture2D" uid="uid://dh6ipxnpf7go1" path="res://textures/plaster.png" id="tex_plaster"]
+
+[ext_resource type="PackedScene" path="res://scenes/modules/opening_art.tscn" id="18_art"]
+[ext_resource type="PackedScene" path="res://scenes/modules/city_dress.tscn" id="19_city"]
+[ext_resource type="Material" path="res://materials/retro/plaster.tres" id="retro_plaster"]
+[ext_resource type="Material" path="res://materials/retro/brick.tres" id="retro_brick"]
+[ext_resource type="Material" path="res://materials/retro/teal.tres" id="retro_teal"]
+[ext_resource type="Material" path="res://materials/retro/rust.tres" id="retro_rust"]
+[ext_resource type="Material" path="res://materials/retro/concrete.tres" id="retro_concrete"]
+[ext_resource type="Material" path="res://materials/retro/asphalt.tres" id="retro_asphalt"]
+[ext_resource type="Material" path="res://materials/retro/paint_line.tres" id="retro_paint_line"]
+[ext_resource type="Material" path="res://materials/retro/hazard.tres" id="retro_hazard"]
+[ext_resource type="Material" path="res://materials/retro/metal_blue.tres" id="retro_metal_blue"]
+[ext_resource type="Material" path="res://materials/retro/trim_teal.tres" id="retro_trim_teal"]
+[ext_resource type="Material" path="res://materials/retro/glass.tres" id="retro_glass"]
+[ext_resource type="Material" path="res://materials/retro/brick_dark.tres" id="retro_brick_dark"]
+[ext_resource type="Material" path="res://materials/retro/plaster_ochre.tres" id="retro_plaster_ochre"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
-sky_top_color = Color(0.28, 0.42, 0.7, 1)
-sky_horizon_color = Color(0.78, 0.7, 0.62, 1)
-ground_bottom_color = Color(0.18, 0.17, 0.16, 1)
-ground_horizon_color = Color(0.4, 0.36, 0.32, 1)
+sky_top_color = Color(0.36, 0.5, 0.72, 1)
+sky_horizon_color = Color(0.86, 0.74, 0.6, 1)
+sky_curve = 0.12
+sky_energy_multiplier = 1.1
+ground_bottom_color = Color(0.22, 0.2, 0.18, 1)
+ground_horizon_color = Color(0.6, 0.52, 0.44, 1)
+sun_angle_max = 18.0
+sun_curve = 0.2
 
 [sub_resource type="Sky" id="Sky"]
 sky_material = SubResource("SkyMat")
@@ -35,70 +50,22 @@ sky_material = SubResource("SkyMat")
 [sub_resource type="Environment" id="Env"]
 background_mode = 2
 sky = SubResource("Sky")
-ambient_light_source = 2
-ambient_light_color = Color(0.45, 0.48, 0.55, 1)
-ambient_light_sky_contribution = 0.35
-ambient_light_energy = 0.55
+ambient_light_source = 3
+ambient_light_sky_contribution = 1.0
+ambient_light_energy = 1.1
 tonemap_mode = 2
-tonemap_exposure = 0.85
+tonemap_exposure = 0.95
+tonemap_white = 1.2
 fog_enabled = true
-fog_light_color = Color(0.65, 0.62, 0.58, 1)
-fog_density = 0.0007
+fog_light_color = Color(0.8, 0.7, 0.58, 1)
+fog_light_energy = 1.0
+fog_sun_scatter = 0.15
+fog_density = 0.0055
+fog_aerial_perspective = 0.55
+fog_sky_affect = 0.08
 adjustment_enabled = true
-adjustment_contrast = 1.12
-adjustment_saturation = 1.05
-
-[sub_resource type="StandardMaterial3D" id="Mat_asphalt"]
-albedo_color = Color(0.85, 0.85, 0.88, 1)
-albedo_texture = ExtResource("tex_asphalt")
-roughness = 0.95
-uv1_scale = Vector3(8, 8, 8)
-
-[sub_resource type="StandardMaterial3D" id="Mat_lane"]
-albedo_color = Color(0.92, 0.9, 0.75, 1)
-
-[sub_resource type="StandardMaterial3D" id="Mat_concrete"]
-albedo_color = Color(0.95, 0.93, 0.9, 1)
-albedo_texture = ExtResource("tex_concrete")
-roughness = 0.88
-uv1_scale = Vector3(4, 4, 4)
-
-[sub_resource type="StandardMaterial3D" id="Mat_warn"]
-albedo_color = Color(0.95, 0.78, 0.25, 1)
-roughness = 0.7
-
-[sub_resource type="StandardMaterial3D" id="Mat_metal"]
-albedo_color = Color(0.9, 0.92, 0.95, 1)
-albedo_texture = ExtResource("tex_metal")
-metallic = 0.55
-roughness = 0.4
-uv1_scale = Vector3(2, 2, 2)
-
-[sub_resource type="StandardMaterial3D" id="Mat_trim"]
-albedo_color = Color(0.35, 0.7, 0.55, 1)
-
-[sub_resource type="StandardMaterial3D" id="Mat_helo"]
-albedo_color = Color(0.55, 0.7, 0.5, 1)
-albedo_texture = ExtResource("tex_metal")
-metallic = 0.3
-roughness = 0.5
-uv1_scale = Vector3(2, 2, 2)
-
-[sub_resource type="StandardMaterial3D" id="Mat_glass"]
-transparency = 1
-albedo_color = Color(0.45, 0.75, 0.85, 0.55)
-roughness = 0.15
-
-[sub_resource type="StandardMaterial3D" id="Mat_brick"]
-albedo_texture = ExtResource("tex_brick")
-roughness = 0.82
-uv1_scale = Vector3(3, 3, 3)
-
-[sub_resource type="StandardMaterial3D" id="Mat_brick2"]
-albedo_color = Color(0.85, 0.82, 0.95, 1)
-albedo_texture = ExtResource("tex_plaster")
-roughness = 0.85
-uv1_scale = Vector3(3, 3, 3)
+adjustment_contrast = 1.08
+adjustment_saturation = 0.98
 
 [node name="M01_Beats_1_5" type="Node3D" unique_id=354062153]
 script = ExtResource("6_level")
@@ -107,15 +74,18 @@ script = ExtResource("6_level")
 environment = SubResource("Env")
 
 [node name="Sun" type="DirectionalLight3D" parent="." unique_id=2016631680]
-transform = Transform3D(0.8, -0.5, 0.33, 0, 0.55, 0.83, -0.6, -0.66, 0.44, 0, 20, 0)
-light_color = Color(1, 0.95, 0.88, 1)
-light_energy = 1.05
+transform = Transform3D(0.766, -0.383, 0.515, 0, 0.802, 0.597, -0.643, -0.457, 0.614, 0, 20, 0)
+light_color = Color(1, 0.9, 0.76, 1)
+light_energy = 1.35
 shadow_enabled = true
+shadow_opacity = 0.82
+directional_shadow_max_distance = 140.0
+directional_shadow_fade_start = 0.9
 
 [node name="Fill" type="OmniLight3D" parent="." unique_id=1112684068]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 7, 0)
 light_color = Color(0.55, 0.62, 0.8, 1)
-light_energy = 0.7
+light_energy = 0.25
 omni_range = 35.0
 
 [node name="NeonHint" type="OmniLight3D" parent="." unique_id=37598589]
@@ -124,371 +94,372 @@ light_color = Color(0.4, 0.85, 0.8, 1)
 omni_range = 10.0
 
 [node name="SpineFloor" type="CSGBox3D" parent="." unique_id=948959776]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, -0.25, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, -0.26, 0)
 use_collision = true
 size = Vector3(130, 0.5, 16)
-material = SubResource("Mat_asphalt")
+material = ExtResource("retro_asphalt")
 
 [node name="LaneLine1" type="CSGBox3D" parent="." unique_id=1835523626]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.02, 0)
 size = Vector3(70, 0.02, 0.25)
-material = SubResource("Mat_lane")
+material = ExtResource("retro_paint_line")
 
 [node name="LaneLine2" type="CSGBox3D" parent="." unique_id=1531364781]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95, 0.02, 0)
 size = Vector3(30, 0.02, 0.25)
-material = SubResource("Mat_lane")
+material = ExtResource("retro_paint_line")
 
 [node name="CrashPad" type="CSGBox3D" parent="." unique_id=1206633058]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.175, 0)
 use_collision = true
 size = Vector3(22, 0.35, 22)
-material = SubResource("Mat_concrete")
+material = ExtResource("retro_concrete")
 
 [node name="CrashPaint" type="CSGBox3D" parent="." unique_id=1154713270]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 size = Vector3(8, 0.02, 0.35)
-material = SubResource("Mat_warn")
+material = ExtResource("retro_hazard")
 
 [node name="WreckA" type="CSGBox3D" parent="." unique_id=1052545441]
 transform = Transform3D(0.92, 0, 0.4, 0, 1, 0, -0.4, 0, 0.92, -4, 0.7, 5)
 visible = false
 use_collision = true
 size = Vector3(4.5, 1.4, 2)
-material = SubResource("Mat_metal")
+material = ExtResource("retro_metal_blue")
 
 [node name="WreckA_Stripe" type="CSGBox3D" parent="." unique_id=1120935971]
 transform = Transform3D(0.92, 0, 0.4, 0, 1, 0, -0.4, 0, 0.92, -4, 1.1, 5)
 visible = false
 size = Vector3(4.6, 0.15, 2.05)
-material = SubResource("Mat_trim")
+material = ExtResource("retro_trim_teal")
 
 [node name="WreckB" type="CSGBox3D" parent="." unique_id=1746217616]
 transform = Transform3D(0.7, 0, -0.71, 0, 1, 0, 0.71, 0, 0.7, 5, 0.55, -6)
 visible = false
 use_collision = true
 size = Vector3(3.5, 1.1, 1.8)
-material = SubResource("Mat_metal")
+material = ExtResource("retro_metal_blue")
 
 [node name="HeloNose" type="CSGBox3D" parent="." unique_id=1614359674]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.2, 0)
 visible = false
 use_collision = true
 size = Vector3(3, 2.2, 5)
-material = SubResource("Mat_helo")
+material = ExtResource("retro_metal_blue")
 
 [node name="HeloGlass" type="CSGBox3D" parent="." unique_id=1161039513]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.6, 1.5, 0)
 visible = false
 size = Vector3(0.2, 1.2, 3.2)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Wall_Crash_N" type="CSGBox3D" parent="." unique_id=319205100]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -11)
 use_collision = true
 size = Vector3(22, 6, 0.6)
-material = SubResource("Mat_brick")
+material = ExtResource("retro_brick")
 
 [node name="Win_Crash_N1" type="CSGBox3D" parent="." unique_id=1018699838]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 3.2, -10.6)
 size = Vector3(2.2, 1.6, 0.2)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Win_Crash_N2" type="CSGBox3D" parent="." unique_id=196742887]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 3.2, -10.6)
 size = Vector3(2.2, 1.6, 0.2)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Wall_Crash_S" type="CSGBox3D" parent="." unique_id=1643497664]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 11)
 use_collision = true
 size = Vector3(22, 6, 0.6)
-material = SubResource("Mat_brick")
+material = ExtResource("retro_brick")
 
 [node name="Wall_Crash_W" type="CSGBox3D" parent="." unique_id=375772843]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 3, 0)
 use_collision = true
 size = Vector3(0.6, 6, 22)
-material = SubResource("Mat_brick")
+material = ExtResource("retro_brick")
 
 [node name="Wall_Crash_E_L" type="CSGBox3D" parent="." unique_id=1177612644]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 3, -7)
 use_collision = true
 size = Vector3(0.6, 6, 8)
-material = SubResource("Mat_brick")
+material = ExtResource("retro_brick")
 
 [node name="Wall_Crash_E_R" type="CSGBox3D" parent="." unique_id=198127485]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 3, 7)
 use_collision = true
 size = Vector3(0.6, 6, 8)
-material = SubResource("Mat_brick")
+material = ExtResource("retro_brick")
 
 [node name="DoorTrim" type="CSGBox3D" parent="." unique_id=1945995798]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.2, 2.2, 0)
 visible = false
 size = Vector3(0.25, 4.2, 6.2)
-material = SubResource("Mat_trim")
+material = ExtResource("retro_trim_teal")
 
 [node name="Bldg_L1" type="CSGBox3D" parent="." unique_id=1492900213]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 5, -12)
 use_collision = true
 size = Vector3(14, 10, 6)
-material = SubResource("Mat_brick")
+material = ExtResource("retro_brick")
 
 [node name="Win_L1a" type="CSGBox3D" parent="." unique_id=447874074]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 4, -8.9)
 size = Vector3(1.8, 1.5, 0.15)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Win_L1b" type="CSGBox3D" parent="." unique_id=1193276567]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 4, -8.9)
 size = Vector3(1.8, 1.5, 0.15)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Win_L1c" type="CSGBox3D" parent="." unique_id=54393381]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23, 6.5, -8.9)
 size = Vector3(1.8, 1.5, 0.15)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Bldg_R1" type="CSGBox3D" parent="." unique_id=1908026603]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 4, 12)
 use_collision = true
 size = Vector3(16, 8, 6)
-material = SubResource("Mat_brick2")
+material = ExtResource("retro_brick")
 
 [node name="Win_R1a" type="CSGBox3D" parent="." unique_id=531008030]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 3.5, 8.9)
 size = Vector3(1.8, 1.5, 0.15)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Win_R1b" type="CSGBox3D" parent="." unique_id=100145775]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 3.5, 8.9)
 size = Vector3(1.8, 1.5, 0.15)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Awning_R1" type="CSGBox3D" parent="." unique_id=1313301437]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2.2, 8.5)
 size = Vector3(8, 0.15, 1.5)
-material = SubResource("Mat_warn")
+material = ExtResource("retro_hazard")
 
 [node name="Hall_N" type="CSGBox3D" parent="." unique_id=1159736620]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2.5, -6)
 use_collision = true
 size = Vector3(26, 5, 0.5)
-material = SubResource("Mat_concrete")
+material = ExtResource("retro_plaster")
 
 [node name="Hall_S" type="CSGBox3D" parent="." unique_id=1288851455]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2.5, 6)
 use_collision = true
 size = Vector3(26, 5, 0.5)
-material = SubResource("Mat_concrete")
+material = ExtResource("retro_plaster")
 
 [node name="HallStripe" type="CSGBox3D" parent="." unique_id=1745491490]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 1.2, -5.7)
 size = Vector3(26, 0.3, 0.12)
-material = SubResource("Mat_trim")
+material = ExtResource("retro_trim_teal")
 
 [node name="AlleyFloor" type="CSGBox3D" parent="." unique_id=1723592057]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.1, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.15, -10)
 use_collision = true
 size = Vector3(8, 0.3, 10)
-material = SubResource("Mat_asphalt")
+material = ExtResource("retro_asphalt")
 
 [node name="Dumpster" type="CSGBox3D" parent="." unique_id=1538618803]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0.9, -11)
 use_collision = true
 size = Vector3(2.4, 1.6, 1.4)
-material = SubResource("Mat_trim")
+material = ExtResource("retro_trim_teal")
 
 [node name="CheckFloor" type="CSGBox3D" parent="." unique_id=79360919]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, -0.1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, -0.175, 0)
 use_collision = true
 size = Vector3(24, 0.35, 22)
-material = SubResource("Mat_concrete")
+material = ExtResource("retro_concrete")
 
 [node name="Check_N" type="CSGBox3D" parent="." unique_id=886231698]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 3, -11)
 use_collision = true
 size = Vector3(24, 6, 0.6)
-material = SubResource("Mat_metal")
+material = ExtResource("retro_plaster")
 
 [node name="Check_S" type="CSGBox3D" parent="." unique_id=1768789486]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 3, 11)
 use_collision = true
 size = Vector3(24, 6, 0.6)
-material = SubResource("Mat_metal")
+material = ExtResource("retro_plaster")
 
 [node name="CheckBanner" type="CSGBox3D" parent="." unique_id=356514808]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 5.2, -10.6)
 size = Vector3(10, 0.8, 0.15)
-material = SubResource("Mat_warn")
+material = ExtResource("retro_hazard")
 
 [node name="Barricade" type="CSGBox3D" parent="." unique_id=45713776]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0.6, 4)
 use_collision = true
 size = Vector3(4, 1.2, 0.4)
-material = SubResource("Mat_warn")
+material = ExtResource("retro_hazard")
 
 [node name="Sandbags" type="CSGBox3D" parent="." unique_id=1967791357]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 0.5, -5)
 use_collision = true
 size = Vector3(3, 1, 1.2)
-material = SubResource("Mat_concrete")
+material = ExtResource("retro_concrete")
 
 [node name="Check_E_L" type="CSGBox3D" parent="." unique_id=743530062]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 3, -6)
 use_collision = true
 size = Vector3(0.6, 6, 8)
-material = SubResource("Mat_metal")
+material = ExtResource("retro_plaster")
 
 [node name="Check_E_R" type="CSGBox3D" parent="." unique_id=830556379]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 3, 6)
 use_collision = true
 size = Vector3(0.6, 6, 8)
-material = SubResource("Mat_metal")
+material = ExtResource("retro_plaster")
 
 [node name="StreetCar" type="CSGBox3D" parent="." unique_id=1381708514]
 transform = Transform3D(0.2, 0, 0.98, 0, 1, 0, -0.98, 0, 0.2, 68, 0.7, 2)
 use_collision = true
 size = Vector3(4.5, 1.4, 2)
-material = SubResource("Mat_metal")
+material = ExtResource("retro_metal_blue")
 
 [node name="StreetCarRoof" type="CSGBox3D" parent="." unique_id=1293819615]
 transform = Transform3D(0.2, 0, 0.98, 0, 1, 0, -0.98, 0, 0.2, 68, 1.35, 2)
 size = Vector3(3.2, 0.35, 1.7)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Bldg_L2" type="CSGBox3D" parent="." unique_id=335230640]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 6, -14)
 use_collision = true
 size = Vector3(20, 12, 8)
-material = SubResource("Mat_brick")
+material = ExtResource("retro_brick_dark")
 
 [node name="Win_L2a" type="CSGBox3D" parent="." unique_id=822081563]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 4, -9.9)
 size = Vector3(2, 1.6, 0.15)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Win_L2b" type="CSGBox3D" parent="." unique_id=2099589320]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 7, -9.9)
 size = Vector3(2, 1.6, 0.15)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Win_L2c" type="CSGBox3D" parent="." unique_id=1315120765]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74, 4, -9.9)
 size = Vector3(2, 1.6, 0.15)
-material = SubResource("Mat_glass")
+material = ExtResource("retro_glass")
 
 [node name="Bldg_R2" type="CSGBox3D" parent="." unique_id=2141169757]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 5, 14)
 use_collision = true
 size = Vector3(18, 10, 8)
-material = SubResource("Mat_brick2")
+material = ExtResource("retro_plaster_ochre")
 
 [node name="Sign_R2" type="CSGBox3D" parent="." unique_id=1375367997]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 4.5, 9.9)
 size = Vector3(5, 1.2, 0.2)
-material = SubResource("Mat_trim")
+material = ExtResource("retro_trim_teal")
 
 [node name="PlazaFloor" type="CSGBox3D" parent="." unique_id=46625112]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, -0.1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, -0.175, 0)
 use_collision = true
 size = Vector3(28, 0.35, 20)
-material = SubResource("Mat_asphalt")
+material = ExtResource("retro_asphalt")
 
 [node name="PlazaCross" type="CSGBox3D" parent="." unique_id=1705138413]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 0.03, 0)
+visible = false
 size = Vector3(6, 0.02, 6)
-material = SubResource("Mat_lane")
+material = ExtResource("retro_paint_line")
 
 [node name="Blvd_N" type="CSGBox3D" parent="." unique_id=1214628339]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 3, -10)
 use_collision = true
 size = Vector3(28, 6, 0.5)
-material = SubResource("Mat_concrete")
+material = ExtResource("retro_concrete")
 
 [node name="Blvd_S" type="CSGBox3D" parent="." unique_id=73878964]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 3, 10)
 use_collision = true
 size = Vector3(28, 6, 0.5)
-material = SubResource("Mat_concrete")
+material = ExtResource("retro_concrete")
 
 [node name="ElevatedLedge" type="CSGBox3D" parent="." unique_id=1443122792]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86, 2.4, -7)
 use_collision = true
 size = Vector3(18, 0.4, 3.5)
-material = SubResource("Mat_metal")
+material = ExtResource("retro_metal_blue")
 
 [node name="RampToLedge" type="CSGBox3D" parent="." unique_id=614312661]
-transform = Transform3D(0.93, 0, 0.36, 0, 1, 0, -0.36, 0, 0.93, 76, 1.1, -7)
+transform = Transform3D(0.9677, -0.2521, 0, 0.2521, 0.9677, 0, 0, 0, 1, 72, 1.14, -5.6)
 use_collision = true
-size = Vector3(10, 0.4, 3.2)
-material = SubResource("Mat_warn")
+size = Vector3(10.4, 0.4, 2.4)
+material = ExtResource("retro_concrete")
 
 [node name="Rail" type="CSGBox3D" parent="." unique_id=54863748]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86, 2.9, -5.4)
 size = Vector3(18, 0.15, 0.15)
-material = SubResource("Mat_trim")
+material = ExtResource("retro_trim_teal")
 
 [node name="EndPad" type="CSGBox3D" parent="." unique_id=1031051188]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, -0.1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, -0.175, 0)
 use_collision = true
 size = Vector3(20, 0.35, 16)
-material = SubResource("Mat_concrete")
+material = ExtResource("retro_concrete")
 
 [node name="EndArchL" type="CSGBox3D" parent="." unique_id=2116860588]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 3, -5)
 use_collision = true
 size = Vector3(0.6, 6, 6)
-material = SubResource("Mat_brick")
+material = ExtResource("retro_brick_dark")
 
 [node name="EndArchR" type="CSGBox3D" parent="." unique_id=1762889010]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 3, 5)
 use_collision = true
 size = Vector3(0.6, 6, 6)
-material = SubResource("Mat_brick")
+material = ExtResource("retro_brick_dark")
 
 [node name="EndArchTop" type="CSGBox3D" parent="." unique_id=1301584918]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 5.8, 0)
 use_collision = true
 size = Vector3(0.6, 1, 10)
-material = SubResource("Mat_warn")
+material = ExtResource("retro_hazard")
 
 [node name="Lamp1" type="CSGCylinder3D" parent="." unique_id=345431316]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 2, 4.5)
 use_collision = true
 radius = 0.12
 height = 4.0
-material = SubResource("Mat_metal")
+material = ExtResource("retro_metal_blue")
 
 [node name="Lamp1Head" type="CSGBox3D" parent="." unique_id=177410074]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 4.1, 4.5)
 size = Vector3(0.7, 0.25, 0.4)
-material = SubResource("Mat_warn")
+material = ExtResource("retro_hazard")
 
 [node name="Lamp2" type="CSGCylinder3D" parent="." unique_id=242518063]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 2, -5)
 use_collision = true
 radius = 0.12
 height = 4.0
-material = SubResource("Mat_metal")
+material = ExtResource("retro_metal_blue")
 
 [node name="Lamp2Head" type="CSGBox3D" parent="." unique_id=86056345]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 4.1, -5)
 size = Vector3(0.7, 0.25, 0.4)
-material = SubResource("Mat_warn")
+material = ExtResource("retro_hazard")
 
 [node name="Lamp3" type="CSGCylinder3D" parent="." unique_id=1801427785]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 2, 5)
 use_collision = true
 radius = 0.12
 height = 4.0
-material = SubResource("Mat_metal")
+material = ExtResource("retro_metal_blue")
 
 [node name="Lamp3Head" type="CSGBox3D" parent="." unique_id=1545256765]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 4.1, 5)
 size = Vector3(0.7, 0.25, 0.4)
-material = SubResource("Mat_trim")
+material = ExtResource("retro_trim_teal")
 
 [node name="Player" parent="." unique_id=1628324186 instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 4)
@@ -584,3 +555,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.1, 0)
 
 [node name="ServiceRoadSupplyCrate" parent="." unique_id=889947322 instance=ExtResource("17_supply")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.1, 2.5)
+
+[node name="OpeningArt" parent="." instance=ExtResource("18_art")]
+
+[node name="CityDress" parent="." instance=ExtResource("19_city")]

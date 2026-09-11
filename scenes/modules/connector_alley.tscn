@@ -5,8 +5,8 @@
 [ext_resource type="ArrayMesh" path="res://meshes/dumpster.obj" id="3_dump"]
 [ext_resource type="ArrayMesh" path="res://meshes/crate.obj" id="4_crate"]
 [ext_resource type="ArrayMesh" path="res://meshes/concrete_barrier.obj" id="5_bar"]
-[ext_resource type="Material" path="res://materials/atlas_concrete.tres" id="6_conc"]
-[ext_resource type="Material" path="res://materials/atlas_metal.tres" id="7_metal"]
+[ext_resource type="Material" path="res://materials/retro/concrete.tres" id="6_conc"]
+[ext_resource type="Material" path="res://materials/retro/teal.tres" id="7_metal"]
 
 [node name="ConnectorAlley" type="Node3D"]
 

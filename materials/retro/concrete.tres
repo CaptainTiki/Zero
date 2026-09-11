@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_yv24v"]
+[ext_resource type="Texture2D" path="res://textures/concrete.png" id="2_6j672"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_yv24v")
+shader_parameter/surface_texture = ExtResource("2_6j672")
+shader_parameter/tint = Color(0.6666667, 0.6313726, 0.54509807, 1)
+shader_parameter/texels_per_metre = 24.0

@@ -6,8 +6,8 @@
 [ext_resource type="ArrayMesh" path="res://meshes/crate.obj" id="4_crate"]
 [ext_resource type="ArrayMesh" path="res://meshes/car_body.obj" id="5_car"]
 [ext_resource type="ArrayMesh" path="res://meshes/pipe.obj" id="6_pipe"]
-[ext_resource type="Material" path="res://materials/atlas_concrete.tres" id="7_conc"]
-[ext_resource type="Material" path="res://materials/atlas_metal.tres" id="8_metal"]
+[ext_resource type="Material" path="res://materials/retro/concrete.tres" id="7_conc"]
+[ext_resource type="Material" path="res://materials/retro/teal.tres" id="8_metal"]
 
 [node name="BoulevardDress" type="Node3D"]
 

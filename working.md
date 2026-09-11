@@ -4,6 +4,14 @@ Last updated: September 11, 2026
 
 ## Resume here
 
+City feel pass is ready for playtest (September 11, 2026). Sky now renders (fog was flattening it to beige), ambient comes from the sky, all remaining bright graybox materials from the checkpoint onward use the retro shader, and a baked `scenes/modules/city_dress.tscn` adds a distant skyline, street shop fronts, a tram platform on the boulevard, and an enclosed end plaza with a closed tunnel. See the "City pass" section in `docs/VISUAL_DIRECTION.md`. Two backlog bugs were fixed on the way: the boulevard ledge ramp was a flat slab rotated on the wrong axis and is now a real slope (x 67 to 77), and the plaza/end-pad floors sat 0.075 above the road and are now flush. `tests/city_dress_test.gd` passes; all earlier tests still pass. User should judge density, readability in combat, and whether the signage tone fits Zero.
+
+Opening environment art sample is ready for playtest: crash yard through service lane to checkpoint, using the user's low-poly/low-texel Armed and Dangerous reference. See `docs/VISUAL_DIRECTION.md`. Editable baked scene adds workshop shutters/canopies, signs, vents, pipes, roof utilities, gate, and guard booth. Existing environment textures receive coarse world-space sampling and a muted palette. Shared road material extends beyond sample; enemies/weapons/interactive crates remain placeholders. Floor pads are flush; duplicate floor visuals hidden. Rendered views inspected; real Rammer collision-body traversal across checkpoint tested in both directions. User should assess personality, visual density, and combat readability before expansion.
+
+Hunter movement pass is ready for playtest. Replaced continuous strafing/damage-triggered direction reversals with fixed-direction 0.45-second bursts and 0.65-second stationary shooting windows (initial pause 0.45). Speed is 6.5 at distance/6 nearby, with alternating lateral bias selected only at burst start. Stops to attack in melee range and ends a burst at walls. Kick interrupts the burst and preserves stagger/knockback, followed by a recovery pause. HP and attack damage/cooldown unchanged. `tests/hunter_movement_test.gd` passes burst/pause movement, committed heading under player movement and damage, resumed pursuit, kick cancellation/knockback/recovery, aggro range, and damage checks; level startup passed. User should test the orange Hunter on the boulevard.
+
+Pistol camera recoil/spread was accepted by user. Sound work is parked; user prefers auditioning well-regarded CC0 recordings later rather than focusing on generated sounds now.
+
 Latest pistol feedback: weapon-in-hand movement is approved/final for now. Preserve its recoil impulse and animation. Camera recoil now has a separate 1.7 multiplier for stronger reticle movement. Sustained-fire spread cap increased to 4 degrees, bloom gain to 1.1 per shot, recovery slowed to 1.8 degrees/sec; base first-shot spread stays 0.35 and ADS still halves spread. Goal: less reliable long-range rapid fire while preserving recoverable aim and the accepted weapon movement. Awaiting playtest.
 
 Pistol recoil: permanent downward aim drift was replaced with recoverable visual recoil and sustained-fire spread. User approved the direction but requested stronger, 9mm-like feel. Current tuning raises the upward impulse to 0.9–1.4 degrees with +/-0.45 sideways variation, capped at 1.8 degrees; recovery is 8 degrees/sec. Weapon lift/backward movement is stronger. Mouse aim remains independent and spread/damage/fire rate are unchanged by this latest tuning. Awaiting playtest.
@@ -104,10 +112,10 @@ The user imagines a moving box bowling/pushing a small enemy backward, possibly 
 
 - Fist melee lacks a readable reach. A swung weapon was considered, but the kick is now the promising interaction; no final melee-weapon decision.
 - Hunter (tall orange strafing enemy) is too erratic. It needs deliberate movement bursts and readable opportunities to shoot; current play devolves into backing up and spamming fire.
-- Rammer gets trapped by a small road/concrete-pad lip.
-- Standardize movement metrics: jump height, jump distance, step height, reachable ledges. The elevated left-side route currently cannot be reached as expected.
+- Rammer gets trapped by a small road/concrete-pad lip. (Plaza and end-pad lips were flushed in the city pass; recheck the Rammer at the checkpoint.)
+- Standardize movement metrics: jump height, jump distance, step height, reachable ledges. (The boulevard ledge ramp itself was fixed in the city pass; the metrics question stands.)
 - More UV problems remain.
-- A freestanding wall at the plaza entrance lacks architectural justification.
+- A freestanding wall at the plaza entrance lacks architectural justification. (Dressed as a portal with piers in the city pass; confirm it reads.)
 - Side paths need a purpose (e.g. pickups) or should be closed for the test; do not assume an upgrade system is required.
 - These are backlog items, not authorization to fix everything in one pass.
 
@@ -119,7 +127,7 @@ The user imagines a moving box bowling/pushing a small enemy backward, possibly 
 - Enemy kick responses: `scripts/enemies/fodder.gd`, `hunter.gd`, `rammer.gd`.
 - Existing route: crash → service road/alley → checkpoint and pistol/Rammer → blocked street → boulevard/Hunter → end pad.
 - Some README/level notes lag behind actual implementation; inspect scripts and scene before relying on placeholder descriptions.
-- Available executable used for checks: `C:/Users/tuckb/Downloads/Godot_v4.6-stable_win64.exe/Godot_v4.6-stable_win64_console.exe`. Project README names 4.7; automated checks so far used 4.6.
+- Executable for checks: `D:/SteamLibrary/steamapps/common/Godot Engine/godot.windows.opt.tools.64.exe` (Godot 4.7.2 Steam build). Earlier automated checks used a now-removed 4.6 copy.
 - Headless checks passed for kick contact/range/knockback, door opening/clear passage/solid frame, and box travel/single damage/stagger/deceleration. Main-level startup also passed. The user's playtest exposed a box contact-feel problem that these checks did not cover.
 - Temporary test scripts/logs were removed. Use a workspace-local `--log-file` for headless runs; the default user log location caused a permissions-related crash during an earlier check.
 - Preserve existing project changes and inspect Git status before editing; do not discard or overwrite earlier work.

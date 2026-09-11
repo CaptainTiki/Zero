@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_tcyh8"]
+[ext_resource type="Texture2D" path="res://textures/brick.png" id="2_somog"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_tcyh8")
+shader_parameter/surface_texture = ExtResource("2_somog")
+shader_parameter/tint = Color(0.7176471, 0.50980395, 0.39607844, 1)
+shader_parameter/texels_per_metre = 24.0

@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_k1fcl"]
+[ext_resource type="Texture2D" path="res://textures/metal.png" id="2_dga2q"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_k1fcl")
+shader_parameter/surface_texture = ExtResource("2_dga2q")
+shader_parameter/tint = Color(0.20392157, 0.23529412, 0.22352941, 1)
+shader_parameter/texels_per_metre = 24.0

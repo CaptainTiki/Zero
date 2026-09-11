@@ -12,6 +12,9 @@ Godot **4.7** graybox. Main scene: `scenes/levels/m01_beats_1_5.tscn`
 ## Flow
 Crash fodder → service road → checkpoint (gun + red Rammer) → street crate throw → boulevard fodder/Hunter stub
 
+## Art
+Retro world-space material pass plus baked dressing scenes (`opening_art.tscn`, `city_dress.tscn`). Regenerate with the tools in `tools/`; see `docs/VISUAL_DIRECTION.md`.
+
 ## Stubs
 - Hunter is a fodder placeholder on the boulevard (elite AI TBD)
 - Throw damage on contact is basic
