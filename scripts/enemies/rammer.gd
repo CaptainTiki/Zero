@@ -23,6 +23,22 @@ var _player: Node3D
 var _weak_open := false
 var _body: Node
 
+var _voice_timer := randf_range(2.0, 6.0)
+var _sound: Node
+
+func _voice(event: String, offset := 0.0) -> void:
+	if _sound == null:
+		_sound = get_tree().root.get_node_or_null("Sound")
+	if _sound:
+		_sound.play_at(event, global_position + Vector3(0, 1.0, 0), offset)
+
+func _idle_voice(delta: float, event: String, near_player: bool) -> void:
+	_voice_timer -= delta
+	if _voice_timer <= 0.0:
+		_voice_timer = randf_range(3.0, 7.0)
+		if near_player:
+			_voice(event)
+
 func _ready() -> void:
 	_hp = max_hp
 	add_to_group("enemies")
@@ -49,6 +65,7 @@ func _physics_process(delta: float) -> void:
 	var to_player := _player.global_position - global_position
 	to_player.y = 0.0
 	var dist := to_player.length()
+	_idle_voice(delta, "rammer_idle", dist < 30.0)
 	match _state:
 		State.IDLE:
 			_weak_open = false
@@ -72,6 +89,7 @@ func _physics_process(delta: float) -> void:
 			if _timer <= 0.0:
 				_state = State.CHARGE
 				_timer = charge_time
+				_voice("rammer_charge")
 		State.CHARGE:
 			_weak_open = true
 			velocity.x = _charge_dir.x * charge_speed
@@ -95,8 +113,12 @@ func _physics_process(delta: float) -> void:
 func _hit_fx() -> void:
 	if _body:
 		_body.flash()
+	if randf() < 0.6:
+		_voice("rammer_hurt")
 
 func _die() -> void:
+	_voice("rammer_death")
+	_voice("gib")
 	if _body:
 		_body.burst(get_parent(), global_basis.z)
 	queue_free()
@@ -105,12 +127,29 @@ func _animate(delta: float, lean: float = 0.0) -> void:
 	if _body:
 		_body.animate(delta, Vector2(velocity.x, velocity.z).length(), lean)
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, weak := false) -> void:
 	_hit_fx()
 	var mult := weak_gun_mult if _weak_open else body_gun_mult
+	if _body:
+		_body.flinch(1.0 if _weak_open else 0.25)
+	if _weak_open and weak:
+		# A clean plate hit during the window knocks the charge out of it.
+		_timer += 0.3
+		if _state == State.CHARGE:
+			_state = State.RECOVER
+			_timer = recover_time
 	_hp -= amount * mult
 	if _hp <= 0.0:
 		_die()
+
+## Shoulder plates or chest core, only while the window is open.
+func is_weak_hit(point: Vector3) -> bool:
+	if not _weak_open:
+		return false
+	var local := to_local(point)
+	var plates := absf(local.x) > 0.55 and local.y > 1.3
+	var core := absf(local.x) < 0.35 and local.z < -0.85 and local.y > 0.5 and local.y < 1.0
+	return plates or core
 
 func apply_melee_hit(amount: float, _from: Vector3) -> void:
 	_hit_fx()
@@ -128,6 +167,6 @@ func apply_kick(amount: float, from: Vector3, force: float) -> void:
 	_timer = recover_time
 	take_damage(amount)
 
-func apply_shot(amount: float, _from: Vector3, _push: float) -> void:
+func apply_shot(amount: float, _from: Vector3, _push: float, weak := false) -> void:
 	# Too heavy to shove; weak-point multipliers still apply.
-	take_damage(amount)
+	take_damage(amount, weak)

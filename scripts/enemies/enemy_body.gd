@@ -18,6 +18,7 @@ var _walk := 0.0
 var _idle := 0.0
 var _lean := 0.0
 var _weak_open := false
+var _flinch := 0.0
 var _gib_color := Color(0.3, 0.6, 0.2)
 var _leg_amp := 0.6
 var _stride := 4.0
@@ -199,13 +200,20 @@ func animate(delta: float, speed: float, lean: float = 0.0) -> void:
 	for i in _arms.size():
 		_arms[i].rotation.x = -swing * (1.0 if i == 0 else -1.0) * 0.8
 	_lean = lerpf(_lean, lean, clampf(delta * 8.0, 0.0, 1.0))
+	_flinch = maxf(0.0, _flinch - delta * 5.0)
+	var recoil := sin(_flinch * PI) * 0.35
 	if _torso:
 		var base_y: float = {"fodder": 0.75, "rammer": 1.05, "hunter": 1.4}[kind]
-		_torso.position.y = base_y + absf(sin(_walk)) * 0.05 * moving + sin(_idle * 2.2) * 0.012
-		_torso.rotation.x = -_lean * 0.35
-		_torso.rotation.z = sin(_walk) * 0.04 * moving
+		_torso.position.y = base_y + absf(sin(_walk)) * 0.05 * moving + sin(_idle * 2.2) * 0.012 - recoil * 0.08
+		_torso.rotation.x = -_lean * 0.35 + recoil
+		_torso.rotation.z = sin(_walk) * 0.04 * moving + sin(_flinch * 9.0) * 0.12 * _flinch
+		_torso.scale = Vector3(1.0 + recoil * 0.12, 1.0 - recoil * 0.18, 1.0 + recoil * 0.12)
 	if _head:
-		_head.rotation.x = _lean * 0.25 + sin(_idle * 1.7) * 0.03
+		_head.rotation.x = _lean * 0.25 + sin(_idle * 1.7) * 0.03 + recoil * 0.8
+
+## Whole-body recoil; 1.0 is a weak-point hit, smaller values a glancing one.
+func flinch(strength: float) -> void:
+	_flinch = maxf(_flinch, clampf(strength, 0.0, 1.0))
 
 func flash() -> void:
 	_flash_left = 0.1

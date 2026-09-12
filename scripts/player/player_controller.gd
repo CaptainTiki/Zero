@@ -3,6 +3,11 @@ class_name PlayerController
 
 enum Weapon { FISTS, PISTOL, SHOTGUN }
 const ViewKitScript = preload("res://scripts/player/view_kit.gd")
+const ImpactFx = preload("res://scripts/fx/impact_fx.gd")
+
+var _sound: Node
+var _step_distance := 0.0
+var _was_on_floor := true
 
 @export var walk_speed := 6.0
 @export var sprint_speed := 9.0
@@ -17,9 +22,9 @@ const ViewKitScript = preload("res://scripts/player/view_kit.gd")
 @export var pistol_bloom_per_shot := 1.1
 @export var pistol_bloom_recovery := 1.8
 @export var pistol_camera_kick_scale := 1.7
-@export var shotgun_damage := 9.0
+@export var shotgun_damage := 12.0
 @export var shotgun_pellets := 8
-@export var shotgun_spread_degrees := 6.0
+@export var shotgun_spread_degrees := 4.5
 @export var shotgun_cooldown := 0.85
 @export var shotgun_range := 26.0
 @export var shotgun_push := 7.0
@@ -77,6 +82,7 @@ var _sfx_hurt: AudioStream
 
 func _ready() -> void:
 	_hp = max_hp
+	_sound = get_tree().root.get_node_or_null("Sound")
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	melee_ray.enabled = true
 	gun_ray.enabled = true
@@ -99,6 +105,25 @@ func _play(stream: AudioStream) -> void:
 	sfx.stream = stream
 	sfx.pitch_scale = randf_range(0.92, 1.08)
 	sfx.play()
+
+## Named event through the Sound autoload; falls back to the legacy stream.
+func _sfx_event(event: String, fallback: AudioStream = null, fallback_pitch := 1.0) -> void:
+	if _sound and _sound.has_event(event):
+		_sound.play(event)
+	elif fallback:
+		_play_pitched(fallback, fallback_pitch)
+
+func _update_footsteps(delta: float) -> void:
+	var planar := Vector2(velocity.x, velocity.z).length()
+	if is_on_floor() and planar > 1.0:
+		_step_distance += planar * delta
+		var stride := 2.4 if Input.is_action_pressed("sprint") else 1.9
+		if _step_distance >= stride:
+			_step_distance = 0.0
+			_sfx_event("footstep")
+	if is_on_floor() and not _was_on_floor:
+		_sfx_event("land")
+	_was_on_floor = is_on_floor()
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -135,7 +160,7 @@ func _physics_process(delta: float) -> void:
 		_kick_timer = kick_cooldown
 		_kick_elapsed = 0.0
 		_kick_connected = false
-		_play(_sfx_melee)
+		_sfx_event("punch_swing", _sfx_melee)
 	_update_kick(delta)
 	_melee_timer = maxf(0.0, _melee_timer - delta)
 	_fire_timer = maxf(0.0, _fire_timer - delta)
@@ -143,6 +168,7 @@ func _physics_process(delta: float) -> void:
 	if _boost_left > 0.0:
 		_boost_left = maxf(0.0, _boost_left - delta)
 		if _boost_left <= 0.0:
+			_sfx_event("boost_end")
 			_update_hud()
 	_update_pump(delta)
 	_hurt_cd = maxf(0.0, _hurt_cd - delta)
@@ -171,6 +197,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y = jump_velocity * (boost_jump_scale if _boost_left > 0.0 else 1.0)
 
 	move_and_slide()
+	_update_footsteps(delta)
 
 	if Input.is_action_just_pressed("primary"):
 		if _weapon == Weapon.FISTS:
@@ -232,10 +259,12 @@ func _update_kick(delta: float) -> void:
 		var query := PhysicsRayQueryParameters3D.create(origin, origin - camera.global_basis.z * kick_range, 1, [get_rid()])
 		var hit := get_world_3d().direct_space_state.intersect_ray(query)
 		if not hit.is_empty():
-			_play(_sfx_impact)
 			var target: Object = hit.collider
 			if target.has_method("apply_kick"):
 				target.apply_kick(kick_damage, global_position, kick_force)
+				_sfx_event("kick_hit" if target.is_in_group("enemies") else "kick_prop", _sfx_impact)
+			else:
+				_sfx_event("kick_prop", _sfx_impact)
 	if _kick_elapsed >= 0.40:
 		_kick_elapsed = -1.0
 		_boot.visible = false
@@ -243,23 +272,25 @@ func _update_kick(delta: float) -> void:
 func grant_gun() -> void:
 	_has_gun = true
 	_set_weapon(Weapon.PISTOL)
-	_play(_sfx_gun)
+	_sfx_event("pickup_weapon", _sfx_gun)
 
 func grant_shotgun() -> void:
 	_has_shotgun = true
 	_shells = mini(shell_capacity, _shells + 8)
 	_set_weapon(Weapon.SHOTGUN)
-	_play_pitched(_sfx_gun, 0.6)
+	_sfx_event("pickup_weapon", _sfx_gun, 0.6)
 
 func add_shells(amount: int) -> bool:
 	if _shells >= shell_capacity:
 		return false
 	_shells = mini(shell_capacity, _shells + amount)
+	_sfx_event("pickup_ammo")
 	_update_hud()
 	return true
 
 func apply_boost(duration: float) -> bool:
 	_boost_left = maxf(_boost_left, duration)
+	_sfx_event("boost")
 	_update_hud()
 	if hud and hud.has_method("flash_boost"):
 		hud.flash_boost()
@@ -311,6 +342,7 @@ func restore_health(amount: float) -> bool:
 	if amount <= 0.0 or _hp >= max_hp:
 		return false
 	_hp = minf(max_hp, _hp + amount)
+	_sfx_event("pickup_health")
 	_update_hud()
 	return true
 
@@ -320,7 +352,7 @@ func take_damage(amount: float) -> void:
 	_hurt_cd = 0.35
 	_hp = maxf(0.0, _hp - amount)
 	_update_hud()
-	_play(_sfx_hurt)
+	_sfx_event("player_hurt", _sfx_hurt)
 	if hud and hud.has_method("flash_hurt"):
 		hud.flash_hurt()
 	var start := camera.position
@@ -345,7 +377,7 @@ func _try_melee() -> void:
 	if _melee_timer > 0.0:
 		return
 	_melee_timer = melee_cooldown
-	_play(_sfx_melee)
+	_sfx_event("punch_swing", _sfx_melee)
 	# punch anim nudge
 	if view_fists:
 		var tw := create_tween()
@@ -364,7 +396,7 @@ func _try_melee() -> void:
 		col.take_damage(melee_damage)
 		hit = true
 	if hit:
-		_play(_sfx_impact)
+		_sfx_event("punch_hit", _sfx_impact)
 		var start := camera.position
 		var tw2 := create_tween()
 		tw2.tween_property(camera, "position", start + Vector3(0, 0, 0.07), 0.04)
@@ -374,7 +406,7 @@ func _try_fire() -> void:
 	if _fire_timer > 0.0:
 		return
 	_fire_timer = pistol_cooldown
-	_play(_sfx_gun)
+	_sfx_event("pistol_shot", _sfx_gun)
 	if muzzle:
 		muzzle.light_energy = 4.5
 	# Accuracy follows the player's aim, independently of temporary visual kick.
@@ -392,20 +424,27 @@ func _try_fire() -> void:
 	_apply_aim()
 	var col = hit.get("collider")
 	if col and col.has_method("take_damage"):
-		col.take_damage(pistol_damage)
+		var weak: bool = col.has_method("is_weak_hit") and col.is_weak_hit(hit.position)
+		col.take_damage(pistol_damage, weak)
+		ImpactFx.flesh(get_parent(), hit.position, weak)
+		_register_hit(weak)
+	elif not hit.is_empty():
+		ImpactFx.puff(get_parent(), hit.position, hit.normal)
+		if _sound:
+			_sound.play_at("bullet_scenery", hit.position)
 
 func _try_shotgun() -> void:
 	if _shotgun_timer > 0.0 or _pump_elapsed >= 0.0:
 		return
 	if _shells <= 0:
 		_shotgun_timer = 0.3
-		_play_pitched(_sfx_melee, 1.6)
+		_sfx_event("shotgun_empty", _sfx_melee, 1.6)
 		_update_hud()
 		return
 	_shells -= 1
 	_shotgun_timer = shotgun_cooldown
 	_pump_elapsed = 0.0
-	_play_pitched(_sfx_gun, 0.55)
+	_sfx_event("shotgun_shot", _sfx_gun, 0.55)
 	if muzzle:
 		muzzle.light_energy = 7.0
 	var aim_basis := global_transform.basis * Basis(Vector3.RIGHT, _pitch)
@@ -422,16 +461,28 @@ func _try_shotgun() -> void:
 			continue
 		var col: Object = hit.collider
 		if col == null or not col.has_method("take_damage"):
+			ImpactFx.puff(get_parent(), hit.position, hit.normal)
+			if _sound and i % 3 == 0:
+				_sound.play_at("bullet_scenery", hit.position)
 			continue
 		var distance: float = origin.distance_to(hit.position)
 		var falloff := 1.0 if distance < 10.0 else clampf(1.0 - (distance - 10.0) / (shotgun_range - 10.0), 0.15, 1.0)
-		hits[col] = hits.get(col, 0.0) + shotgun_damage * falloff
+		var weak: bool = col.has_method("is_weak_hit") and col.is_weak_hit(hit.position)
+		var entry: Dictionary = hits.get(col, {"amount": 0.0, "weak": 0, "point": hit.position})
+		entry["amount"] += shotgun_damage * falloff
+		entry["weak"] += 1 if weak else 0
+		hits[col] = entry
 	for col in hits:
-		var amount: float = hits[col]
+		var entry: Dictionary = hits[col]
+		var amount: float = entry["amount"]
+		# Half the pellets on a weak spot counts as a weak hit.
+		var weak: bool = entry["weak"] * 2 >= shotgun_pellets / 2
 		if col.has_method("apply_shot"):
-			col.apply_shot(amount, global_position, shotgun_push * clampf(amount / (shotgun_damage * shotgun_pellets), 0.3, 1.0))
+			col.apply_shot(amount, global_position, shotgun_push * clampf(amount / (shotgun_damage * shotgun_pellets), 0.3, 1.0), weak)
 		else:
-			col.take_damage(amount)
+			col.take_damage(amount, weak)
+		ImpactFx.flesh(get_parent(), entry["point"], weak)
+		_register_hit(weak)
 	_recoil += Vector2(deg_to_rad(randf_range(-0.8, 0.8)), deg_to_rad(randf_range(3.0, 3.8)))
 	_recoil = _recoil.limit_length(deg_to_rad(4.5))
 	_apply_aim()
@@ -445,12 +496,21 @@ func _update_pump(delta: float) -> void:
 	var travel := 0.0
 	if _pump_elapsed > 0.2:
 		travel = sin(clampf((_pump_elapsed - 0.2) / 0.4, 0.0, 1.0) * PI)
+	if _pump_elapsed - delta <= 0.2 and _pump_elapsed > 0.2:
+		_sfx_event("shotgun_pump")
 	if _pump:
 		_pump.position.z = -0.26 + travel * 0.09
 	if _pump_hand:
 		_pump_hand.position.z = -0.26 + travel * 0.09
 	if _pump_elapsed >= 0.6:
 		_pump_elapsed = -1.0
+
+func _register_hit(weak: bool) -> void:
+	# Only weak hits get a sound; regular hits rely on the crosshair tick and the enemy voice.
+	if weak:
+		_sfx_event("weak_hit")
+	if hud and hud.has_method("hit_marker"):
+		hud.hit_marker(weak)
 
 func _apply_aim() -> void:
 	# Camera punch is tuned separately from the approved weapon animation.

@@ -6,3 +6,10 @@ func _ready() -> void:
 	dialogue.name = "DoorDialogue"
 	dialogue.set_script(preload("res://scripts/levels/door_dialogue.gd"))
 	add_child(dialogue)
+	var bank := get_tree().root.get_node_or_null("Sound")
+	if bank:
+		bank.start_ambience("ambience_wind")
+	var life := Node3D.new()
+	life.name = "CityLife"
+	life.set_script(preload("res://scripts/levels/city_life.gd"))
+	add_child(life)

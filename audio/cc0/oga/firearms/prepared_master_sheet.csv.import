@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dywoamkcxyc51"
+
+[deps]
+
+files=["res://audio/cc0/oga/firearms/prepared_master_sheet.CD.translation", "res://audio/cc0/oga/firearms/prepared_master_sheet.Track.translation", "res://audio/cc0/oga/firearms/prepared_master_sheet.Index.translation", "res://audio/cc0/oga/firearms/prepared_master_sheet.Description.translation"]
+
+source_file="res://audio/cc0/oga/firearms/prepared_master_sheet.csv"
+dest_files=["res://audio/cc0/oga/firearms/prepared_master_sheet.CD.translation", "res://audio/cc0/oga/firearms/prepared_master_sheet.Track.translation", "res://audio/cc0/oga/firearms/prepared_master_sheet.Index.translation", "res://audio/cc0/oga/firearms/prepared_master_sheet.Description.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

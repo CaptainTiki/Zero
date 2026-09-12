@@ -37,15 +37,15 @@
 [ext_resource type="Material" path="res://materials/retro/brick_dark.tres" id="retro_brick_dark"]
 [ext_resource type="Material" path="res://materials/retro/plaster_ochre.tres" id="retro_plaster_ochre"]
 
-[sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
-sky_top_color = Color(0.36, 0.5, 0.72, 1)
-sky_horizon_color = Color(0.86, 0.74, 0.6, 1)
-sky_curve = 0.12
-sky_energy_multiplier = 1.1
-ground_bottom_color = Color(0.22, 0.2, 0.18, 1)
-ground_horizon_color = Color(0.6, 0.52, 0.44, 1)
-sun_angle_max = 18.0
-sun_curve = 0.2
+[ext_resource type="Shader" path="res://materials/retro/sky_clouds.gdshader" id="sky_shader"]
+
+[sub_resource type="ShaderMaterial" id="SkyMat"]
+shader = ExtResource("sky_shader")
+shader_parameter/top_color = Color(0.36, 0.5, 0.72, 1)
+shader_parameter/horizon_color = Color(0.86, 0.74, 0.6, 1)
+shader_parameter/ground_color = Color(0.22, 0.2, 0.18, 1)
+shader_parameter/cloud_cover = 0.42
+shader_parameter/cloud_speed = 0.012
 
 [sub_resource type="Sky" id="Sky"]
 sky_material = SubResource("SkyMat")
@@ -556,6 +556,8 @@ transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, 11, 0.02
 
 [node name="ServiceRoadKickBox" parent="." unique_id=946983278 instance=ExtResource("16_box")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.1, 0)
+visible = false
+process_mode = 4
 
 [node name="ServiceRoadSupplyCrate" parent="." unique_id=889947322 instance=ExtResource("17_supply")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.1, 2.5)

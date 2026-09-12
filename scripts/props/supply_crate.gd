@@ -38,6 +38,9 @@ func _break_open() -> void:
 	if _broken:
 		return
 	_broken = true
+	var bank := get_tree().root.get_node_or_null("Sound")
+	if bank:
+		bank.play_at("crate_break", global_position)
 	hide()
 	$CollisionShape3D.set_deferred("disabled", true)
 	call_deferred("_release_contents")
