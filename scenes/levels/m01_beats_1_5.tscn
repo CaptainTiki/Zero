@@ -20,6 +20,9 @@
 
 [ext_resource type="PackedScene" path="res://scenes/modules/opening_art.tscn" id="18_art"]
 [ext_resource type="PackedScene" path="res://scenes/modules/city_dress.tscn" id="19_city"]
+[ext_resource type="PackedScene" path="res://scenes/props/shotgun_pickup.tscn" id="20_shotgun"]
+[ext_resource type="PackedScene" path="res://scenes/props/ammo_pickup.tscn" id="21_ammo"]
+[ext_resource type="PackedScene" path="res://scenes/props/boost_pickup.tscn" id="22_boost"]
 [ext_resource type="Material" path="res://materials/retro/plaster.tres" id="retro_plaster"]
 [ext_resource type="Material" path="res://materials/retro/brick.tres" id="retro_brick"]
 [ext_resource type="Material" path="res://materials/retro/teal.tres" id="retro_teal"]
@@ -106,6 +109,7 @@ material = ExtResource("retro_paint_line")
 
 [node name="LaneLine2" type="CSGBox3D" parent="." unique_id=1531364781]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95, 0.02, 0)
+visible = false
 size = Vector3(30, 0.02, 0.25)
 material = ExtResource("retro_paint_line")
 
@@ -559,3 +563,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.1, 2.5)
 [node name="OpeningArt" parent="." instance=ExtResource("18_art")]
 
 [node name="CityDress" parent="." instance=ExtResource("19_city")]
+
+[node name="ShotgunPickup" parent="." instance=ExtResource("20_shotgun")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.1, -2.5)
+
+[node name="AmmoStreet" parent="." instance=ExtResource("21_ammo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 75, 0.1, 3)
+
+[node name="AmmoPlaza" parent="." instance=ExtResource("21_ammo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91, 0.1, 3)
+
+[node name="AmmoStation" parent="." instance=ExtResource("21_ammo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104, 0.1, -3)
+
+[node name="BoostTerrace" parent="." instance=ExtResource("22_boost")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93, 2.7, -8.3)

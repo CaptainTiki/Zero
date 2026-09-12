@@ -21,27 +21,18 @@ var _bursting := false
 var _burst_velocity := Vector3.ZERO
 var _strafe_sign := 1.0
 var _player: Node3D
-var _flash_left := 0.0
-var _mat: StandardMaterial3D
-var _base_color := Color(0.95, 0.45, 0.15, 1)
+var _body: Node
 
 func _ready() -> void:
 	_hp = max_hp
 	add_to_group("enemies")
 	add_to_group("elites")
-	var mesh := get_node_or_null("MeshInstance3D") as MeshInstance3D
-	if mesh:
-		_mat = StandardMaterial3D.new()
-		_mat.albedo_color = _base_color
-		mesh.material_override = _mat
+	_body = get_node_or_null("Body")
 	_strafe_sign = 1.0 if randf() > 0.5 else -1.0
 
 func _physics_process(delta: float) -> void:
-	if _flash_left > 0.0:
-		_flash_left = maxf(0.0, _flash_left - delta)
-		if _mat and _flash_left <= 0.0:
-			_mat.albedo_color = _base_color
 	_attack_timer = maxf(0.0, _attack_timer - delta)
+	_animate(delta, 0.8 if _bursting else (-0.5 if _kick_stagger > 0.0 else 0.0))
 	if _kick_stagger > 0.0:
 		_kick_stagger = maxf(0.0, _kick_stagger - delta)
 		velocity.x = _kick_velocity.x
@@ -108,15 +99,23 @@ func _move_with_gravity(delta: float) -> void:
 	move_and_slide()
 
 func _hit_fx() -> void:
-	_flash_left = 0.12
-	if _mat:
-		_mat.albedo_color = Color(1, 1, 1, 1)
+	if _body:
+		_body.flash()
+
+func _die() -> void:
+	if _body:
+		_body.burst(get_parent(), global_basis.z)
+	queue_free()
+
+func _animate(delta: float, lean: float = 0.0) -> void:
+	if _body:
+		_body.animate(delta, Vector2(velocity.x, velocity.z).length(), lean)
 
 func take_damage(amount: float) -> void:
 	_hit_fx()
 	_hp -= amount
 	if _hp <= 0.0:
-		queue_free()
+		_die()
 
 func apply_melee_hit(amount: float, from: Vector3) -> void:
 	var push := global_position - from
@@ -131,4 +130,13 @@ func apply_kick(amount: float, from: Vector3, force: float) -> void:
 	_kick_velocity = direction.normalized() * force
 	_kick_stagger = 0.4
 	_end_burst()
+	take_damage(amount)
+
+func apply_shot(amount: float, from: Vector3, push: float) -> void:
+	# Shotgun pellets shove light enemies without the full kick stagger.
+	var direction := global_position - from
+	direction.y = 0.0
+	if direction.length() > 0.01 and push > 0.0:
+		_kick_velocity = direction.normalized() * push
+		_kick_stagger = maxf(_kick_stagger, 0.12)
 	take_damage(amount)

@@ -11,6 +11,7 @@ func _ready() -> void:
 	_bind_key("kick", KEY_F)
 	_bind_key("weapon_fists", KEY_1)
 	_bind_key("weapon_pistol", KEY_2)
+	_bind_key("weapon_shotgun", KEY_3)
 	_bind_mouse("primary", MOUSE_BUTTON_LEFT)
 	_bind_mouse("ads", MOUSE_BUTTON_RIGHT)
 

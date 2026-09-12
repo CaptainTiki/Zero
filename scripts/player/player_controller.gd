@@ -1,7 +1,8 @@
 extends CharacterBody3D
 class_name PlayerController
 
-enum Weapon { FISTS, PISTOL }
+enum Weapon { FISTS, PISTOL, SHOTGUN }
+const ViewKitScript = preload("res://scripts/player/view_kit.gd")
 
 @export var walk_speed := 6.0
 @export var sprint_speed := 9.0
@@ -16,6 +17,15 @@ enum Weapon { FISTS, PISTOL }
 @export var pistol_bloom_per_shot := 1.1
 @export var pistol_bloom_recovery := 1.8
 @export var pistol_camera_kick_scale := 1.7
+@export var shotgun_damage := 9.0
+@export var shotgun_pellets := 8
+@export var shotgun_spread_degrees := 6.0
+@export var shotgun_cooldown := 0.85
+@export var shotgun_range := 26.0
+@export var shotgun_push := 7.0
+@export var shell_capacity := 32
+@export var boost_speed_scale := 1.5
+@export var boost_jump_scale := 1.35
 @export var max_hp := 100.0
 @export var kick_range := 2.2
 @export var kick_damage := 10.0
@@ -35,6 +45,15 @@ var _shot_bloom := 0.0
 var _melee_timer := 0.0
 var _fire_timer := 0.0
 var _has_gun := false
+var _has_shotgun := false
+var _shells := 0
+var _shotgun_timer := 0.0
+var _pump_elapsed := -1.0
+var _boost_left := 0.0
+var view_shotgun: Node3D
+var _pump: Node3D
+var _pump_hand: Node3D
+var _pistol_slide: Node3D
 var _weapon: Weapon = Weapon.FISTS
 var _held_prop: Node3D
 var _hp := 100.0
@@ -65,9 +84,9 @@ func _ready() -> void:
 	_sfx_impact = _load_sfx("res://audio/sfx/player/melee_impact_01.wav")
 	_sfx_gun = _load_sfx("res://audio/sfx/weapons/gunfire_pistol_01.wav")
 	_sfx_hurt = _load_sfx("res://audio/sfx/alien/hit_01.wav")
+	_build_view_rigs()
 	_refresh_weapon_visuals()
 	_update_hud()
-	_build_boot()
 
 func _load_sfx(path: String) -> AudioStream:
 	if ResourceLoader.exists(path):
@@ -106,6 +125,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_set_weapon(Weapon.FISTS)
 	if event.is_action_pressed("weapon_pistol") and _has_gun:
 		_set_weapon(Weapon.PISTOL)
+	if event.is_action_pressed("weapon_shotgun") and _has_shotgun:
+		_set_weapon(Weapon.SHOTGUN)
 
 func _physics_process(delta: float) -> void:
 	_update_recoil(delta)
@@ -118,6 +139,12 @@ func _physics_process(delta: float) -> void:
 	_update_kick(delta)
 	_melee_timer = maxf(0.0, _melee_timer - delta)
 	_fire_timer = maxf(0.0, _fire_timer - delta)
+	_shotgun_timer = maxf(0.0, _shotgun_timer - delta)
+	if _boost_left > 0.0:
+		_boost_left = maxf(0.0, _boost_left - delta)
+		if _boost_left <= 0.0:
+			_update_hud()
+	_update_pump(delta)
 	_hurt_cd = maxf(0.0, _hurt_cd - delta)
 	_ads = _weapon == Weapon.PISTOL and Input.is_action_pressed("ads")
 	if muzzle and muzzle.light_energy > 0.0:
@@ -131,6 +158,8 @@ func _physics_process(delta: float) -> void:
 	var speed := sprint_speed if Input.is_action_pressed("sprint") else walk_speed
 	if _ads:
 		speed *= 0.7
+	if _boost_left > 0.0:
+		speed *= boost_speed_scale
 	if direction != Vector3.ZERO:
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
@@ -139,7 +168,7 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0.0, speed)
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = jump_velocity
+		velocity.y = jump_velocity * (boost_jump_scale if _boost_left > 0.0 else 1.0)
 
 	move_and_slide()
 
@@ -148,33 +177,39 @@ func _physics_process(delta: float) -> void:
 			_try_melee()
 		elif _weapon == Weapon.PISTOL:
 			_try_fire()
+		elif _weapon == Weapon.SHOTGUN:
+			_try_shotgun()
 
 	_update_viewmodel_pose(delta)
 
-func _build_boot() -> void:
-	_boot = Node3D.new()
-	_boot.name = "ViewBoot"
+func _build_view_rigs() -> void:
+	# Replace the placeholder blocks in the scene with procedural rigs.
+	for holder in [view_fists, view_pistol]:
+		for child in holder.get_children():
+			if child is MeshInstance3D:
+				child.queue_free()
+	view_fists.add_child(ViewKitScript.fists())
+	var pistol_rig: Node3D = ViewKitScript.pistol()
+	view_pistol.add_child(pistol_rig)
+	_pistol_slide = pistol_rig.get_node("Slide")
+	view_shotgun = Node3D.new()
+	view_shotgun.name = "ViewShotgun"
+	view_shotgun.position = Vector3(0.24, -0.24, -0.42)
+	view_shotgun.rotation = Vector3(0.0, 0.06, 0.0)
+	camera.add_child(view_shotgun)
+	var shotgun_rig: Node3D = ViewKitScript.shotgun()
+	view_shotgun.add_child(shotgun_rig)
+	_pump = shotgun_rig.get_node("Pump")
+	_pump_hand = shotgun_rig.get_node("PumpHand")
+	for i in 4:
+		var groove: Node3D = shotgun_rig.get_node("PumpGroove%d" % i)
+		var world_pos := groove.position
+		shotgun_rig.remove_child(groove)
+		_pump.add_child(groove)
+		groove.position = world_pos - _pump.position
+	_boot = ViewKitScript.boot()
 	camera.add_child(_boot)
-	var leather := StandardMaterial3D.new()
-	leather.albedo_color = Color(0.19, 0.12, 0.07)
-	var sole := StandardMaterial3D.new()
-	sole.albedo_color = Color(0.045, 0.04, 0.035)
-	var trousers := StandardMaterial3D.new()
-	trousers.albedo_color = Color(0.25, 0.29, 0.16)
-	_boot_piece(Vector3(0.23, 0.23, 0.55), Vector3.ZERO, leather)
-	_boot_piece(Vector3(0.25, 0.065, 0.58), Vector3(0, -0.14, 0), sole)
-	_boot_piece(Vector3(0.18, 0.2, 0.65), Vector3(0, 0.1, 0.48), trousers)
 	_boot.visible = false
-
-func _boot_piece(size: Vector3, offset: Vector3, material: Material) -> void:
-	var part := MeshInstance3D.new()
-	var mesh := BoxMesh.new()
-	mesh.size = size
-	part.mesh = mesh
-	part.material_override = material
-	part.position = offset
-	part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_boot.add_child(part)
 
 func _update_kick(delta: float) -> void:
 	if _kick_elapsed < 0.0:
@@ -210,6 +245,33 @@ func grant_gun() -> void:
 	_set_weapon(Weapon.PISTOL)
 	_play(_sfx_gun)
 
+func grant_shotgun() -> void:
+	_has_shotgun = true
+	_shells = mini(shell_capacity, _shells + 8)
+	_set_weapon(Weapon.SHOTGUN)
+	_play_pitched(_sfx_gun, 0.6)
+
+func add_shells(amount: int) -> bool:
+	if _shells >= shell_capacity:
+		return false
+	_shells = mini(shell_capacity, _shells + amount)
+	_update_hud()
+	return true
+
+func apply_boost(duration: float) -> bool:
+	_boost_left = maxf(_boost_left, duration)
+	_update_hud()
+	if hud and hud.has_method("flash_boost"):
+		hud.flash_boost()
+	return true
+
+func _play_pitched(stream: AudioStream, pitch: float) -> void:
+	if stream == null or sfx == null:
+		return
+	sfx.stream = stream
+	sfx.pitch_scale = pitch * randf_range(0.96, 1.04)
+	sfx.play()
+
 func _set_weapon(w: Weapon) -> void:
 	_weapon = w
 	_ads = false
@@ -221,6 +283,8 @@ func _refresh_weapon_visuals() -> void:
 		view_fists.visible = (_weapon == Weapon.FISTS)
 	if view_pistol:
 		view_pistol.visible = (_weapon == Weapon.PISTOL)
+	if view_shotgun:
+		view_shotgun.visible = (_weapon == Weapon.SHOTGUN)
 
 func _update_viewmodel_pose(delta: float) -> void:
 	# simple bob / ads push
@@ -232,6 +296,16 @@ func _update_viewmodel_pose(delta: float) -> void:
 		view_pistol.position = view_pistol.position.lerp(target + Vector3(0, bob + recoil_amount * 0.05, recoil_amount * 0.15), clampf(delta * 32.0, 0.0, 1.0))
 	if _weapon == Weapon.FISTS and view_fists:
 		view_fists.position = Vector3(0.2, -0.25, -0.4) + Vector3(0, bob, 0)
+	if _weapon == Weapon.SHOTGUN and view_shotgun:
+		var kick := _recoil.length() / deg_to_rad(4.5)
+		var pump_lift := 0.0
+		if _pump_elapsed >= 0.0:
+			pump_lift = sin(clampf(_pump_elapsed / 0.55, 0.0, 1.0) * PI) * 0.06
+		var target := Vector3(0.24, -0.24 + bob + pump_lift, -0.42 + kick * 0.14)
+		view_shotgun.position = view_shotgun.position.lerp(target, clampf(delta * 24.0, 0.0, 1.0))
+		view_shotgun.rotation.x = lerpf(view_shotgun.rotation.x, kick * 0.35 + pump_lift * 2.0, clampf(delta * 20.0, 0.0, 1.0))
+	if _pistol_slide:
+		_pistol_slide.position.z = -0.02 + _recoil.length() / deg_to_rad(1.8) * 0.05
 
 func restore_health(amount: float) -> bool:
 	if amount <= 0.0 or _hp >= max_hp:
@@ -260,8 +334,12 @@ func take_damage(amount: float) -> void:
 
 func _update_hud() -> void:
 	if hud and hud.has_method("set_status"):
-		var wname := "FISTS" if _weapon == Weapon.FISTS else "PISTOL"
-		hud.set_status(wname, _hp, max_hp, _has_gun, _ads)
+		var names := {Weapon.FISTS: "FISTS", Weapon.PISTOL: "PISTOL", Weapon.SHOTGUN: "SHOTGUN"}
+		var wname: String = names[_weapon]
+		var ammo := ""
+		if _weapon == Weapon.SHOTGUN:
+			ammo = "SHELLS %d" % _shells
+		hud.set_status(wname, _hp, max_hp, _has_gun, _ads, ammo, _boost_left)
 
 func _try_melee() -> void:
 	if _melee_timer > 0.0:
@@ -315,6 +393,64 @@ func _try_fire() -> void:
 	var col = hit.get("collider")
 	if col and col.has_method("take_damage"):
 		col.take_damage(pistol_damage)
+
+func _try_shotgun() -> void:
+	if _shotgun_timer > 0.0 or _pump_elapsed >= 0.0:
+		return
+	if _shells <= 0:
+		_shotgun_timer = 0.3
+		_play_pitched(_sfx_melee, 1.6)
+		_update_hud()
+		return
+	_shells -= 1
+	_shotgun_timer = shotgun_cooldown
+	_pump_elapsed = 0.0
+	_play_pitched(_sfx_gun, 0.55)
+	if muzzle:
+		muzzle.light_energy = 7.0
+	var aim_basis := global_transform.basis * Basis(Vector3.RIGHT, _pitch)
+	var origin := camera.global_position
+	var hits := {}
+	for i in shotgun_pellets:
+		var spread := deg_to_rad(shotgun_spread_degrees)
+		var radius := sqrt(randf()) * tan(spread)
+		var angle := randf() * TAU
+		var direction := aim_basis * Vector3(cos(angle) * radius, sin(angle) * radius, -1.0).normalized()
+		var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * shotgun_range, gun_ray.collision_mask, [get_rid()])
+		var hit := get_world_3d().direct_space_state.intersect_ray(query)
+		if hit.is_empty():
+			continue
+		var col: Object = hit.collider
+		if col == null or not col.has_method("take_damage"):
+			continue
+		var distance: float = origin.distance_to(hit.position)
+		var falloff := 1.0 if distance < 10.0 else clampf(1.0 - (distance - 10.0) / (shotgun_range - 10.0), 0.15, 1.0)
+		hits[col] = hits.get(col, 0.0) + shotgun_damage * falloff
+	for col in hits:
+		var amount: float = hits[col]
+		if col.has_method("apply_shot"):
+			col.apply_shot(amount, global_position, shotgun_push * clampf(amount / (shotgun_damage * shotgun_pellets), 0.3, 1.0))
+		else:
+			col.take_damage(amount)
+	_recoil += Vector2(deg_to_rad(randf_range(-0.8, 0.8)), deg_to_rad(randf_range(3.0, 3.8)))
+	_recoil = _recoil.limit_length(deg_to_rad(4.5))
+	_apply_aim()
+	_update_hud()
+
+func _update_pump(delta: float) -> void:
+	if _pump_elapsed < 0.0:
+		return
+	_pump_elapsed += delta
+	# Pump racks back between 0.2 and 0.4 s, returns by 0.6 s.
+	var travel := 0.0
+	if _pump_elapsed > 0.2:
+		travel = sin(clampf((_pump_elapsed - 0.2) / 0.4, 0.0, 1.0) * PI)
+	if _pump:
+		_pump.position.z = -0.26 + travel * 0.09
+	if _pump_hand:
+		_pump_hand.position.z = -0.26 + travel * 0.09
+	if _pump_elapsed >= 0.6:
+		_pump_elapsed = -1.0
 
 func _apply_aim() -> void:
 	# Camera punch is tuned separately from the approved weapon animation.

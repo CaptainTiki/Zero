@@ -1,18 +1,11 @@
 [gd_scene load_steps=4 format=3 uid="uid://superzero_hunter"]
 
 [ext_resource type="Script" path="res://scripts/enemies/hunter.gd" id="1"]
-[ext_resource type="ArrayMesh" path="res://meshes/elite_hunter.obj" id="2_mesh"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_body.gd" id="2_body"]
 
 [sub_resource type="CapsuleShape3D" id="shape"]
 radius = 0.4
 height = 1.7
-
-[sub_resource type="StandardMaterial3D" id="mat"]
-albedo_color = Color(1.0, 0.55, 0.2, 1)
-roughness = 0.75
-emission_enabled = true
-emission = Color(0.9, 0.4, 0.05, 1)
-emission_energy_multiplier = 0.45
 
 [node name="Hunter" type="CharacterBody3D"]
 script = ExtResource("1")
@@ -21,6 +14,6 @@ script = ExtResource("1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 shape = SubResource("shape")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = ExtResource("2_mesh")
-surface_material_override/0 = SubResource("mat")
+[node name="Body" type="Node3D" parent="."]
+script = ExtResource("2_body")
+kind = "hunter"

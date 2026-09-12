@@ -1,0 +1,58 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/props/gun_pickup.gd" id="1"]
+
+[sub_resource type="BoxShape3D" id="shape"]
+size = Vector3(1.2, 0.5, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="steel"]
+albedo_color = Color(0.16, 0.17, 0.19, 1)
+metallic = 0.55
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="wood"]
+albedo_color = Color(0.42, 0.24, 0.12, 1)
+roughness = 0.7
+
+[sub_resource type="CylinderMesh" id="barrel"]
+top_radius = 0.035
+bottom_radius = 0.035
+height = 0.95
+radial_segments = 8
+material = SubResource("steel")
+
+[sub_resource type="BoxMesh" id="receiver"]
+size = Vector3(0.11, 0.13, 0.32)
+material = SubResource("steel")
+
+[sub_resource type="BoxMesh" id="stock"]
+size = Vector3(0.09, 0.14, 0.42)
+material = SubResource("wood")
+
+[node name="ShotgunPickup" type="Area3D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1")
+weapon = "shotgun"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.3, 0)
+shape = SubResource("shape")
+
+[node name="Barrel" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0.45, -0.35)
+mesh = SubResource("barrel")
+
+[node name="Receiver" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.42, 0.12)
+mesh = SubResource("receiver")
+
+[node name="Pump" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.36, -0.3)
+mesh = SubResource("stock")
+scale = Vector3(0.9, 0.55, 0.45)
+
+[node name="Stock" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.36, 0.48)
+rotation = Vector3(-0.15, 0, 0)
+mesh = SubResource("stock")
