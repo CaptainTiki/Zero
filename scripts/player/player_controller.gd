@@ -28,7 +28,7 @@ var _was_on_floor := true
 @export var shotgun_cooldown := 0.85
 @export var shotgun_range := 26.0
 @export var shotgun_push := 7.0
-@export var shell_capacity := 32
+@export var shell_capacity := 64
 @export var boost_speed_scale := 1.5
 @export var boost_jump_scale := 1.35
 @export var max_hp := 100.0
@@ -152,6 +152,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_set_weapon(Weapon.PISTOL)
 	if event.is_action_pressed("weapon_shotgun") and _has_shotgun:
 		_set_weapon(Weapon.SHOTGUN)
+	if event.is_action_pressed("hud_toggle", false, true) and hud:
+		hud.visible = not hud.visible
 
 func _physics_process(delta: float) -> void:
 	_update_recoil(delta)
@@ -276,7 +278,7 @@ func grant_gun() -> void:
 
 func grant_shotgun() -> void:
 	_has_shotgun = true
-	_shells = mini(shell_capacity, _shells + 8)
+	_shells = mini(shell_capacity, _shells + 16)
 	_set_weapon(Weapon.SHOTGUN)
 	_sfx_event("pickup_weapon", _sfx_gun, 0.6)
 
@@ -350,6 +352,7 @@ func take_damage(amount: float) -> void:
 	if _hurt_cd > 0.0:
 		return
 	_hurt_cd = 0.35
+	get_tree().call_group("run_stats", "record_damage", minf(amount, _hp))
 	_hp = maxf(0.0, _hp - amount)
 	_update_hud()
 	_sfx_event("player_hurt", _sfx_hurt)
@@ -407,6 +410,7 @@ func _try_fire() -> void:
 		return
 	_fire_timer = pistol_cooldown
 	_sfx_event("pistol_shot", _sfx_gun)
+	get_tree().call_group("run_stats", "record_shot", "pistol")
 	if muzzle:
 		muzzle.light_energy = 4.5
 	# Accuracy follows the player's aim, independently of temporary visual kick.
@@ -444,6 +448,7 @@ func _try_shotgun() -> void:
 	_shells -= 1
 	_shotgun_timer = shotgun_cooldown
 	_pump_elapsed = 0.0
+	get_tree().call_group("run_stats", "record_shot", "shotgun")
 	_sfx_event("shotgun_shot", _sfx_gun, 0.55)
 	if muzzle:
 		muzzle.light_energy = 7.0

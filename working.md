@@ -1,8 +1,29 @@
 # SUPER ZERO — working notes
 
-Last updated: September 11, 2026
+Last updated: September 12, 2026
 
 ## Resume here
+
+**Acts 2 and 3 are greyboxed (September 12, 2026).** `scenes/levels/l01_district04.tscn` is now
+1124 nodes. `CanalCollapse` shuts Canal Street at x 90..94 so the pharmacy exit can only go west;
+`BackGapRubble` shuts the alley bypass. Act 2 is Canal West plus Mill Road (x -30..-8, z -150..-71)
+with a fallen flyover to climb and a works compound at the head. Act 3 is the storm drains at floor
+-5.5 with their own omni lighting, running east under the district through a cistern and back up a
+slot into the cross street. Beats 5, 6 and 7 are new, the plaza line is beat 8, the arena arms on
+beat 8, and par is 12:00. Secrets 9 to 12 added, so twelve total. Every ramp is sized from its rise
+and run because a 0.3 lip at a ramp foot stops `CharacterBody3D` dead.
+
+**Scope, September 12, 2026.** The five-minute greybox is the **Level 01 playtest build**, one section
+of a Mission 01 that ships at ten to fifteen minutes. Nothing built moves. New acts insert mid-route at
+the collapsed scaffold on the west end of Canal Street (x 30): a west-district surface section
+(x -40..25, z -60..-160) and a storm-drain section running east underground beneath x 30..130. Plaza
+arena stays the climax, museum lift stays the ending. Budget about 465 new units of golden path and 135
+more enemies. Build the tunnels first: corridors sidestep the missing navmesh and need far less art than
+streets. Blocking prerequisites are armour (act 1 alone eats 80 of 100 health), interior lighting, and
+ramps rather than stairs. Full plan in `docs/LEVEL01_PLAN.md`; `tools/l01_footprint.gd` prints the
+occupancy grid.
+
+Level 01 greybox is ready for a timing playtest (September 11, 2026, late). Story canon is in `docs/STORY.md` (fourth draft) and the block plan in `docs/LEVEL01_PLAN.md`. `tools/build_l01_greybox.gd` bakes `scenes/levels/l01_district04.tscn`: works yard with the taught door, service lane with a busted shop interior, Route 12 with a bus-blocked south end and a vehicle cordon, Canal Street with Sal's, a fire escape to a roof, a bus-blocked cross street and a corner that turns south, a pedestrian plaza with a canal edge, and the museum lobby with the freight lift as the exit. On-screen timer; beat lines print times to the console. Route test walks it in 48 s with no fights. Run it with the command in the plan doc; the main scene is still the slice. Kerbs are 0.15 with wedge ramps because CharacterBody3D has no step-up; junction mouths drop the kerb. Playtests 1 and 2 done (4:49 with screenshots, then 2:12 at full health). Fixes and the forced detours are in; see the playtest log at the bottom of the plan doc. Enemies now activate on line of sight at long range and stay alert. Rounds 3 to 6 added sight-based aggro, forced detours (pharmacy interior, shop roof), the canal-side loop, the plaza arena with saucer beam-downs and a seal behind the player, run stats, eight secrets with ambush dead ends, and a HUD split (game bottom-left, debug top-right on backquote). Speed run sits at about 3:45; full exploration should add about four minutes. Tests: l01_route_test, l01_arena_test, l01_secrets_test.
 
 Feedback pass (September 11, 2026, evening) is ready for playtest. Hitboxes now match the bodies (fodder 1.8 tall, Hunter 3.2 tall, Rammer 1.9x2.7), so head shots register. Shotgun pellets do 12 with a 4.5 degree cone: one close blast kills fodder. Weak spots: fodder head, Hunter crest or back joint, Rammer plates or core while open. Weak hits do extra damage, stun fodder 0.35 s and Hunters 0.45 s, knock a charging Rammer into recovery, and trigger a bigger flinch, a yellow splash, a gold crosshair marker and a distinct sound. Regular hits flinch, splash red, tick the crosshair. Bullets that miss puff dust and throw a chip. The sliding metal box is hidden and disabled in the level (scene kept); the medical crate stays. City life: drifting cloud shader sky, smoke and flicker on the crash wreck and street car, steam from vents, paper scraps, swinging blade sign and banner, chasing marquee bulbs, red/blue cordon beacon, and six pigeons on the plaza that flush when approached. Audio: `Sound` autoload (`scripts/audio/sound_bank.gd`) maps every event to CC0 clips listed in `docs/ASSETS.md`; enemies have positional idle/attack/hurt/death voices; footsteps and landing; wind bed. Music not sourced. Gunshots are real recordings trimmed to 0.45 s (pistol) and 0.75 s (shotgun) to cut the range reverb; user wants designed game-style gunshots eventually. Playtest notes applied: regular-hit thump removed (weak hits keep their sound), Rammer hurt is a pitched-up growl, shotgun pump slot left empty as a known gap, gunshots trimmed. All tests pass. User should judge mix levels first; every volume is in the EVENTS table.
 
@@ -43,7 +64,7 @@ The box now retains 65% of its speed on impact, pushes with force 14, and preser
 - A fun, fast FPS romp with modest enemy counts. The appeal is running around shooting things, readable encounters, and excessive force.
 - Zero starts as a confident, dumb meathead action hero. Build affection for him before gradually introducing his video-game interpretation of the world. Do not lead with explicit game-awareness jokes.
 - Work one piece at a time, let the user play it, and tune before adding the next interaction.
-- The longer-term target is a presentable roughly ten-minute opening that can go in front of another player: a complete route, recognizable enemies, coherent environment visuals, satisfying sounds, and some voiceover.
+- The longer-term target is a presentable ten to fifteen minute opening mission (the five-minute greybox is the playtest milestone, roughly its opening third) that can go in front of another player: a complete route, recognizable enemies, coherent environment visuals, satisfying sounds, and some voiceover.
 - Judge mechanics in that playable context. Avoid adding systems just to fill out a feature list.
 
 ## Accepted decisions and playtest results
@@ -108,7 +129,7 @@ The user imagines a moving box bowling/pushing a small enemy backward, possibly 
 ## Later small pieces
 
 - Once metal-box contact feels good, choose the next piece with the user: a breakable supply crate with useful rewards, or sound/dialogue for the door beat.
-- Eventually extend the opening into the full ten-minute route using the existing enemy/interaction vocabulary.
+- Eventually extend the opening into the full ten to fifteen minute mission route using the existing enemy/interaction vocabulary.
 - Add recognizable creature silhouettes/basic animation, coherent environment treatment, weapon/impact sounds, and short voiced exchanges so outside testers can understand the intended game.
 - Introduce game-awareness gradually after establishing Zero's action-hero personality.
 

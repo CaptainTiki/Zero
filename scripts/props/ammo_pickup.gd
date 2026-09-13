@@ -1,7 +1,7 @@
 extends Area3D
 ## Box of shotgun shells. Collected when the player can hold more.
 
-@export var shells := 8
+@export var shells := 12
 var _collected := false
 var _spin := 0.0
 

@@ -4,7 +4,7 @@ Godot **4.7** graybox. Main scene: `scenes/levels/m01_beats_1_5.tscn`
 
 ## Controls
 - WASD move, mouse look, Shift sprint, Space jump
-- LMB use selected weapon, RMB aim pistol; 1 fists / 2 pistol / 3 shotgun (pump, 8 pellets, shells from red ammo boxes)
+- LMB use selected weapon, RMB aim pistol; 1 fists / 2 pistol / 3 shotgun (pump, 8 pellets, shells from red ammo boxes, 64 max)
 - F kick (works with either weapon): short reach, light damage, enemy knockback
 - E pick up / throw crate
 - Walk over health packs, shell boxes, and the blue boost can (8 s of faster movement and higher jumps)

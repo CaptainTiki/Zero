@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="SUPER ZERO"
-run/main_scene="res://scenes/levels/m01_beats_1_5.tscn"
+run/main_scene="res://scenes/levels/l01_district04.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 

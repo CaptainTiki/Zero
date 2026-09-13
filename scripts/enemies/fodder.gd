@@ -2,7 +2,7 @@ extends CharacterBody3D
 class_name AlienFodder
 
 @export var max_hp := 40.0
-@export var move_speed := 3.0
+@export var move_speed := 4.3
 @export var aggro_range := 18.0
 @export var attack_range := 1.6
 @export var attack_damage := 8.0
@@ -66,7 +66,7 @@ func _physics_process(delta: float) -> void:
 	to_player.y = 0.0
 	var dist := to_player.length()
 	_idle_voice(delta, "fodder_idle", dist < 26.0)
-	if dist > aggro_range:
+	if not _update_alert(dist):
 		velocity.x = 0.0
 		velocity.z = 0.0
 		move_and_slide()
@@ -79,7 +79,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.x = 0.0
 		velocity.z = 0.0
-		if _attack_timer <= 0.0:
+		if _attack_timer <= 0.0 and _can_reach_player():
 			_attack_timer = attack_cooldown
 			_voice("fodder_attack")
 			if _player.has_method("take_damage"):
@@ -97,6 +97,7 @@ func _hit_fx() -> void:
 		_voice("fodder_hurt")
 
 func _die() -> void:
+	get_tree().call_group("run_stats", "record_kill")
 	_voice("fodder_death")
 	_voice("gib")
 	if _body:
@@ -144,3 +145,37 @@ func apply_shot(amount: float, from: Vector3, push: float, weak := false) -> voi
 		_kick_velocity = direction.normalized() * push
 		_kick_stagger = maxf(_kick_stagger, 0.12)
 	take_damage(amount, weak)
+
+## Line-of-sight activation: near range always alerts; up to `sight_range` alerts
+## only with a clear view. Once alerted the enemy stays on the player until the
+## player is well beyond sight range.
+@export var sight_range := 42.0
+var _alerted := false
+
+func _update_alert(dist: float) -> bool:
+	if _alerted:
+		if dist > sight_range * 1.3:
+			_alerted = false
+		return _alerted
+	if dist <= aggro_range or (dist <= sight_range and _can_see_player()):
+		_alerted = true
+		_voice("fodder_alert")
+	return _alerted
+
+func _can_see_player() -> bool:
+	if _player == null:
+		return false
+	var space := get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 1.2, 0), _player.global_position + Vector3(0, 1.0, 0), 1, [get_rid()])
+	return space.intersect_ray(query).is_empty()
+
+## Melee only lands on the same level with nothing in between: no biting
+## through floors, ceilings, or fire-escape decks.
+func _can_reach_player() -> bool:
+	if _player == null:
+		return false
+	if absf(_player.global_position.y - global_position.y) > 1.4:
+		return false
+	var space := get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 0.9, 0), _player.global_position + Vector3(0, 0.9, 0), 1, [get_rid()])
+	return space.intersect_ray(query).is_empty()

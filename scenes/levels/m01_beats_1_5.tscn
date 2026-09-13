@@ -17,35 +17,32 @@
 [ext_resource type="PackedScene" path="res://scenes/props/kick_door.tscn" id="15_door"]
 [ext_resource type="PackedScene" path="res://scenes/props/kick_box.tscn" id="16_box"]
 [ext_resource type="PackedScene" path="res://scenes/props/supply_crate.tscn" id="17_supply"]
-
 [ext_resource type="PackedScene" path="res://scenes/modules/opening_art.tscn" id="18_art"]
 [ext_resource type="PackedScene" path="res://scenes/modules/city_dress.tscn" id="19_city"]
 [ext_resource type="PackedScene" path="res://scenes/props/shotgun_pickup.tscn" id="20_shotgun"]
 [ext_resource type="PackedScene" path="res://scenes/props/ammo_pickup.tscn" id="21_ammo"]
 [ext_resource type="PackedScene" path="res://scenes/props/boost_pickup.tscn" id="22_boost"]
-[ext_resource type="Material" path="res://materials/retro/plaster.tres" id="retro_plaster"]
-[ext_resource type="Material" path="res://materials/retro/brick.tres" id="retro_brick"]
-[ext_resource type="Material" path="res://materials/retro/teal.tres" id="retro_teal"]
-[ext_resource type="Material" path="res://materials/retro/rust.tres" id="retro_rust"]
-[ext_resource type="Material" path="res://materials/retro/concrete.tres" id="retro_concrete"]
 [ext_resource type="Material" path="res://materials/retro/asphalt.tres" id="retro_asphalt"]
-[ext_resource type="Material" path="res://materials/retro/paint_line.tres" id="retro_paint_line"]
+[ext_resource type="Material" path="res://materials/retro/brick.tres" id="retro_brick"]
+[ext_resource type="Material" path="res://materials/retro/brick_dark.tres" id="retro_brick_dark"]
+[ext_resource type="Material" path="res://materials/retro/concrete.tres" id="retro_concrete"]
+[ext_resource type="Material" path="res://materials/retro/glass.tres" id="retro_glass"]
 [ext_resource type="Material" path="res://materials/retro/hazard.tres" id="retro_hazard"]
 [ext_resource type="Material" path="res://materials/retro/metal_blue.tres" id="retro_metal_blue"]
-[ext_resource type="Material" path="res://materials/retro/trim_teal.tres" id="retro_trim_teal"]
-[ext_resource type="Material" path="res://materials/retro/glass.tres" id="retro_glass"]
-[ext_resource type="Material" path="res://materials/retro/brick_dark.tres" id="retro_brick_dark"]
+[ext_resource type="Material" path="res://materials/retro/paint_line.tres" id="retro_paint_line"]
+[ext_resource type="Material" path="res://materials/retro/plaster.tres" id="retro_plaster"]
 [ext_resource type="Material" path="res://materials/retro/plaster_ochre.tres" id="retro_plaster_ochre"]
+[ext_resource type="Material" path="res://materials/retro/trim_teal.tres" id="retro_trim_teal"]
 
-[ext_resource type="Shader" path="res://materials/retro/sky_clouds.gdshader" id="sky_shader"]
-
-[sub_resource type="ShaderMaterial" id="SkyMat"]
-shader = ExtResource("sky_shader")
-shader_parameter/top_color = Color(0.36, 0.5, 0.72, 1)
-shader_parameter/horizon_color = Color(0.86, 0.74, 0.6, 1)
-shader_parameter/ground_color = Color(0.22, 0.2, 0.18, 1)
-shader_parameter/cloud_cover = 0.42
-shader_parameter/cloud_speed = 0.012
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat"]
+sky_top_color = Color(0.36, 0.5, 0.72, 1)
+sky_horizon_color = Color(0.86, 0.74, 0.6, 1)
+sky_curve = 0.12
+sky_energy_multiplier = 1.1
+ground_bottom_color = Color(0.22, 0.2, 0.18, 1)
+ground_horizon_color = Color(0.6, 0.52, 0.44, 1)
+sun_angle_max = 18.0
+sun_curve = 0.2
 
 [sub_resource type="Sky" id="Sky"]
 sky_material = SubResource("SkyMat")
@@ -54,14 +51,12 @@ sky_material = SubResource("SkyMat")
 background_mode = 2
 sky = SubResource("Sky")
 ambient_light_source = 3
-ambient_light_sky_contribution = 1.0
 ambient_light_energy = 1.1
 tonemap_mode = 2
 tonemap_exposure = 0.95
 tonemap_white = 1.2
 fog_enabled = true
 fog_light_color = Color(0.8, 0.7, 0.58, 1)
-fog_light_energy = 1.0
 fog_sun_scatter = 0.15
 fog_density = 0.0055
 fog_aerial_perspective = 0.55
@@ -82,8 +77,8 @@ light_color = Color(1, 0.9, 0.76, 1)
 light_energy = 1.35
 shadow_enabled = true
 shadow_opacity = 0.82
-directional_shadow_max_distance = 140.0
 directional_shadow_fade_start = 0.9
+directional_shadow_max_distance = 140.0
 
 [node name="Fill" type="OmniLight3D" parent="." unique_id=1112684068]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 7, 0)
@@ -555,28 +550,28 @@ transform = Transform3D(0.9, 0, -0.4, 0, 1, 0, 0.4, 0, 0.9, -3, 0, 6)
 transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, 11, 0.025, 0)
 
 [node name="ServiceRoadKickBox" parent="." unique_id=946983278 instance=ExtResource("16_box")]
+process_mode = 4
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.1, 0)
 visible = false
-process_mode = 4
 
 [node name="ServiceRoadSupplyCrate" parent="." unique_id=889947322 instance=ExtResource("17_supply")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.1, 2.5)
 
-[node name="OpeningArt" parent="." instance=ExtResource("18_art")]
+[node name="OpeningArt" parent="." unique_id=411325354 instance=ExtResource("18_art")]
 
-[node name="CityDress" parent="." instance=ExtResource("19_city")]
+[node name="CityDress" parent="." unique_id=852999789 instance=ExtResource("19_city")]
 
-[node name="ShotgunPickup" parent="." instance=ExtResource("20_shotgun")]
+[node name="ShotgunPickup" parent="." unique_id=1859324147 instance=ExtResource("20_shotgun")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.1, -2.5)
 
-[node name="AmmoStreet" parent="." instance=ExtResource("21_ammo")]
+[node name="AmmoStreet" parent="." unique_id=983263380 instance=ExtResource("21_ammo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 75, 0.1, 3)
 
-[node name="AmmoPlaza" parent="." instance=ExtResource("21_ammo")]
+[node name="AmmoPlaza" parent="." unique_id=1755836806 instance=ExtResource("21_ammo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91, 0.1, 3)
 
-[node name="AmmoStation" parent="." instance=ExtResource("21_ammo")]
+[node name="AmmoStation" parent="." unique_id=1548585654 instance=ExtResource("21_ammo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104, 0.1, -3)
 
-[node name="BoostTerrace" parent="." instance=ExtResource("22_boost")]
+[node name="BoostTerrace" parent="." unique_id=257171850 instance=ExtResource("22_boost")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93, 2.7, -8.3)

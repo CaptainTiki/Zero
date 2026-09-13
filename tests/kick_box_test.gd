@@ -60,7 +60,7 @@ func scenario(label: String, enemy_kind: String, distance: float, wall: bool = f
 	await frames(130)
 	check(box.get("_slide").length() < 0.01, label + ": must stop")
 	if enemy != null:
-		var expected: float = 176.25 if enemy_kind == "rammer" else (65.0 if enemy_kind == "hunter" else 15.0)
+		var expected: float = 176.25 if enemy_kind == "rammer" else (20.0 if enemy_kind == "hunter" else 15.0)
 		check(is_equal_approx(enemy.get("_hp"), expected), label + ": one damage event")
 	if wall:
 		check(box.position.x <= 1.56, label + ": box must not cross wall")

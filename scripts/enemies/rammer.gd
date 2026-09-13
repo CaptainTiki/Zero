@@ -69,7 +69,7 @@ func _physics_process(delta: float) -> void:
 	match _state:
 		State.IDLE:
 			_weak_open = false
-			if dist <= aggro_range:
+			if _update_alert(dist):
 				_state = State.CHASE
 		State.CHASE:
 			_weak_open = false
@@ -117,6 +117,7 @@ func _hit_fx() -> void:
 		_voice("rammer_hurt")
 
 func _die() -> void:
+	get_tree().call_group("run_stats", "record_kill")
 	_voice("rammer_death")
 	_voice("gib")
 	if _body:
@@ -170,3 +171,26 @@ func apply_kick(amount: float, from: Vector3, force: float) -> void:
 func apply_shot(amount: float, _from: Vector3, _push: float, weak := false) -> void:
 	# Too heavy to shove; weak-point multipliers still apply.
 	take_damage(amount, weak)
+
+## Line-of-sight activation: near range always alerts; up to `sight_range` alerts
+## only with a clear view. Once alerted the enemy stays on the player until the
+## player is well beyond sight range.
+@export var sight_range := 48.0
+var _alerted := false
+
+func _update_alert(dist: float) -> bool:
+	if _alerted:
+		if dist > sight_range * 1.3:
+			_alerted = false
+		return _alerted
+	if dist <= aggro_range or (dist <= sight_range and _can_see_player()):
+		_alerted = true
+		_voice("rammer_charge")
+	return _alerted
+
+func _can_see_player() -> bool:
+	if _player == null:
+		return false
+	var space := get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 1.2, 0), _player.global_position + Vector3(0, 1.0, 0), 1, [get_rid()])
+	return space.intersect_ray(query).is_empty()

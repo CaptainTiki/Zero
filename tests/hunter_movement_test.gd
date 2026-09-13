@@ -58,7 +58,7 @@ func run() -> void:
 	player.position = Vector3(90, 0, 0)
 	await frames(50)
 	check(not hunter.get("_bursting"), "No pursuit outside aggro range")
-	check(is_equal_approx(hunter.get("_hp"), 79.0), "Damage preserved")
+	check(is_equal_approx(hunter.get("_hp"), 34.0), "Damage preserved (45 max, 11 taken)")
 	world.queue_free()
 	await process_frame
 	print("Hunter movement failures: ", failures)

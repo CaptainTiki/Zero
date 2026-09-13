@@ -12,10 +12,12 @@ func _ready() -> void:
 	_bind_key("weapon_fists", KEY_1)
 	_bind_key("weapon_pistol", KEY_2)
 	_bind_key("weapon_shotgun", KEY_3)
+	_bind_key("debug_toggle", KEY_QUOTELEFT)
+	_bind_key("hud_toggle", KEY_QUOTELEFT, true)
 	_bind_mouse("primary", MOUSE_BUTTON_LEFT)
 	_bind_mouse("ads", MOUSE_BUTTON_RIGHT)
 
-func _bind_key(action: String, keycode: Key) -> void:
+func _bind_key(action: String, keycode: Key, shift := false) -> void:
 	if not InputMap.has_action(action):
 		InputMap.add_action(action)
 	# clear old events so we don't stack on reload
@@ -23,6 +25,7 @@ func _bind_key(action: String, keycode: Key) -> void:
 		InputMap.action_erase_event(action, e)
 	var ev := InputEventKey.new()
 	ev.physical_keycode = keycode
+	ev.shift_pressed = shift
 	InputMap.action_add_event(action, ev)
 
 func _bind_mouse(action: String, button: MouseButton) -> void:

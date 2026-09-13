@@ -27,7 +27,7 @@ func apply_kick(_damage: float, _from: Vector3, _force: float) -> void:
 func apply_prop_impact() -> void:
 	_break_open()
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, _weak := false) -> void:
 	if _broken or amount <= 0.0:
 		return
 	hit_points -= amount

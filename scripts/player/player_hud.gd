@@ -7,11 +7,36 @@ extends CanvasLayer
 @onready var crosshair: Label = $Root/Crosshair
 var _marker_tween: Tween
 
+var secrets: Label
+
 func _ready() -> void:
 	if hurt:
 		hurt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		hurt.color = Color(0.8, 0.05, 0.05, 0.0)
-	hint.text = "1 fists · 2 pistol · 3 shotgun · LMB use · RMB ADS · F kick · E throw · Esc"
+	hint.text = "1 fists · 2 pistol · 3 shotgun · LMB use · RMB ADS · F kick · E throw · Esc · ` debug · ~ hud"
+	# Game HUD lives bottom-left; the level's debug readout takes the top.
+	for pair in [[hint, -44.0, 16], [weapon, -100.0, 20], [hp_label, -72.0, 20]]:
+		var label: Label = pair[0]
+		label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+		label.offset_left = 16.0
+		label.offset_right = 900.0
+		label.offset_top = pair[1]
+		label.offset_bottom = pair[1] + 28.0
+		label.add_theme_font_size_override("font_size", pair[2])
+	secrets = Label.new()
+	secrets.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	secrets.offset_left = 16.0
+	secrets.offset_right = 400.0
+	secrets.offset_top = -128.0
+	secrets.offset_bottom = -100.0
+	secrets.add_theme_font_size_override("font_size", 18)
+	secrets.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	secrets.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$Root.add_child(secrets)
+
+func set_progress(found: int, total: int, kills: int, total_kills: int) -> void:
+	if secrets:
+		secrets.text = "SECRETS %d / %d     KILLS %d / %d" % [found, total, kills, total_kills]
 
 func set_status(weapon_name: String, hp: float, max_hp: float, _has_gun: bool, ads: bool, ammo := "", boost_left := 0.0) -> void:
 	var extra := " (ADS)" if ads else ""
