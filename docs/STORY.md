@@ -28,9 +28,20 @@ Why it works:
 - A candidate reason Zero was made for this: he is the one person who was never afraid, and
   monsters feed on fear. Zero fear.
 
+The user is leaning toward this premise and added:
+
+- **Dumb civilians** who run around screaming. They give monsters something to chase that isn't the
+  player, and a joke engine: civilians hiding in closets and under beds, exactly where monsters come
+  from.
+- **A mystery for scientists to research and prove.** Dr Patel and the research-and-defend act
+  structure survive naturally.
+- **What forced them out is a bigger, scarier monster,** an eldritch horror. Candidate framing: it is
+  the monsters' own bogeyman, the thing under the monsters' bed. That gives an escalation ladder of
+  household monsters, then folklore monsters, then the thing they all fear.
+
 Open questions:
 
-1. What scared the monsters? This is the final boss.
+1. What scared the monsters? Leaning: an eldritch horror. Still open is what it is and why it moved now.
 2. How scary do they look? Creepy but beatable, or silly?
 3. Are they invading or fleeing? A panicked stampede gets the interest of fleeing and keeps the
    killing guilt-free.

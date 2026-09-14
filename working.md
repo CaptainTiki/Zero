@@ -23,6 +23,16 @@ Last updated: September 13, 2026
    One candidate for Zero: the one person who was never afraid, and monsters feed on fear. Zero
    fear, which also explains the name.
 
+   **Later the same evening the user said they are leaning this way, and added three ideas:**
+   - Dumb civilians who run around screaming. Gives the monsters something to chase besides the
+     player and gives the city life. Needs a rule on whether the player can hurt them.
+   - A mystery that scientists have to research and prove, which keeps Dr Patel and the
+     research-and-defend act structure.
+   - The answer to what forced the monsters out could simply be a bigger, scarier monster, an
+     eldritch horror. My suggested framing: it is the monsters' own bogeyman, the thing monsters
+     tell their kids about. The final escalation is the one thing even monsters fear, meeting the
+     one man who fears nothing.
+
    **Open questions for the user, in order of weight:**
    - What scared the monsters? It is the final boss.
    - How scary do the monsters look? Creepy but beatable plays comedy by contrast; silly-looking
