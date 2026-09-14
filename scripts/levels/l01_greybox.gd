@@ -373,7 +373,7 @@ func _on_exit(body: Node) -> void:
 ## Kills between consecutive beat lines: shows where the player was exploring, not fighting.
 func _print_kills_per_beat() -> void:
 	var beats := _kills_at_beat.keys()
-	beats.sort()
+	beats.sort_custom(func(a, b): return float(_reached[a]) < float(_reached[b]))
 	var last_time := 0.0
 	var last_kills := 0
 	var lines := []

@@ -28,7 +28,7 @@ const WAYPOINTS := [
 	Vector3(42, -5.2, -158), Vector3(42, -5.2, -132), Vector3(40, -5.2, -124), Vector3(34, -5.2, -116),
 	Vector3(48, -5.2, -114), Vector3(56, -5.2, -114), Vector3(76, -5.2, -114), Vector3(96, -5.2, -114),
 	Vector3(94, -5.2, -104), Vector3(94, -5.2, -97), Vector3(104, -5.2, -100), Vector3(114, -5.2, -100),
-	Vector3(121, -5.2, -97), Vector3(121, 0, -80), Vector3(121, 0, -74), Vector3(110, 0, -58),
+	Vector3(121, -5.2, -97), Vector3(121, 0.7, -82), Vector3(121, 0, -78), Vector3(121, 0, -74), Vector3(110, 0, -58),
 	Vector3(101, 0, -52.5), Vector3(101, 1.2, -50.6), Vector3(103, 2.1, -50.3),
 	Vector3(105.5, 3.0, -50.0), Vector3(108.5, 3.9, -50.0), Vector3(111.5, 4.8, -50.0), Vector3(112, 5.2, -47),
 	Vector3(126, 5.2, -45), Vector3(139, 0.2, -45), Vector3(139, 0, 4), Vector3(152, 0, 4), Vector3(166, 0, 4),
@@ -93,7 +93,7 @@ func run() -> void:
 			if stuck > 40 or frames > 24000:
 				break
 		check(walker.position.distance_to(target) < 1.5, "Reached waypoint %d at %s (stopped at %s)" % [index, target, walker.position])
-	for beat in [2, 3, 4, 5, 6, 7, 8]:
+	for beat in [2, 3, 4, 5, 6, 7, 8, 9]:
 		check(reached.has(beat), "Beat %d line crossed" % beat)
 	check(exit_hit.has("done"), "Freight lift trigger reached")
 	print("L01 route: %.0f units walked in %.1f s at walk speed, no fights" % [distance, frames / 60.0])

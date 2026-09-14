@@ -2,6 +2,43 @@
 
 Status: fourth draft, September 11, 2026. Decisions from the back-and-forth are marked **decided**. Nothing here is built.
 
+## Direction under review (September 13, 2026)
+
+Nothing below this section has been rewritten yet, and nothing here is decided.
+
+The alien premise is being reconsidered. The game stays a Serious Sam spiritual successor on
+purpose, with a dumb fearless hero, corny jokes and horde shooting. It must not be a two-bit copy,
+and a wisecracking hero shooting aliens in a modern city is both Serious Sam and Duke Nukem 3D. So
+the enemy is what changes.
+
+**Leading candidate, from the user:** every childhood monster is real. The thing under the bed,
+the thing in the closet, the shape in the dark. They have their own world. Something in that world
+scared them out of hiding, and now they are pouring into ours, everywhere. Zero was made for this
+moment.
+
+Why it works:
+
+- No horde shooter owns it. The references, Monsters, Inc. and Stranger Things, are gentle, which
+  is exactly why a meathead with a shotgun is funny in it.
+- "Something scared the monsters" inverts the premise and holds the mystery, the act structure and
+  the final boss in one line.
+- Childhood fears give endless enemy types that players read instantly.
+- It gives levels a spawn language: monsters come out from under and behind things, like parked
+  cars, dark doorways, drains and closets.
+- A candidate reason Zero was made for this: he is the one person who was never afraid, and
+  monsters feed on fear. Zero fear.
+
+Open questions:
+
+1. What scared the monsters? This is the final boss.
+2. How scary do they look? Creepy but beatable, or silly?
+3. Are they invading or fleeing? A panicked stampede gets the interest of fleeing and keeps the
+   killing guilt-free.
+4. What do the Antarctic device, Dr Patel and the museum become?
+
+If it is adopted: saucers, beams and the alien framing go. The Level 01 build, the enemy roles and
+bodies, the monster-pack voices, the drains, Fairhaven, the mayor and the Commander all survive.
+
 ## 1. The pitch in one breath
 
 Alien saucers are over every major city on Earth, lifting people out of the streets in beams of light. Over Fairhaven, they are lifting more than anywhere else, and one man in a research compound thinks he knows why. The task force sends the one asset it can spare to get him and what he found. That asset is Zero.

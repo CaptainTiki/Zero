@@ -371,3 +371,37 @@ The alley mouth is a 4 wide gap in the east pavement of an 79 unit road, with a 
 flyover ahead pulling the eye forward. Nothing cues it. Left alone for now: 11 of 12 is
 already generous against the reference mission's 0 of 8, and dressing will give the
 mouth a frontage to read against. Revisit if it is still invisible once dressed.
+
+## Playtest 11 (user, September 12, 2026)
+
+6:13, 172/173 kills, 12/12 secrets, 210 damage taken, 100% complete. All twelve secrets
+found on the first attempt now that the Mill Road alley was spotted.
+
+Damage taken has climbed every run: 106, 180, 210, finishing at 59/100. Faster runs cost
+more health, which is the missing second bar showing. Armour is the next thing.
+
+### Beat 6 was used twice
+
+`museum()` already numbered the museum door line beat 6, from before acts 2 and 3 existed.
+The new works-slot line reused the number, so two areas carried beat 6, the museum one
+fired at 6:10, and the kills-per-segment maths went negative:
+
+```
+  to beat 6: 4:23, 126 kills
+  to beat 7: -2:-37, -79 kills
+```
+
+The museum door is now beat 9, so the order runs 2 through 9 chronologically. The segment
+print also sorts by clock time rather than beat number now, so an out-of-order beat can no
+longer produce negative segments. The works-slot trigger was missed entirely on this run,
+so it was deepened to 3 units and given vertical room to catch a player already on the ramp.
+
+### Enemies were following the player into the drain slot
+
+Second run with a survivor stranded in the drains. A Canal Street fodder followed the
+player down the exit ramp and could not find its way back, since there is no navmesh.
+
+Fixed with a 0.7 kerb across the top of the exit ramp. The player clears it easily, since
+jump velocity 4.5 against gravity 9.8 gives an apex just over 1.0. Enemies have no step-up
+at all, so any lip stops them. This is better than covering the slot, which would lock a
+player out of a drain secret they had missed.

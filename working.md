@@ -1,8 +1,52 @@
 # SUPER ZERO — working notes
 
-Last updated: September 12, 2026
+Last updated: September 13, 2026
 
 ## Resume here
+
+**Start here, September 13, 2026.** Two threads are open. The story one is the live conversation.
+
+1. **Story direction is being reconsidered, nothing decided yet.** The user worried the game is a
+   two-bit Serious Sam copy. They decided to stay Sam-like on purpose, as a spiritual successor:
+   dumb fearless hero, corny jokes and horde shooting all stay. The enemy premise is the thing that
+   changes, because a wisecracking hero shooting aliens in a modern city is Serious Sam and Duke
+   Nukem 3D at once. Aliens, saucers and beams are likely out.
+
+   The user's own new premise: **every childhood monster is real** (under the bed, in the closet,
+   in the dark), they have their own world, and **something in that world scared them out of
+   hiding** and into ours, all over the world. "Zero was made for this moment."
+
+   My read: it moves the whole picture without touching the shooter. Nobody owns it as a horde
+   FPS. "Something scared the monsters" is the mystery, act structure and final boss in one line.
+   Childhood fears give endless instantly readable enemy types. It gives levels a spawn language:
+   monsters come from under and behind things, like parked cars, dark doorways, drains and closets.
+   One candidate for Zero: the one person who was never afraid, and monsters feed on fear. Zero
+   fear, which also explains the name.
+
+   **Open questions for the user, in order of weight:**
+   - What scared the monsters? It is the final boss.
+   - How scary do the monsters look? Creepy but beatable plays comedy by contrast; silly-looking
+     makes it a cartoon.
+   - Invading or fleeing? Fleeing is more interesting, but a horde shooter needs guilt-free killing.
+     A panicked stampede that wrecks everything gets both.
+   - What the Antarctic device, Dr Patel and the museum become.
+
+   **Survives the pivot:** the whole Level 01 build, routes, arena, secrets, weapons, the fodder,
+   Rammer and Hunter roles, creature bodies, gibs, the monster-pack growls, the drains, Fairhaven,
+   the mayor, the Commander. **Goes:** saucers, beams, alien framing, and the arena's saucer
+   beam-down (would become monsters pouring out of a torn-open door). Don't edit `docs/STORY.md`
+   canon until the user decides; the doc has a "Direction under review" section at the top.
+
+2. **Level 01 greybox is stable.** Latest playtest 6:13, 172/173 kills, 12/12 secrets, 100%.
+   Since the last commit: busted shop was sealed inside a solid block (fixed), cistern plinth had
+   no headroom (fixed), enemies followed the player into the drain exit slot (0.7 kerb added),
+   beat 6 was used twice so segments went negative (museum is now beat 9, segments sort by time),
+   plus `tests/l01_interiors_test.gd`. All thirteen tests pass. Playtests 9 to 11 are logged in
+   `docs/LEVEL01_PLAN.md`. The user said armour is not a priority, so ignore the armour line in
+   the scope note below.
+
+Working knowledge that used to live only in local memory is now in `CLAUDE.md`.
+
 
 **Acts 2 and 3 are greyboxed (September 12, 2026).** `scenes/levels/l01_district04.tscn` is now
 1124 nodes. `CanalCollapse` shuts Canal Street at x 90..94 so the pharmacy exit can only go west;

@@ -538,7 +538,7 @@ func plaza() -> void:
 	secret("SecretTerrace", Vector3(134, 2.8, -104), "res://scenes/props/health_pickup.tscn")
 	# BackAlleyN already fills x 60..130 above z -108; this closes the alley's east end.
 	building("PlazaWest", 128, -108, 130, -100, 12.0, "brick")
-	beat_line("Beat6Line", Vector3(150, 1.5, -110), Vector3(14, 3, 1), 6)
+	beat_line("Beat9Line", Vector3(150, 1.5, -110), Vector3(14, 3, 1), 9)
 
 # Beat 6: museum lobby x 136..166, z -130..-110, lift at the back.
 func museum() -> void:
@@ -690,7 +690,7 @@ func pump_station() -> void:
 	scene("FodderYardC", "res://scenes/enemies/fodder.tscn", Vector3(-6, 0.3, -170))
 	scene("HunterYard", "res://scenes/enemies/hunter.tscn", Vector3(-30, 0.3, -153))
 	scene("HealthYard", "res://scenes/props/health_pickup.tscn", Vector3(-30, 0.2, -152))
-	beat_line("Beat6Line", Vector3(-18, 1.5, -151), Vector3(12, 3, 1), 6)
+	beat_line("Beat6Line", Vector3(-18, 0.5, -151), Vector3(12, 6, 3), 6)
 
 # --- Act 3: the storm drains -------------------------------------------------
 # Floor top at -5.5, ceiling underside at -2.0, ceiling slab top at -1.4 so it
@@ -777,6 +777,7 @@ func storm_drains() -> void:
 		box("ExitRailW", Vector3(117.6, 0.6, z), Vector3(0.4, 1.2, 5.0), "hazard")
 		box("ExitRailE", Vector3(124.4, 0.6, z), Vector3(0.4, 1.2, 5.0), "hazard")
 	box("ExitRailN", Vector3(121, 0.8, -94.2), Vector3(6.0, 1.6, 0.4), "hazard", 0, true)
+	box("ExitLipS", Vector3(121, 0.25, -82.3), Vector3(6.0, 0.9, 0.5), "hazard", 0, true)
 	# Fights in the dark. Corridors make every chase a straight line, which is
 	# what the enemies can do without a navmesh.
 	for i in 5:
