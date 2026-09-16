@@ -1,54 +1,47 @@
 extends Node3D
-## Level 01 greybox runtime: run timer, beat-line timestamps, run stats, and the
-## plaza arena. Entering the plaza seals the walkway behind the player; a saucer
-## then beams enemies down in clumps at spots around the plaza, in view, every few
-## seconds. The lift opens shortly after the last wave is sent.
+## Shared level runtime: run timer, beat lines, secrets, ambushes, Johns, run
+## stats, the console log, the run report, end-of-run beacons and the tally.
+## Nothing in here knows about a particular level. Set pieces like the plaza
+## arena or the factory escape are child nodes that listen to `beat_reached`.
 
-const FODDER := preload("res://scenes/enemies/fodder.tscn")
-const HUNTER := preload("res://scenes/enemies/hunter.tscn")
-const RAMMER := preload("res://scenes/enemies/rammer.tscn")
+## Emitted the first time the player crosses each beat line.
+signal beat_reached(beat: int, elapsed: float)
 
-## [fodder, hunters, rammers] per wave; spacing in seconds between waves.
-const WAVES := [[3, 0, 0], [4, 0, 0], [4, 1, 0], [5, 0, 0], [3, 0, 1], [4, 2, 0], [6, 1, 0]]
-## Below this, the player has fallen out of the world: log it and put them back.
-## Set 10 under the lowest geometry in the level. The drains floor at -6.3.
+## Shown in the console and the HUD timer.
+@export var level_tag := "L01"
+## Par is a time to beat, not to coast under: about 2.5x the route test's walk
+## time. Full time credit at or under par, fading to none at double par.
+@export var par_time := 480.0
+## Below this the player has fallen out of the world: log it and put them back.
+## Set 10 under the lowest geometry in the level.
 @export var fall_plane := -16.0
-## Golden path length from tests/l01_route_test.gd, for the wander ratio.
+## Golden path length from the level's route test, for the wander ratio.
 @export var golden_path_units := 933.0
-const WAVE_SPACING := 7.0
-const FIRST_WAVE_DELAY := 2.5
-## The seal waits until the player is properly inside the plaza, not on the line.
-const SEAL_POINT := Vector3(150, 0, -88)
-const SEAL_RADIUS := 14.0
-const LIFT_DELAY_AFTER_LAST := 12.0
-const BEAM_SPOTS := [Vector3(140, 0.15, -80), Vector3(162, 0.15, -78), Vector3(165, 0.15, -100), Vector3(138, 0.15, -104), Vector3(150, 0.15, -90), Vector3(158, 0.15, -106)]
-const SAUCER_HEIGHT := 38.0
-## Par is set to beat, not to coast under: 8:00 is a strong run of this level as it stands.
-## The friend's first run came in at 8:07, just over. Bump by 30 s if it proves too tight.
-## Revisit when the level grows toward the middle of the 8 to 15 minute band.
-const PAR_TIME := 480.0 # 8:00. Full time credit at or under par, fading to none at double par.
+## Ambience bed started on load, or "" for none.
+@export var ambience := "ambience_wind"
+## Headline on the end-of-run tally.
+@export var tally_title := "LEVEL 01 PLAYTEST  (one section of Mission 01)"
+
+## Ambushes spawn these, so the base owns it.
+const FODDER := preload("res://scenes/enemies/fodder.tscn")
+
 const WEIGHT_KILLS := 0.4
 const WEIGHT_SECRETS := 0.4
 const WEIGHT_TIME := 0.2
 
+## Set pieces are armed unless a test turns them off.
 var arena_enabled := true
+## Set pieces add the enemies they will spawn here, from their own _ready, which
+## runs before this node's.
+var extra_expected_kills := 0
+
 var _elapsed := 0.0
 var _label: Label
 var _hint: Label
 var _stats_label: Label
 var _reached := {}
 var _finished := false
-var _arena_started := false
-var _arena_armed := false
-var _player: Node3D
-var _wave_index := 0
-var _wave_timer := 0.0
 var _lift_open := false
-var _lift_timer := -1.0
-var _saucer: Node3D
-var _saucer_target := Vector3.ZERO
-var _beam: MeshInstance3D
-var _beam_left := 0.0
 var _kills := 0
 var _shots := {"pistol": 0, "shotgun": 0}
 var _damage_taken := 0.0
@@ -80,6 +73,17 @@ var _johns_total := 0
 var _beacons: Array[Node3D] = []
 var _debug: CanvasLayer
 var _tally: Label
+
+## Set pieces use these rather than reaching into private state.
+func clock() -> float:
+	return _elapsed
+
+func stamp(seconds: float) -> String:
+	return _stamp(seconds)
+
+func set_hint(text: String) -> void:
+	if _hint:
+		_hint.text = text
 
 func _ready() -> void:
 	add_to_group("run_stats")
@@ -136,20 +140,17 @@ func _ready() -> void:
 	for area in get_tree().get_nodes_in_group("ambush"):
 		area.body_entered.connect(_on_ambush.bind(area))
 	_secrets_total = get_tree().get_nodes_in_group("secrets").size()
-	var wave_total := 0
-	for w in WAVES:
-		wave_total += w[0] + w[1] + w[2]
 	var ambush_total := 0
 	for area in get_tree().get_nodes_in_group("ambush"):
 		ambush_total += int(area.get_meta("count"))
-	_kills_total = get_tree().get_nodes_in_group("enemies").size() + wave_total + ambush_total
+	_kills_total = get_tree().get_nodes_in_group("enemies").size() + extra_expected_kills + ambush_total
 	_johns_total = get_tree().get_nodes_in_group("johns").size()
 	_push_progress()
 	var bank := get_tree().root.get_node_or_null("Sound")
 	if bank:
-		bank.start_ambience("ambience_wind")
-	_build_saucer()
-	print("L01 greybox: timer started")
+		if ambience != "":
+			bank.start_ambience(ambience)
+	print("%s: timer started" % level_tag)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("debug_toggle", false, true):
@@ -167,28 +168,8 @@ func _process(delta: float) -> void:
 		return
 	_elapsed += delta
 	_track_player(delta)
-	_label.text = "L01  %s" % _stamp(_elapsed)
+	_label.text = "%s  %s" % [level_tag, _stamp(_elapsed)]
 	_update_stats_label()
-	_update_saucer(delta)
-	if _arena_armed and not _arena_started and _player and Vector2(_player.global_position.x - SEAL_POINT.x, _player.global_position.z - SEAL_POINT.z).length() < SEAL_RADIUS:
-		_start_arena()
-	if _arena_started and _wave_index < WAVES.size():
-		_wave_timer -= delta
-		if _wave_timer <= 0.0:
-			_send_wave(WAVES[_wave_index])
-			_wave_index += 1
-			_wave_timer = WAVE_SPACING
-			if _wave_index == WAVES.size():
-				_lift_timer = LIFT_DELAY_AFTER_LAST
-				_hint.text = "LAST WAVE DOWN. LIFT ON ITS WAY."
-			else:
-				_hint.text = "WAVE %d / %d" % [_wave_index, WAVES.size()]
-	if _lift_timer > 0.0:
-		_lift_timer -= delta
-		if _lift_timer <= 0.0:
-			open_lift()
-
-# --- stats ---------------------------------------------------------------------
 
 func record_shot(kind: String) -> void:
 	_shots[kind] = _shots.get(kind, 0) + 1
@@ -206,7 +187,7 @@ func _on_secret(body: Node, area: Area3D) -> void:
 	if not body.is_in_group("player"):
 		return
 	_secrets_found += 1
-	print("L01 secret %d/%d at %s (%s)" % [_secrets_found, _secrets_total, _stamp(_elapsed), area.name])
+	print("%s " % level_tag + "secret %d/%d at %s (%s)" % [_secrets_found, _secrets_total, _stamp(_elapsed), area.name])
 	_hint.text = "SECRET FOUND  %d / %d" % [_secrets_found, _secrets_total]
 	var bank := get_tree().root.get_node_or_null("Sound")
 	if bank:
@@ -215,6 +196,7 @@ func _on_secret(body: Node, area: Area3D) -> void:
 	_push_progress()
 
 ## Dead ends bite on the way out: enemies pour in behind the player.
+
 func _on_ambush(body: Node, area: Area3D) -> void:
 	if not body.is_in_group("player"):
 		return
@@ -225,22 +207,24 @@ func _on_ambush(body: Node, area: Area3D) -> void:
 		add_child(e)
 		e.global_position = spawn + Vector3(randf_range(-1.5, 1.5), 0.5, randf_range(-1.5, 1.5))
 		e.set("_alerted", true)
-	print("L01 ambush %s: %d at %s" % [area.name, count, _stamp(_elapsed)])
+	print("%s " % level_tag + "ambush %s: %d at %s" % [area.name, count, _stamp(_elapsed)])
 	area.queue_free()
 
 ## Cardboard Johns are a bonus on top of completion, never part of it.
+
 func record_john() -> void:
 	_johns += 1
-	print("L01 john %d/%d at %s" % [_johns, _johns_total, _stamp(_elapsed)])
+	print("%s " % level_tag + "john %d/%d at %s" % [_johns, _johns_total, _stamp(_elapsed)])
 
 func record_damage(amount: float, hp_after := -1.0) -> void:
 	_damage_taken += amount
 	_hits += 1
 	if hp_after >= 0.0:
-		print("L01 hit  -%d at %s  (hp %d)" % [int(round(amount)), _stamp(_elapsed), int(round(hp_after))])
+		print("%s " % level_tag + "hit  -%d at %s  (hp %d)" % [int(round(amount)), _stamp(_elapsed), int(round(hp_after))])
 
 ## Healing is logged too, so a playtest shows when a player spent a pickup and
 ## how long they held on to it.
+
 func _track_player(delta: float) -> void:
 	# Prefer a player that is actually running: the route test parks the level's
 	# own body and drives a second one.
@@ -267,7 +251,7 @@ func _track_player(delta: float) -> void:
 			_safe_pos = at
 	if at.y < fall_plane:
 		_falls += 1
-		print("L01 FELL OUT OF THE WORLD at %s  from %s, put back at %s" % [_stamp(_elapsed), at, _safe_pos])
+		print("%s " % level_tag + "FELL OUT OF THE WORLD at %s  from %s, put back at %s" % [_stamp(_elapsed), at, _safe_pos])
 		player.global_position = _safe_pos + Vector3(0, 0.5, 0)
 		if player.has_method("set_velocity"):
 			player.set("velocity", Vector3.ZERO)
@@ -275,29 +259,30 @@ func _track_player(delta: float) -> void:
 
 func record_death(at: Vector3) -> void:
 	_deaths += 1
-	print("L01 DEATH %d at %s  at %s" % [_deaths, _stamp(_elapsed), at])
+	print("%s " % level_tag + "DEATH %d at %s  at %s" % [_deaths, _stamp(_elapsed), at])
 
 func record_door_kick(door_name: String) -> void:
 	_doors_kicked += 1
-	print("L01 door kicked: %s at %s" % [door_name, _stamp(_elapsed)])
+	print("%s " % level_tag + "door kicked: %s at %s" % [door_name, _stamp(_elapsed)])
 
 func record_dry_fire(weapon: String) -> void:
 	_dry_fires[weapon] = int(_dry_fires.get(weapon, 0)) + 1
-	print("L01 dry fired %s at %s" % [weapon, _stamp(_elapsed)])
+	print("%s " % level_tag + "dry fired %s at %s" % [weapon, _stamp(_elapsed)])
 
 ## Pickups retry every frame while the player stands on them, so only report a
 ## refusal once every few seconds per kind.
+
 func record_pickup_refused(kind: String) -> void:
 	var last: float = float(_refuse_cooldown.get(kind, -99.0))
 	if _elapsed - last < 4.0:
 		return
 	_refuse_cooldown[kind] = _elapsed
 	_refused[kind] = int(_refused.get(kind, 0)) + 1
-	print("L01 pickup refused (%s full) at %s" % [kind, _stamp(_elapsed)])
+	print("%s " % level_tag + "pickup refused (%s full) at %s" % [kind, _stamp(_elapsed)])
 
 func record_special(kind: String) -> void:
 	_specials[kind] = int(_specials.get(kind, 0)) + 1
-	print("L01 special used: %s at %s" % [kind, _stamp(_elapsed)])
+	print("%s " % level_tag + "special used: %s at %s" % [kind, _stamp(_elapsed)])
 
 func record_hit(kind: String) -> void:
 	if _shot_hits.has(kind):
@@ -308,7 +293,7 @@ func record_heal(amount: float, hp_after := -1.0) -> void:
 		return
 	_heals += 1
 	_healed_total += amount
-	print("L01 heal +%d at %s  (hp %d)" % [int(round(amount)), _stamp(_elapsed), int(round(hp_after))])
+	print("%s " % level_tag + "heal +%d at %s  (hp %d)" % [int(round(amount)), _stamp(_elapsed), int(round(hp_after))])
 
 func _update_stats_label() -> void:
 	var minutes := maxf(_elapsed / 60.0, 1.0 / 60.0)
@@ -333,126 +318,15 @@ func _on_beat_line(body: Node, area: Area3D) -> void:
 	_kills_at_beat[beat] = _kills
 	_walk_at_beat[beat] = _walked
 	_secrets_at_beat[beat] = _secrets_found
-	print("L01 beat %d reached at %s  (kills so far %d)" % [beat, _stamp(_elapsed), _kills])
-	if beat == 8 and arena_enabled:
-		_arena_armed = true
-		_player = body as Node3D
-
-func _start_arena() -> void:
-	if _arena_started:
-		return
-	_arena_started = true
-	_wave_timer = FIRST_WAVE_DELAY
-	# Seal the walkway behind the player. Greybox: a brick falls in. Later: a bus.
-	var seal := StaticBody3D.new()
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = Vector3(9, 4.5, 3)
-	shape.shape = box
-	seal.add_child(shape)
-	var mesh := MeshInstance3D.new()
-	var bm := BoxMesh.new()
-	bm.size = box.size
-	bm.material = load("res://materials/retro/brick_dark.tres")
-	mesh.mesh = bm
-	seal.add_child(mesh)
-	add_child(seal)
-	seal.global_position = Vector3(170, 14.0, -67.5)
-	var drop := create_tween()
-	drop.tween_property(seal, "global_position:y", 2.25, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	drop.tween_callback(func() -> void:
-		var bank := get_tree().root.get_node_or_null("Sound")
-		if bank:
-			bank.play_at("gib", seal.global_position, 6.0))
-	_hint.text = "THEY'VE SEALED THE PLAZA"
-	print("L01 arena sealed at %s" % _stamp(_elapsed))
-
-func _send_wave(spec: Array) -> void:
-	var spot: Vector3 = BEAM_SPOTS[_wave_index % BEAM_SPOTS.size()]
-	_saucer_target = Vector3(spot.x, SAUCER_HEIGHT, spot.z)
-	_beam.global_position = Vector3(spot.x, SAUCER_HEIGHT / 2.0, spot.z)
-	_beam.visible = true
-	_beam_left = 1.6
-	var count := 0
-	for kind in [[FODDER, spec[0]], [HUNTER, spec[1]], [RAMMER, spec[2]]]:
-		for i in kind[1]:
-			var e: Node3D = kind[0].instantiate()
-			add_child(e)
-			var angle := TAU * float(count) / maxf(float(spec[0] + spec[1] + spec[2]), 1.0)
-			e.global_position = spot + Vector3(cos(angle) * 1.8, 6.0, sin(angle) * 1.8)
-			e.set("_alerted", true)
-			count += 1
-	print("L01 wave %d beamed down at %s: %s" % [_wave_index + 1, _stamp(_elapsed), spec])
-
-# --- saucer and beam (greybox placeholders) ---------------------------------------
-
-func _build_saucer() -> void:
-	_saucer = Node3D.new()
-	var hull := MeshInstance3D.new()
-	var disc := CylinderMesh.new()
-	disc.top_radius = 4.0
-	disc.bottom_radius = 7.0
-	disc.height = 1.6
-	disc.radial_segments = 12
-	var m := StandardMaterial3D.new()
-	m.albedo_color = Color(0.35, 0.37, 0.4)
-	m.metallic = 0.6
-	m.roughness = 0.4
-	disc.material = m
-	hull.mesh = disc
-	_saucer.add_child(hull)
-	var dome := MeshInstance3D.new()
-	var dm := SphereMesh.new()
-	dm.radius = 2.5
-	dm.height = 3.0
-	var dmat := StandardMaterial3D.new()
-	dmat.albedo_color = Color(0.5, 0.9, 1.0)
-	dmat.emission_enabled = true
-	dmat.emission = Color(0.3, 0.8, 1.0)
-	dmat.emission_energy_multiplier = 1.5
-	dm.material = dmat
-	dome.mesh = dm
-	dome.position.y = 1.4
-	_saucer.add_child(dome)
-	add_child(_saucer)
-	_saucer.global_position = Vector3(190, SAUCER_HEIGHT + 6.0, -140)
-	_saucer_target = _saucer.global_position
-	_beam = MeshInstance3D.new()
-	var beam := CylinderMesh.new()
-	beam.top_radius = 3.0
-	beam.bottom_radius = 4.0
-	beam.height = SAUCER_HEIGHT
-	beam.radial_segments = 12
-	var bmat := StandardMaterial3D.new()
-	bmat.albedo_color = Color(0.4, 0.9, 1.0, 0.35)
-	bmat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	bmat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	bmat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	beam.material = bmat
-	_beam.mesh = beam
-	_beam.visible = false
-	add_child(_beam)
-
-func _update_saucer(delta: float) -> void:
-	if _saucer == null:
-		return
-	_saucer.global_position = _saucer.global_position.lerp(_saucer_target, clampf(delta * 2.5, 0.0, 1.0))
-	_saucer.rotation.y += delta * 0.8
-	if _beam_left > 0.0:
-		_beam_left -= delta
-		_beam.scale.x = 1.0 + sin(_elapsed * 30.0) * 0.06
-		_beam.scale.z = _beam.scale.x
-		if _beam_left <= 0.0:
-			_beam.visible = false
-
-# --- lift and finish --------------------------------------------------------------
+	print("%s beat %d reached at %s  (kills so far %d)" % [level_tag, beat, _stamp(_elapsed), _kills])
+	beat_reached.emit(beat, _elapsed)
 
 func open_lift() -> void:
 	if _lift_open:
 		return
 	_lift_open = true
 	_hint.text = "LIFT HERE"
-	print("L01 lift arrived at %s" % _stamp(_elapsed))
+	print("%s " % level_tag + "lift arrived at %s" % _stamp(_elapsed))
 	var solid := get_node_or_null("LiftDoorSolid")
 	if solid:
 		solid.queue_free()
@@ -466,15 +340,15 @@ func _on_exit(body: Node) -> void:
 	if _finished or not _lift_open or not body.is_in_group("player"):
 		return
 	_finished = true
-	_say("L01 finished at %s  [%s]  secrets %d/%d kills %d/%d johns %d/%d" % [_stamp(_elapsed), _stats_summary(), _secrets_found, _secrets_total, _kills, _kills_total, _johns, _johns_total])
+	_say("%s " % level_tag + "finished at %s  [%s]  secrets %d/%d kills %d/%d johns %d/%d" % [_stamp(_elapsed), _stats_summary(), _secrets_found, _secrets_total, _kills, _kills_total, _johns, _johns_total])
 	_print_kills_per_beat()
 	_hint.text = ""
 	_label.text = "PLAYTEST COMPLETE  %s" % _stamp(_elapsed)
 	var kill_part := WEIGHT_KILLS * float(_kills) / maxf(float(_kills_total), 1.0)
 	var secret_part := WEIGHT_SECRETS * float(_secrets_found) / maxf(float(_secrets_total), 1.0)
-	var time_part := WEIGHT_TIME * clampf(1.0 - maxf(_elapsed - PAR_TIME, 0.0) / PAR_TIME, 0.0, 1.0)
+	var time_part := WEIGHT_TIME * clampf(1.0 - maxf(_elapsed - par_time, 0.0) / par_time, 0.0, 1.0)
 	var complete := 100.0 * (kill_part + secret_part + time_part)
-	var par_note := "UNDER PAR" if _elapsed <= PAR_TIME else "OVER PAR"
+	var par_note := "UNDER PAR" if _elapsed <= par_time else "OVER PAR"
 	# Flattened Johns are worth 10 points in total, however many the level holds.
 	# They ride on top of completion and never count toward it.
 	var john_bonus := 0.0
@@ -483,26 +357,28 @@ func _on_exit(body: Node) -> void:
 	var john_line := ""
 	if _johns_total > 0:
 		john_line = "\nJOHNS  %d / %d   (+%d%%)\n\nTOTAL  %d%%" % [_johns, _johns_total, int(round(john_bonus)), int(round(complete + john_bonus))]
-	_tally.text = "LEVEL 01 PLAYTEST  (one section of Mission 01)\n\nTIME  %s   (par %s, %s)\nKILLS  %d / %d\nSECRETS  %d / %d\n\nMAP COMPLETE  %d%%%s\n\nEsc to continue and look around" % [_stamp(_elapsed), _stamp(PAR_TIME), par_note, _kills, _kills_total, _secrets_found, _secrets_total, int(round(complete)), john_line]
+	_tally.text = tally_title + "\n\nTIME  %s   (par %s, %s)\nKILLS  %d / %d\nSECRETS  %d / %d\n\nMAP COMPLETE  %d%%%s\n\nEsc to continue and look around" % [_stamp(_elapsed), _stamp(par_time), par_note, _kills, _kills_total, _secrets_found, _secrets_total, int(round(complete)), john_line]
 	_tally.visible = true
-	_say("L01 health: %d hits for %d damage, %d pickups for %d healed" % [_hits, int(round(_damage_taken)), _heals, int(round(_healed_total))])
+	_say("%s " % level_tag + "health: %d hits for %d damage, %d pickups for %d healed" % [_hits, int(round(_damage_taken)), _heals, int(round(_healed_total))])
 	_print_run_summary()
 	_mark_survivors()
 	_mark_missed_secrets()
 	var report := _write_report()
 	if report != "":
-		print("L01 run report written to: %s" % report)
+		print("%s " % level_tag + "run report written to: %s" % report)
 		_hint.text = "run report saved to %s" % report
 		_hint.visible = true
 
 ## Everything a playtest wants that would be noise as it happened.
 ## Print and keep, so the run report says exactly what the console said.
+
 func _say(text: String) -> void:
 	print(text)
 	_report.append(text)
 
 ## Testers can't be asked to copy a console. Write the run to a text file next to
 ## the game they were given, and tell them where it is.
+
 func _report_path() -> String:
 	var dir := OS.get_executable_path().get_base_dir()
 	if OS.has_feature("editor"):
@@ -554,7 +430,7 @@ func _print_run_summary() -> void:
 		lines.append("  specials used: %s" % _specials)
 	var wander := 0.0 if golden_path_units <= 0.0 else _walked / golden_path_units
 	lines.append("  walked %d units against a %d unit golden path (%.2fx)" % [int(round(_walked)), int(round(golden_path_units)), wander])
-	_say("L01 run summary:")
+	_say("%s " % level_tag + "run summary:")
 	for line in lines:
 		_say(String(line))
 
@@ -562,6 +438,7 @@ func _print_run_summary() -> void:
 ## Read together these separate the reasons a player covers extra ground. Lots of
 ## distance with kills is combat movement; with secrets it is hunting; with
 ## neither it is being lost.
+
 func _print_kills_per_beat() -> void:
 	var beats := _kills_at_beat.keys()
 	beats.sort_custom(func(a, b): return float(_reached[a]) < float(_reached[b]))
@@ -581,12 +458,13 @@ func _print_kills_per_beat() -> void:
 		last_walk = w
 		last_secrets = s
 	lines.append("  to finish: %s, %d kills, %d units, %d secrets" % [_stamp(_elapsed - last_time), _kills - last_kills, int(round(_walked - last_walk)), _secrets_found - last_secrets])
-	_report.append("L01 per segment:")
+	_report.append("%s " % level_tag + "per segment:")
 	for line in lines:
 		_report.append(String(line))
-	print("L01 kills per segment:\n" + "\n".join(lines))
+	print("%s " % level_tag + "kills per segment:\n" + "\n".join(lines))
 
 ## Tall beacons over any enemy still alive so a missed kill can be found.
+
 func _beacon(at: Vector3, tint: Color) -> void:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = Color(tint.r, tint.g, tint.b, 0.55)
@@ -608,18 +486,20 @@ func _beacon(at: Vector3, tint: Color) -> void:
 	_beacons.append(beacon)
 
 ## Cyan over anything still breathing.
+
 func _mark_survivors() -> void:
 	for e in get_tree().get_nodes_in_group("enemies"):
 		if not (e is Node3D):
 			continue
 		_beacon((e as Node3D).global_position, Color(0.2, 0.9, 1.0))
-		_say("L01 survivor: %s at %s" % [e.name, e.global_position])
+		_say("%s " % level_tag + "survivor: %s at %s" % [e.name, e.global_position])
 
 ## Yellow over every secret that was never found. Found ones free their trigger,
 ## so whatever is left in the group is what the player walked past.
+
 func _mark_missed_secrets() -> void:
 	for area in get_tree().get_nodes_in_group("secrets"):
 		if not (area is Node3D):
 			continue
 		_beacon((area as Node3D).global_position, Color(1.0, 0.85, 0.2))
-		_say("L01 missed secret: %s at %s" % [area.name, (area as Node3D).global_position])
+		_say("%s " % level_tag + "missed secret: %s at %s" % [area.name, (area as Node3D).global_position])

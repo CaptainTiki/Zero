@@ -1,4 +1,4 @@
-extends "res://tools/art_kit.gd"
+extends "res://tools/level_kit.gd"
 ## Bakes the Level 01 greybox: scenes/levels/l01_district04.tscn.
 ## Layout numbers match docs/LEVEL01_PLAN.md. Regenerating replaces manual edits.
 ##   godot --headless --path . -s res://tools/build_l01_greybox.gd
@@ -12,7 +12,8 @@ func _initialize() -> void:
 
 func build() -> void:
 	art.name = "L01District04"
-	art.set_script(load("res://scripts/levels/l01_greybox.gd"))
+	art.set_script(load("res://scripts/levels/level_base.gd"))
+	arena_set_piece()
 	environment()
 	ground()
 	yard()
@@ -29,12 +30,6 @@ func build() -> void:
 
 # --- helpers -----------------------------------------------------------------
 
-## Solid slab with its top at `top`.
-func slab(label: String, x0: float, z0: float, x1: float, z1: float, top: float, thickness: float, material: String) -> void:
-	box(label, Vector3((x0 + x1) / 2.0, top - thickness / 2.0, (z0 + z1) / 2.0), Vector3(absf(x1 - x0), thickness, absf(z1 - z0)), material, 0, true)
-
-## Kerb wedge so a 0.15 kerb is walkable: CharacterBody3D has no step-up.
-## `rise_dir` is the world direction the wedge climbs toward (+X, -X, +Z or -Z).
 func kerb(label: String, center: Vector3, length: float, rise_dir: Vector3) -> void:
 	var along_x := absf(rise_dir.z) > 0.5
 	var size := Vector3(length, 0.05, 0.5) if along_x else Vector3(0.5, 0.05, length)
@@ -47,25 +42,6 @@ func kerb(label: String, center: Vector3, length: float, rise_dir: Vector3) -> v
 	node.rotation = rot
 	(art.get_node(label + "Solid") as Node3D).rotation = rot
 
-## Splits [lo, hi] by gap ranges; returns the kept segments.
-func _segments(lo: float, hi: float, gaps: Array) -> Array:
-	var kept := [[lo, hi]]
-	for gap in gaps:
-		var next := []
-		for seg in kept:
-			if gap[1] <= seg[0] or gap[0] >= seg[1]:
-				next.append(seg)
-				continue
-			if gap[0] > seg[0]:
-				next.append([seg[0], gap[0]])
-			if gap[1] < seg[1]:
-				next.append([gap[1], seg[1]])
-		kept = next
-	return kept
-
-## Road along X or Z with pavements either side, kerb wedges, and a centre line.
-## `gaps_a` drops pavement on the north/west side, `gaps_b` on the south/east side,
-## for junction mouths where the kerb is dropped.
 func road(label: String, x0: float, z0: float, x1: float, z1: float, along_x: bool, gaps_a: Array = [], gaps_b: Array = []) -> void:
 	slab(label, x0, z0, x1, z1, 0.0, 0.5, "asphalt")
 	var cx := (x0 + x1) / 2.0
@@ -100,16 +76,6 @@ func road(label: String, x0: float, z0: float, x1: float, z1: float, along_x: bo
 			index += 1
 		box(label + "Line", Vector3(cx, 0.012, cz), Vector3(0.25, 0.02, absf(z1 - z0)), "paint_line")
 
-## Building shell: solid block from ground to `height`.
-func building(label: String, x0: float, z0: float, x1: float, z1: float, height: float, material := "plaster_grey") -> void:
-	box(label, Vector3((x0 + x1) / 2.0, height / 2.0, (z0 + z1) / 2.0), Vector3(absf(x1 - x0), height, absf(z1 - z0)), material, 0, true)
-
-func wall(label: String, x0: float, z0: float, x1: float, z1: float, height: float, material := "concrete_dark") -> void:
-	var w := maxf(absf(x1 - x0), 0.6)
-	var d := maxf(absf(z1 - z0), 0.6)
-	box(label, Vector3((x0 + x1) / 2.0, height / 2.0, (z0 + z1) / 2.0), Vector3(w, height, d), material, 0, true)
-
-## Vehicle-scale blocker that still shows the street beyond: a bus across the road.
 func bus(label: String, at: Vector3, yaw: float) -> void:
 	var basis := Basis(Vector3.UP, yaw)
 	box(label, at + Vector3(0, 1.7, 0), Vector3(11.0, 3.0, 2.6), "car_white", yaw, true)
@@ -120,59 +86,6 @@ func bus(label: String, at: Vector3, yaw: float) -> void:
 		box(label + "WinB", at + basis * Vector3(x, 2.3, -1.32), Vector3(2.0, 1.0, 0.06), "glass", yaw)
 	for corner in [Vector3(3.8, 0.5, 1.3), Vector3(-3.8, 0.5, 1.3), Vector3(3.8, 0.5, -1.3), Vector3(-3.8, 0.5, -1.3)]:
 		pipe(label + "Wheel", at + basis * corner, 0.3, 0.5, "tyre", yaw, PI / 2)
-
-func scene(label: String, path: String, at: Vector3, yaw := 0.0) -> Node:
-	var node: Node = load(path).instantiate()
-	node.name = label
-	art.add_child(node)
-	node.owner = art
-	if node is Node3D:
-		node.position = at
-		node.rotation.y = yaw
-	return node
-
-func trigger(label: String, at: Vector3, size: Vector3, group: String, meta: Dictionary = {}) -> Area3D:
-	var area := Area3D.new()
-	area.collision_layer = 0
-	area.collision_mask = 2
-	area.position = at
-	for key in meta:
-		area.set_meta(key, meta[key])
-	add(area, label)
-	area.add_to_group(group, true)
-	var shape := CollisionShape3D.new()
-	var b := BoxShape3D.new()
-	b.size = size
-	shape.shape = b
-	area.add_child(shape)
-	shape.owner = art
-	return area
-
-## A secret: reward pickups plus a trigger that counts once.
-func secret(label: String, at: Vector3, reward: String) -> void:
-	scene(label + "Reward", reward, at)
-	trigger(label, at + Vector3(0, 1.0, 0), Vector3(4.5, 3.0, 4.5), "secrets")
-
-## Dead-end ambush: trigger at the end, enemies spawn at the mouth.
-func ambush(label: String, at: Vector3, size: Vector3, spawn: Vector3, count: int) -> void:
-	trigger(label, at, size, "ambush", {"spawn": spawn, "count": count})
-
-func beat_line(label: String, at: Vector3, size: Vector3, beat: int) -> void:
-	var area := Area3D.new()
-	area.collision_layer = 0
-	area.collision_mask = 2
-	area.position = at
-	area.set_meta("beat", beat)
-	add(area, label)
-	area.add_to_group("beat_lines", true)
-	var shape := CollisionShape3D.new()
-	var b := BoxShape3D.new()
-	b.size = size
-	shape.shape = b
-	area.add_child(shape)
-	shape.owner = art
-
-# --- world -------------------------------------------------------------------
 
 func environment() -> void:
 	var env := WorldEnvironment.new()
@@ -698,54 +611,6 @@ func pump_station() -> void:
 # clears the ground slab's underside at -1.05. Runs east under the district and
 # surfaces in the cross street, east of CanalCollapse.
 
-const DRAIN_FLOOR := -5.5
-const DRAIN_MID := -3.75
-const DRAIN_H := 3.5
-
-## A length of drain. `gaps_a`/`gaps_b` open the side walls at junctions, given
-## along the run axis (x when along_x, z otherwise).
-func drain(label: String, x0: float, z0: float, x1: float, z1: float, along_x: bool, gaps_a: Array = [], gaps_b: Array = []) -> void:
-	slab(label + "Floor", x0, z0, x1, z1, DRAIN_FLOOR, 0.8, "concrete")
-	slab(label + "Ceil", x0, z0, x1, z1, -1.4, 0.6, "concrete_dark")
-	var cx := (x0 + x1) / 2.0
-	var cz := (z0 + z1) / 2.0
-	var w := absf(x1 - x0)
-	var d := absf(z1 - z0)
-	var index := 0
-	if along_x:
-		for seg in _segments(x0, x1, gaps_a):
-			box("%sWallA%d" % [label, index], Vector3((seg[0] + seg[1]) / 2.0, DRAIN_MID, z0 - 0.4), Vector3(seg[1] - seg[0], DRAIN_H, 0.8), "concrete_dark", 0, true)
-			index += 1
-		for seg in _segments(x0, x1, gaps_b):
-			box("%sWallB%d" % [label, index], Vector3((seg[0] + seg[1]) / 2.0, DRAIN_MID, z1 + 0.4), Vector3(seg[1] - seg[0], DRAIN_H, 0.8), "concrete_dark", 0, true)
-			index += 1
-	else:
-		for seg in _segments(z0, z1, gaps_a):
-			box("%sWallA%d" % [label, index], Vector3(x0 - 0.4, DRAIN_MID, (seg[0] + seg[1]) / 2.0), Vector3(0.8, DRAIN_H, seg[1] - seg[0]), "concrete_dark", 0, true)
-			index += 1
-		for seg in _segments(z0, z1, gaps_b):
-			box("%sWallB%d" % [label, index], Vector3(x1 + 0.4, DRAIN_MID, (seg[0] + seg[1]) / 2.0), Vector3(0.8, DRAIN_H, seg[1] - seg[0]), "concrete_dark", 0, true)
-			index += 1
-	box(label + "Water", Vector3(cx, DRAIN_FLOOR + 0.06, cz), Vector3(w - 1.0, 0.12, d - 1.0), "glass")
-	var run := w if along_x else d
-	var count := maxi(1, int(run / 15.0))
-	for i in count:
-		var t := (float(i) + 0.5) / float(count)
-		var at := Vector3(x0 + w * t, -2.4, cz) if along_x else Vector3(cx, -2.4, z0 + d * t)
-		drain_light(label + "Light%d" % i, at)
-
-## Nothing down here is lit by the sun, so every run carries its own fixtures.
-func drain_light(label: String, at: Vector3) -> void:
-	var light := OmniLight3D.new()
-	light.light_color = Color(0.82, 1.0, 0.88)
-	light.light_energy = 3.2
-	light.omni_range = 18.0
-	light.position = at
-	add(light, label)
-	box(label + "Fix", at + Vector3(0, 0.42, 0), Vector3(1.4, 0.14, 0.5), "hazard")
-
-func drain_cap(label: String, at: Vector3, size: Vector3) -> void:
-	box(label, at, size, "concrete_dark", 0, true)
 
 func storm_drains() -> void:
 	drain("DrainA", -24, -184, 48, -172, true, [[12, 24]], [[-24, -12], [36, 48]])
@@ -844,3 +709,10 @@ func john_trial() -> void:
 	for spot in spots:
 		scene("John%d" % index, "res://scenes/props/john_cutout.tscn", spot[0], spot[1])
 		index += 1
+
+# The plaza arena is a set piece node, not part of the level script. Its exported
+# defaults already match this level's numbers.
+func arena_set_piece() -> void:
+	var node := Node3D.new()
+	node.set_script(load("res://scripts/levels/arena_set_piece.gd"))
+	add(node, "Arena")

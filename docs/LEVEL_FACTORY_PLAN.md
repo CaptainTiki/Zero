@@ -81,3 +81,112 @@ from a catwalk with no obvious way up, and at least one the timed escape runs yo
 - The mastermind's name and fixation. Not needed to build.
 - No alien dialogue in this level unless it earns its place later.
 - Whether the smog machine's destruction is scripted or the player rigs it.
+
+## Layout on paper (September 15, 2026)
+
+Fresh coordinate space, its own scene. X is east, Z is north as negative, Y is up.
+Ground floor at 0, catwalk and upper offices at 6.0, hall ceiling at 12.
+
+```
+                         z -90   ┌──────────── PLANT ROOM ───────┐
+                                 │  x 50..90, z -60..-20         │
+   z -70 ┌─────────── FACTORY FLOOR ──────────┐   machine + mezz  │
+         │ x -30..50, z -70..-10, 12 high     ├───────────────────┘
+         │  ▓ line ▓  ▓ vat ▓   ramp up at    │
+         │  catwalks over it at y 6           │
+   z -10 └──────┬──────────────────┬──────────┘
+                │  OFFICES x 10..50, z -10..12 │
+    z 12 ┌──────┴── RECEPTION x -10..10 ───────┘
+         │
+    z 20 ═══════════ front doors ════════════
+         ░░░░ PARKING LOT  x -40..40, z 20..60 ░░░░
+    z 60 ░░░░ start at the far corner ░░░░░░░░░░░░
+```
+
+### The route, and where the 1,200 goes
+
+| # | Space | Extent | Route | Units |
+|---|---|---|---|---|
+| 1 | Parking lot | x -40..40, z 20..60 | Start at (-30, 0, 55). Dogleg around the cars and a delivery bay to the doors at (0, 0, 20) | 120 |
+| 2 | Reception, offices | x -10..50, z -10..20 | Lobby, reception desk, corridor east through the offices to the floor door at (30, 0, -10) | 140 |
+| 3 | Factory floor | x -30..50, z -70..-10 | West along the production line, around the vat, to the ramp foot at (-24, 0, -60) | 260 |
+| 4 | Catwalks, upper offices | y 6 over the hall | Ramp to 6.0, catwalks back east over the floor, upper offices, door to the plant room at (50, 6, -40) | 230 |
+| 5 | Plant room | x 50..90, z -60..-20 | Around the machine and its mezzanine, rig it, blow it | 150 |
+| 6 | Escape | x 50..90 south, then west | Loading dock and yard, a different way out, back to the lot | 300 |
+| | | | **Total** | **1,200** |
+
+Beat lines: 1 lot entered, 2 lobby, 3 floor, 4 catwalk, 5 plant room, 6 machine destroyed and
+the timer starts, 7 out.
+
+### Vertical
+
+- Ground 0, catwalk and upper offices 6.0, hall ceiling 12, office ceiling 4.5.
+- The main climb is one ramp of 6.0 over a 17 unit run, tilt 0.339, laid in two flights with a
+  landing so it reads as stairs. Foot flush at both ends.
+- Catwalks 3 wide with rails at 1.1, and 2.3 clear headroom under anything crossing above.
+- The plant room mezzanine at 3.0, reached by a short ramp, so the machine is read from two
+  heights.
+
+### Counts
+
+- Johns: 60 authored, so each is worth 0.167% of the ten-point bonus. Parking lot 6, reception
+  and offices 14, floor 20, catwalks 8, plant room 8, escape 4.
+- Secrets: 10, none signposted. At least one behind a hollow container, one behind a stack, one
+  through a kickable door, one visible from a catwalk with no obvious way up, and one the escape
+  timer runs you past.
+- Enemies: about 130 placeholders using the existing fodder, Rammer and Hunter roles. Light in
+  the lot and offices, heavy on the floor and in the plant room.
+
+### The escape
+
+Blowing the machine starts a countdown. The route out is 300 units, which is about 50 seconds at
+run speed, so the timer wants roughly 90 seconds: enough to make a player move without being a
+puzzle. Log the time remaining when they get out, and log a failure if it expires.
+
+## Build order
+
+1. **Extract the level runtime first.** `scripts/levels/l01_greybox.gd` is 625 lines and most of
+   it is not city-specific: the timer, beats, secrets, ambushes, Johns, stats, logging, report,
+   beacons and tally. That becomes a shared base with exported per-level settings (par, fall
+   plane, golden path units). The city keeps a subclass for its saucer arena; the factory gets a
+   subclass for its escape timer. Doing this before the second level exists avoids a copy.
+2. **Builder helpers** the factory needs that the city didn't: `ramp()` that computes tilt and the
+   flush foot from rise and run, `catwalk()` with rails, `window_wall()`, and `container()` for
+   hollow crates with one open face.
+3. **Greybox the six spaces** in route order, checking the unit budget as each lands.
+4. **Route test** for the factory, then par from its measured walk time times 2.5.
+
+## Plan iterations (September 15, 2026)
+
+Three shapes were tried and rejected before the current one, all for the same reason.
+
+1. **One big hall, 80 by 60, with a straight catwalk over it.** A corridor with extra steps.
+   You saw every enemy from the ground, and the catwalk changed nothing.
+2. **Six rooms tiled around a straight spine corridor.** The spine had the same flaw in
+   miniature: one straight run east to west.
+3. **Two horizontal corridors with two vertical branches.** Solving one straight corridor by
+   adding a second one. Symmetric, and symmetry reads as a grid however many junctions it has.
+
+What the reference factory plans actually do: the shell is a plain rectangle, and everything
+inside it is off-axis. Rooms are different sizes, small ancillary spaces hang off big ones, and
+nothing repeats.
+
+### The current plan
+
+- **Goods-in**, small, south-east, where the office door lands.
+- **Main hall**, big, L-shaped, 11 high, wrapping the north and east, with machine volumes
+  placed off-axis rather than in rows.
+- **Closets**, a break room and an electrical room, different sizes, wedged between the hall
+  and packing.
+- **Packing**, a long narrow strip down the west side.
+- **Boiler annex**, north-west, its south-east corner cut off on the diagonal.
+- **Mezzanine**, one short run: up in the hall, west over the two closets, down into packing.
+
+The direct door from the hall into packing is buried under racking, so the mezzanine is the way
+across. Packing reaches the annex, whose switchgear powers the plant room door. On the way back
+the racking can be shoved aside for a shortcut, the way the city's alley doors opened from the
+far side.
+
+`level_kit.gd` gained `wall_run()` and `wall_path()` for this: walls at any angle between two
+points, which is what frees a plan from the grid.
+

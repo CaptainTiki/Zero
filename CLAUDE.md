@@ -12,7 +12,11 @@ This file carries working knowledge between machines. Session-by-session state l
   closely: beat times, kills per segment, and any `L01 survivor:` lines point at bugs.
 - The main scene is `res://scenes/levels/l01_district04.tscn`, so F5 runs Level 01. Don't
   quote launch commands; just say when a build is ready to play.
-- Never commit or push. The user runs git themselves.
+- Don't commit or push unless the user asks for it in that message. They normally run git
+  themselves. When they do ask, commit on main, use the title they give and add nothing else.
+- Build version lives in `project.godot` as `config/version`, currently "alpha 0.0.001", and is
+  printed at the top of every run report. Bump it per commit with `python tools/bump_version.py`,
+  or enable the opt-in hook: `git config core.hooksPath .githooks`.
 
 ## Design direction and taste
 
@@ -74,6 +78,30 @@ This file carries working knowledge between machines. Session-by-session state l
   primitives by value, so write through a dictionary.
 - Long GDScript through a bash heredoc breaks easily. Write a Python patch script, or use the
   file tools.
+
+## Code layout
+
+Three layers, each sharing only what is genuinely shared:
+
+- `tools/art_kit.gd` — primitives: boxes, pipes, signs, cars, saving the scene.
+- `tools/level_kit.gd` — level-scale helpers: `slab`, `building`, `wall`, `_segments`, `scene`,
+  `trigger`, `secret`, `ambush`, `beat_line`, lit corridors via `drain`, plus `ramp`, `catwalk`,
+  `container` and `light`. Every level builder extends this.
+- Per-level builders — content only, sharing nothing with each other.
+
+Runtime is the same idea:
+
+- `scripts/levels/level_base.gd` — shared level runtime: timer, beat lines, secrets, ambushes,
+  Johns, stats, logging, run report, beacons, tally, fall plane. Per-level differences are
+  exports: `level_tag`, `par_time`, `fall_plane`, `golden_path_units`, `ambience`, `tally_title`.
+  It emits `beat_reached(beat, elapsed)`.
+- Set pieces are **child nodes, not subclasses**. `scripts/levels/arena_set_piece.gd` is the
+  city's plaza arena: it listens for a beat, seals, beams waves down, opens the lift. A level can
+  have none, one or several. Children are ready before their parent, so a set piece adds the
+  enemies it will spawn to the level's `extra_expected_kills` in its own `_ready`.
+
+Use `ramp()` rather than hand-building slopes. It derives tilt, length and the flush foot from
+the two end points, which is the thing we got wrong repeatedly by hand.
 
 ## The Level 01 builder
 
