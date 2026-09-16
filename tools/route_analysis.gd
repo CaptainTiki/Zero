@@ -14,7 +14,7 @@ extends SceneTree
 ##   godot --headless --path . -s tools/route_analysis.gd
 
 const SCENE := "res://scenes/levels/factory.tscn"
-const ROUTE := preload("res://tests/factory_waypoints.gd").ROUTE
+var ROUTE: Array = preload("res://tests/factory_waypoints.gd").route()
 
 ## A skip is only interesting if the straight line saves a decent share of the walk.
 const SKIP_RATIO := 0.6

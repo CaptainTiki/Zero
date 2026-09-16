@@ -501,7 +501,7 @@ lowest geometry and puts a fallen player back on their last safe footing, and
 
 ### Still to build: pause menu
 
-An escape menu with an **unstuck** button, for when a player wedges themselves in geometry.
+Tracked in `docs/DEBT.md`. An escape menu with an **unstuck** button, for when a player wedges themselves in geometry.
 Too pre-alpha to build now, but when it exists, log every use: an unstuck press is a bug report
 with a position attached. Escape currently drops the end-of-run tally, so that binding has to be
 reconciled when the menu arrives.
@@ -512,6 +512,94 @@ reconciled when the menu arrives.
   enemies, with their positions printed to the console the same way.
 
 Neither depends on story direction.
+
+## Playtest 13 (second friend, first time through, September 16, 2026)
+
+Not a keyboard and mouse player; wants a controller. Laughing and enjoying it until he got stuck
+at 9:13, 90 kills in (beat 7 at 8:12), and the run was abandoned. 7/12 secrets, all 12 Johns.
+The heaviest damage was the CulDeSac ambush, 100 to 52 in eight seconds, and the drains around
+7:20.
+
+| Stretch | Time | Kills |
+|---|---|---|
+| Start to beat 3 | 1:29 | 11 |
+| Beat 3 to 4 | 1:54 | 11 |
+| Beat 4 to 5 | 1:08 | 16 |
+| Beat 5 to 6 | 1:52 | 21 |
+| Beat 6 to 7 | 1:49 | 31 |
+
+### Where he got stuck
+
+The 9:13 boost is `BoostRoof` on the south shop roof, the only boost that isn't a secret. No
+SecretPharmRoof and no beat 8 after it, so he was on the shop roof going up the AC stack to the
+pharmacy roof, the same spot that confused the playtest 12 friend. What he said: he fell off the
+stairs going from one roof to the taller one and got stuck.
+
+- **A pit, found by the user in the editor.** Where a 0.6 gap between AC units meets the 0.7
+  strip along `DetourE`, the corner is wide enough for the player to slide down to the shop
+  roof, and at the B/C and C/D corners the climb out is 1.6 or more against a 1.07 jump. My
+  first probe tested the middle of the strip and the middle of each gap, not the corners, and
+  wrongly called it clear. Logged with the fix in `docs/DEBT.md`.
+- The AC stack is four 1.6 wide boxes with 0.8 rises against a 1.07 jump, and he had just taken
+  a boost (1.5x speed, taller jump), so every step overshoots.
+- Every pharmacy roof edge except the east one drops into the half of the level cleared before
+  the drains: Route 12, the pharmacy upstairs by the window landing, or Canal Street west of
+  `CanalCollapse`. The only way back east is the whole drains loop again.
+
+### Weak spots
+
+He didn't realise enemies had weak spots until shown. On fodder the pistol takes two shots
+either way (40 HP, 22 body, 33 head), so a headshot changes nothing he could count. The user's
+idea: head one shot, body two, which needs a fodder weak multiplier of about 1.85 or more.
+The shotgun overkills fodder close up whatever it hits (96 at full pellets), so it can't show
+a weak spot through damage. A weak kill currently dies with the same burst as a body kill.
+
+### As the floor
+
+The user's call: a less experienced player, so this run is the floor. Beat times on the walk,
+from the route test with a clock added (no fights):
+
+| Beat | 2 | 3 | 4 | 5 | 6 | 7 | shop roof | 8 | 9 | lift |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Walk | 0:03 | 0:09 | 0:28 | 0:48 | 1:02 | 1:49 | 1:59 | 2:29 | 2:36 | 2:41 |
+
+He stopped 682 of 933 units in, 73% of the route. On playtest 12's clock, where the arena and
+lift take the last 1:16, that's about two thirds of a run. By kills it's 52%, since the arena
+holds 34 of the 173.
+
+Against playtest 12, which reached each beat with the same kills to within one (21/22, 58/59,
+89/90), so the gap is speed, not thoroughness:
+
+| Stretch | Playtest 12 | Playtest 13 | Slower by |
+|---|---|---|---|
+| Start to beat 4 | 1:43 | 3:23 | 1.97x |
+| Beat 4 to 6 | 1:56 | 3:00 | 1.55x |
+| Beat 6 to 7, the drains | 1:15 | 1:49 | 1.45x |
+
+He closed the gap as he learned the controls. Scaling playtest 12's last two stretches puts his
+finish at about 12:00 to 13:30. As multiples of the 2:41 walk:
+
+| Player | Run | x walk |
+|---|---|---|
+| User, knows the route (playtest 11) | 6:13 | 2.3 |
+| First-timer (playtest 12) | 8:07 | 3.0 |
+| Floor (playtest 13, projected) | about 12:30 | about 4.7 |
+
+Playtest 12 landing on 3.0 backs the par rule. The floor's multiple ran highest in the first
+three minutes (7x walk to beat 4, while learning the controls) and lowest in the drain
+corridors (2.3x).
+
+- **Damage, as data.** 236 taken by 9:13, against 80 for playtest 12's whole run. 26 of the 28
+  hits were fodder reaching him; the other two were Hunter shots. Eleven health pickups put
+  back 220, the lowest he dropped was 24 in the drains at 7:30, and he never died. Clusters:
+  the CulDeSac ambush (six hits in eight seconds), the drains around 7:20, the bottom of the
+  window landings at 3:26, and the cross street just out of the drains at 8:16.
+- **Shotgun barely used.** Shells were full on Mill Road, where full shell boxes refused him
+  four times in 13 seconds. The gun that forgives bad aim stayed in reserve.
+- **Secrets.** 7 of the 8 he had passed, missing only SecretStore. Supports the rework below.
+- **Factory read.** Its walk is 3:22. At these multiples: about 7:45 for the user, 10:06 for a
+  first-timer (par 10:00), about 15:50 for the floor, just past the 15 minute limit. One player,
+  and the factory is now Level 1, so it's where the controls get learned.
 
 ## Secret rework: make them actually hidden (September 15, 2026)
 

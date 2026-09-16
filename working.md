@@ -1,8 +1,40 @@
 # SUPER ZERO — working notes
 
-Last updated: September 13, 2026
+Last updated: September 16, 2026
 
 ## Resume here
+
+**Start here, September 16, 2026, end of day.** The factory, Level 1, is playable end to end
+and has had two playtests. The city is Level 2.
+
+**Where it is.** The factory is a complex of buildings, yards, a skybridge and tunnels, planned
+top-down in `docs/factory_plan/` (published at https://claude.ai/artifact/9U5yqC8s3ZciVmCmG7sg8A)
+and baked from that plan. The user made plan-first the way every level gets designed; the
+method is "How we plan a level" in `CLAUDE.md`. Built so far: outlines, blockers, kick doors,
+the one-way dock, 46 cutout Johns, 76 placed enemies, 3 ambushes, 10 secrets, placeholder signs,
+the machine climax (six coolant pipes, six waves of 31, a seal, the high exit, a lit end zone,
+a 65-second escape) and the time-bomb escape (falling debris, steam, alarms). Golden path 1,300
+units, route walk 3:35, par 10:45. The full build history and both playtests are in
+`docs/LEVEL_FACTORY_PLAN.md`.
+
+**Playtest 2** (8:47, 94/119 kills, 39/46 Johns, 3/10 secrets, 2 deaths). Four fixes proposed,
+waiting on the user:
+1. **Side rails on stairs.** The user dropped off the warehouse stair and skipped half the
+   escape. Every high stair has the gap. A clear bug, do it.
+2. **Respawn at the last beat reached**, not the lot, until losing restarts the level. The first
+   death cost 2:02 of walking back.
+3. **Stagger the machine waves** a few seconds after each pipe breaks. Three pipes in 16 seconds
+   stacked 15 enemies. The user's call.
+4. **Regroup stranded melee** in the set piece: enemies that can't reach the player climb out
+   at a hatch on the player's level. The user's call.
+
+**To change the factory:** edit the plan's data files, run `node docs/factory_plan/export.js`
+(fix anything its check prints), rebake with `tools/build_factory.gd`, then run the factory
+tests: `factory_route_test` (in the background), `machine_set_piece_test`,
+`factory_population_test`, `factory_secrets_test`. Screenshots come from `tools/shoot_level.gd`.
+
+**This machine:** Godot at `C:/Godot/Godot_v4.7-stable_win64_console.exe`, Python 3.12 installed
+for the version bump, and Node for the plan export.
 
 **Start here, September 13, 2026.** Two threads are open. The story one is the live conversation.
 
@@ -65,6 +97,15 @@ Last updated: September 13, 2026
    enemies was reviewed and is intended.
    Level design notes there are deferred until the story direction is decided. Damage and
    healing logging is wanted and doesn't depend on direction.
+
+4. **Second outside playtest, September 16, 2026.** Logged as playtest 13 in
+   `docs/LEVEL01_PLAN.md`. Stuck at 9:13 in a pit where the AC stack meets the pharmacy wall;
+   the user found it in the editor. Marked as debt with the fix in `docs/DEBT.md`, along with
+   the unstuck pause menu. Analysed as the floor player: about 4.7x the walk time projected,
+   against 3.0x for playtest 12, which puts the factory's 3:22 walk near 15:50 for him. He found
+   weak spots only when shown; on fodder a pistol headshot still takes
+   two shots. Parked for pondering, nothing changed yet: controller support, a one-shot fodder
+   headshot, a distinct weak-kill death. The factory stays the main thread.
 
 Working knowledge that used to live only in local memory is now in `CLAUDE.md`.
 
@@ -151,7 +192,7 @@ Kick is the preferred direction in place of pickup-and-throw: it fits Zero's exc
 - F swings it away from the kicker with a little rebound; it stays open and clears passage.
 - User tested and approved the door reaction.
 - Reusable scene: `scenes/props/kick_door.tscn`; behavior: `scripts/props/kick_door.gd`.
-- The reusable unit currently includes the door and wall sections sized for the six-unit crash opening. It is not yet a generic behavior for arbitrary door art. Separate the frame when a second doorway actually needs it.
+- The reusable unit builds its own frame round a 2 by 2.8 panel. `opening_width` and `opening_height` size it to the doorway (default 6 by 6, the crash opening), and `prompt` sets or hides the floating text (September 16, 2026, for the factory's 3-wide doors).
 - The script emits `kicked_open`, providing a future dialogue hook.
 
 Approved future dialogue beat (not implemented):

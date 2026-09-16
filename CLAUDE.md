@@ -2,7 +2,8 @@
 
 Solo project by CptTiki. A comedic horde FPS in Godot 4.7, Compatibility renderer, Jolt physics.
 This file carries working knowledge between machines. Session-by-session state lives in
-`working.md` under "Resume here"; read that first.
+`working.md` under "Resume here"; read that first. Known problems we've chosen not to fix yet
+are listed in `docs/DEBT.md`.
 
 ## How the user works
 
@@ -14,7 +15,7 @@ This file carries working knowledge between machines. Session-by-session state l
   quote launch commands; just say when a build is ready to play.
 - Don't commit or push unless the user asks for it in that message. They normally run git
   themselves. When they do ask, commit on main, use the title they give and add nothing else.
-- Build version lives in `project.godot` as `config/version`, currently "alpha 0.0.001", and is
+- Build version lives in `project.godot` as `config/version`, currently "alpha 0.0.002", and is
   printed at the top of every run report. Bump it per commit with `python tools/bump_version.py`,
   or enable the opt-in hook: `git config core.hooksPath .githooks`.
 
@@ -40,6 +41,14 @@ This file carries working knowledge between machines. Session-by-session state l
 - **Par rule of thumb: about 3x the headless route test's walk time.** That test reports walk
   time with no fights. The city level walks in 2:40 and its par is 8:00. Re-derive par whenever
   the route changes, since a par set for a shorter level marks everyone down.
+- **The golden path is the longest way through.** Par and the route test use it. Shorter ways
+  can exist; they trade completion for time.
+- **Losing restarts the level from the beginning**, like any other game, which is one reason
+  levels stay at 15 minutes or under. Not built yet. Until it is, failure states such as the
+  factory's escape timer log what happened and end the run, so playtests stay focused.
+- **Arena seals depend on size.** A large arena with plenty of room to fight closes the way
+  back as you enter. A small one only closes it when the job is done, or the player has nowhere
+  to go.
 - **The kill total includes enemies behind unfound secrets, on purpose.** Ambush enemies count
   from level start even if their secret is never found. A short kill count tells the player
   they missed part of the level and should replay it. Don't "fix" this.
@@ -48,6 +57,46 @@ This file carries working knowledge between machines. Session-by-session state l
 - **Audio.** Wants dry, stylised game gunshots, not range recordings. No generic thump on
   regular hits. Enemy hurt sounds are creature voices, pitched up and short, never metal
   clanks. Music is not sourced yet. Every clip and licence is logged in `docs/ASSETS.md`.
+
+## How we plan a level
+
+Decided September 16, 2026, after several factory layouts that all felt like one big room.
+
+- **Plan the walkable space top-down before building anything.** The plan is a page in the
+  repo, `docs/factory_plan/`: space in `plan_floors.js`, blockers, route and set piece in
+  `plan_items.js`, and who and what fills it (cutout Johns, enemies, ambushes, signs) in
+  `plan_dressing.js`, with the renderer in `app.js`. Publish it as an artifact for the user to
+  review, iterate on the plan together, then build from its numbers. For a new level, copy the
+  folder and replace the three data files.
+- **A plan holds** floors per storey, corridors, catwalks, ramps, doors by type, fences,
+  line-of-sight blockers with heights, dead-end payoffs, the golden path and any short ways.
+  The page totals route units and walk time, so the budget is checked before the build.
+  Coordinates are Godot x and z.
+- **Shape.** A complex of buildings with yards, bridges and tunnels between them, never one big
+  room. Vary the scale from space to space: tight, open, vertical, arena, maze. It is a game
+  level that feels like a factory, not a real factory plan.
+- **Sight lines.** Corridors turn for no reason except to break them. Machines, containers and
+  crates break them on open floors; anything under 1.8 is see-over. Catwalks, up to two storeys
+  of them, overlook floors the player has just fought across.
+- **Dead ends pay:** ammo, health, one enemy for the completionist, a secret, or a way through.
+- **Default dimensions.** Storeys at -4, 0, +4 and +8. Stairs are ramps with a 12 run.
+  Catwalks 2.0 wide, which a Rammer can't follow onto; widen after playtests if needed.
+  Corridors and tunnels 3.0.
+- **No room exists just to show a building off early.** A good exterior seen through windows or
+  from outside is enough. Smoke, fires and junk can mark where the business end is.
+- **Plan to scene.** `bake.js` turns the plan into build pieces: it rasterises each storey and
+  puts a wall or rail on every edge between different spaces, cuts the doors, and merges runs
+  into boxes. `node docs/factory_plan/export.js` writes `plan.json`; `tools/build_factory.gd`
+  bakes the scene from it, and the route test and route analysis read the route from the same
+  file. The page's Built walls toggle shows what will be built. Never hand-edit `plan.json`.
+  The export also runs `check.js`, which flags anything placed in a wall, a blocker, over a pit
+  or on the golden path. Fix every line it prints before baking.
+- **Build in passes, outlines first:** floors, walls, rails, roofs, stairs, lights and beat
+  lines, then blockers, then doors, enemies, secrets and dressing, playtesting between passes.
+- **Both ends of a stair meet a platform's edge.** A slab over the top of a ramp is a lip the
+  player can't get past, and a foot laid on top of a platform leaves a lip along the stair's
+  sides. A stair that is wider than, or offset from, the catwalk it joins walks you into the end
+  of the catwalk's rail.
 
 ## Level design rules
 
@@ -61,21 +110,37 @@ This file carries working knowledge between machines. Session-by-session state l
 - Kickable doors share one colour and are taught once by a floating prompt. Metal shutters
   are never kickable. Cordons are vehicle scale.
 - Difficulty: a competent player takes damage and may die once at the climax.
+- **An enemy that starts on a different level from the fight must be ranged.** With no navmesh,
+  melee enemies walk straight at the player and strand against walls and pit edges. Fodder and
+  Rammers start on the player's level with a clear line to them; a Hunter can start anywhere it
+  can see, because it sits and shoots.
 
 ## Godot and tests
 
 - Executable on the desktop:
   `D:/SteamLibrary/steamapps/common/Godot Engine/godot.windows.opt.tools.64.exe`.
-  The laptop path will differ; find it before running anything.
+  On the machine with Godot in `C:/Godot`, use `C:/Godot/Godot_v4.7-stable_win64_console.exe`;
+  the console build prints output to the shell. Anywhere else, find the path before running
+  anything.
+- Screenshots: `tools/shoot_level.gd` renders stills and a top-down map to `user://`. It needs
+  a renderer, so run it without `--headless`; a window opens for a few seconds.
 - Tests are `SceneTree` scripts run headless:
   `"<godot>" --headless --path . -s res://tests/<name>.gd`. Exit code 0 means pass.
 - Full suite: `l01_route_test`, `l01_secrets_test`, `l01_arena_test`, `l01_interiors_test`,
   `city_dress_test`, `door_dialogue_test`, `opening_art_test`, `supply_crate_test`,
   `hunter_movement_test`, `hunter_shot_test`, `kick_box_test`, `recoil_test`, `shotgun_test`.
-  The route test takes a few minutes, so run it in the background.
+  The route test takes a few minutes, so run it in the background. The factory has its own
+  `factory_route_test`, which walks the route from `docs/factory_plan/plan.json`, and
+  `machine_set_piece_test`, which plays the plant room climax without the walk, and
+  `factory_population_test`, which settles every placed enemy and flags any that fall or get
+  pushed out of geometry, and `factory_secrets_test`, which walks the way in to every secret.
 - Headless quirks: `class_name` types don't resolve, so type as `Node` or `preload`.
   Use `add_to_group(name, true)` for groups that must persist in baked scenes. Lambdas capture
   primitives by value, so write through a dictionary.
+- The Compatibility renderer draws 32 lights in view and 8 per mesh. Past that, whole rooms go
+  dark. Keep interior lamps few and strong, give them distance fade so lamps in other buildings
+  drop out, and tile big floors and roofs (the bake uses 12 units) so no one mesh needs more
+  than 8.
 - Long GDScript through a bash heredoc breaks easily. Write a Python patch script, or use the
   file tools.
 

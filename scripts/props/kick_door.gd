@@ -4,6 +4,12 @@ extends StaticBody3D
 signal kicked_open
 signal opening_finished
 
+## The wall opening this door fills. The panel is always 2 by 2.8; the frame fills the rest.
+@export var opening_width := 6.0
+@export var opening_height := 6.0
+## Floating text on the panel. Only the door that teaches kicking should show it.
+@export var prompt := "MAINTENANCE\n[F] KICK"
+
 var is_open := false
 var _hinge: Node3D
 var _panel_collision: CollisionShape3D
@@ -23,10 +29,13 @@ func _ready() -> void:
 	metal.metallic = 0.5
 	var concrete := StandardMaterial3D.new()
 	concrete.albedo_color = Color(0.47, 0.45, 0.40)
-	# Fill the existing six-metre opening with a connected wall and door frame.
-	_frame_piece(Vector3(2, 6, 0.6), Vector3(-2, 3, 0), concrete)
-	_frame_piece(Vector3(2, 6, 0.6), Vector3(2, 3, 0), concrete)
-	_frame_piece(Vector3(2, 3.2, 0.6), Vector3(0, 4.4, 0), concrete)
+	# Fill the rest of the opening either side of and above the 2 by 2.8 panel.
+	var side := (opening_width - 2.0) / 2.0
+	if side > 0.01:
+		_frame_piece(Vector3(side, opening_height, 0.6), Vector3(-1.0 - side / 2.0, opening_height / 2.0, 0), concrete)
+		_frame_piece(Vector3(side, opening_height, 0.6), Vector3(1.0 + side / 2.0, opening_height / 2.0, 0), concrete)
+	if opening_height - 2.8 > 0.01:
+		_frame_piece(Vector3(2, opening_height - 2.8, 0.6), Vector3(0, (opening_height + 2.8) / 2.0, 0), concrete)
 	_hinge = Node3D.new()
 	_hinge.position = Vector3(-1, 0, 0)
 	add_child(_hinge)
@@ -39,12 +48,13 @@ func _ready() -> void:
 	_panel_collision.shape = shape
 	_panel_collision.position = Vector3(0, 1.4, 0)
 	add_child(_panel_collision)
-	var label := Label3D.new()
-	label.text = "MAINTENANCE\n[F] KICK"
-	label.font_size = 56
-	label.pixel_size = 0.003
-	label.position = Vector3(1, 1.95, 0.09)
-	_hinge.add_child(label)
+	if prompt != "":
+		var label := Label3D.new()
+		label.text = prompt
+		label.font_size = 56
+		label.pixel_size = 0.003
+		label.position = Vector3(1, 1.95, 0.09)
+		_hinge.add_child(label)
 
 func _mesh(parent: Node3D, size: Vector3, offset: Vector3, material: Material) -> void:
 	var visual := MeshInstance3D.new()

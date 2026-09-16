@@ -8,12 +8,22 @@ const SCENE := "res://scenes/levels/factory.tscn"
 
 ## [name, camera position, look-at target, ortho size or 0 for perspective]
 const SHOTS := [
-	["factory_map", Vector3(10, 150, -40), Vector3(10, 0, -40), 170.0],
-	["factory_goodsin", Vector3(41, 1.7, -13), Vector3(30, 1.5, -24), 0.0],
-	["factory_hall", Vector3(30, 1.7, -30), Vector3(-2, 3.0, -60), 0.0],
-	["factory_packing", Vector3(-22, 1.7, -14), Vector3(-22, 1.5, -46), 0.0],
-	["factory_mezz", Vector3(-4, 7.6, -30), Vector3(-26, 4.0, -28), 0.0],
-	["factory_annex", Vector3(-18, 1.7, -50), Vector3(-26, 1.5, -64), 0.0],
+	["factory_map", Vector3(-8, 150, -14), Vector3(-8, 0, -14), 236.0],
+	["factory_lot", Vector3(4, 1.7, 92), Vector3(-70, 2.0, 48), 0.0],
+	["factory_admin", Vector3(-85, 1.7, 37), Vector3(-85, 1.5, 24), 0.0],
+	["factory_hall", Vector3(-28, 1.7, -28), Vector3(-42, -1.0, -56), 0.0],
+	["factory_catwalk", Vector3(-61, 5.7, -64), Vector3(-30, 2.0, -48), 0.0],
+	["factory_tank", Vector3(-18.5, 9.7, -89), Vector3(-26, 3.0, -114), 0.0],
+	["factory_plant", Vector3(68, 5.7, -95), Vector3(45, -1.0, -97), 0.0],
+	["factory_warehouse", Vector3(83, 5.7, -58), Vector3(44, 0.0, -24), 0.0],
+	["factory_warehouse_floor", Vector3(76, 1.7, -18), Vector3(50, 1.0, -40), 0.0],
+	["factory_yard", Vector3(-48, 1.7, 20), Vector3(-28, 1.0, -20), 0.0],
+	["factory_office_door", Vector3(-84, 1.7, 8), Vector3(-76, 1.4, 8), 0.0],
+	["factory_dock", Vector3(40, 2.9, -2), Vector3(38, 0.5, 10), 0.0],
+	["factory_lobby", Vector3(-73, 1.7, 47), Vector3(-68, 2.2, 34), 0.0],
+	["factory_office", Vector3(-75, 1.7, 8), Vector3(-56, 1.6, 20), 0.0],
+	["factory_machine", Vector3(59, -2.3, -84), Vector3(47, -2.5, -97), 0.0],
+	["factory_machine_roof", Vector3(47.25, 9.7, -88), Vector3(47.25, 8.5, -101), 0.0],
 ]
 
 func _initialize() -> void:

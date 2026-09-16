@@ -321,10 +321,15 @@ func _on_beat_line(body: Node, area: Area3D) -> void:
 	print("%s beat %d reached at %s  (kills so far %d)" % [level_tag, beat, _stamp(_elapsed), _kills])
 	beat_reached.emit(beat, _elapsed)
 
+## Lets the level exit finish the run. Level 01 opens it when the museum lift arrives,
+## the factory when the machine goes critical.
+func open_exit() -> void:
+	_lift_open = true
+
 func open_lift() -> void:
 	if _lift_open:
 		return
-	_lift_open = true
+	open_exit()
 	_hint.text = "LIFT HERE"
 	print("%s " % level_tag + "lift arrived at %s" % _stamp(_elapsed))
 	var solid := get_node_or_null("LiftDoorSolid")
@@ -337,7 +342,13 @@ func open_lift() -> void:
 		tween.tween_callback(visual.queue_free)
 
 func _on_exit(body: Node) -> void:
-	if _finished or not _lift_open or not body.is_in_group("player"):
+	if body.is_in_group("player"):
+		finish()
+
+## Ends the run and shows the tally. Called by reaching the exit, or by a set piece
+## whose failure ends the run for now, like the factory's escape timer.
+func finish() -> void:
+	if _finished or not _lift_open:
 		return
 	_finished = true
 	_say("%s " % level_tag + "finished at %s  [%s]  secrets %d/%d kills %d/%d johns %d/%d" % [_stamp(_elapsed), _stats_summary(), _secrets_found, _secrets_total, _kills, _kills_total, _johns, _johns_total])

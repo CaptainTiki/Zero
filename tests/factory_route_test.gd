@@ -1,9 +1,10 @@
 extends SceneTree
 ## Walks the factory's golden path with the player's own collision body, confirms
 ## every beat line and the exit are reachable, and reports the distance and the
-## walk time with no fights. Par comes from that walk time times 2.5.
+## walk time with no fights. Par comes from that walk time times 3.
 
-const WAYPOINTS := preload("res://tests/factory_waypoints.gd").ROUTE
+const PLAN_ROUTE := preload("res://tests/factory_waypoints.gd")
+var WAYPOINTS: Array = PLAN_ROUTE.route()
 
 var failures := 0
 
@@ -18,11 +19,26 @@ func check(ok: bool, message: String) -> void:
 func run() -> void:
 	var level = load("res://scenes/levels/factory.tscn").instantiate()
 	root.add_child(level)
+	# No fights on the walk: enemies and ambushes go, so nothing stands in the walker's way
+	# or spawns behind it.
 	for actor in get_nodes_in_group("enemies"):
-		actor.process_mode = Node.PROCESS_MODE_DISABLED
+		actor.get_parent().remove_child(actor)
+		actor.queue_free()
+	for area in get_nodes_in_group("ambush"):
+		area.get_parent().remove_child(area)
+		area.queue_free()
 	var original = level.get_node_or_null("Player")
 	if original:
 		original.process_mode = Node.PROCESS_MODE_DISABLED
+	# The machine fight is tested on its own; here the machine is already broken, and the
+	# escape still falls apart round the walker so the gaps it leaves get walked.
+	var machine = level.get_node_or_null("MachineSetPiece")
+	if machine:
+		machine.skip(true)
+	# Kick doors start shut; open them the way the player would.
+	for door in level.get_children():
+		if String(door.name).begins_with("KickDoor") and door.has_method("apply_kick"):
+			door.apply_kick(10.0, door.global_position + Vector3(0, 1, 3), 11.0)
 	var reached := {}
 	for area in get_nodes_in_group("beat_lines"):
 		area.body_entered.connect(func(body: Node) -> void:
@@ -67,11 +83,11 @@ func run() -> void:
 			if stuck > 40 or frames > 30000:
 				break
 		check(walker.position.distance_to(target) < 2.0, "Reached waypoint %d at %s (stopped at %s)" % [index, target, walker.position])
-	for beat in [1, 2, 3, 4, 5, 6, 7]:
+	for beat in range(1, PLAN_ROUTE.beat_count() + 1):
 		check(reached.has(beat), "Beat %d line crossed" % beat)
 	check(exit_hit.has("done"), "Level exit reached")
 	print("FACTORY route: %.0f units walked in %.1f s at walk speed, no fights" % [distance, frames / 60.0])
-	print("FACTORY suggested par: %s" % _stamp(frames / 60.0 * 2.5))
+	print("FACTORY suggested par: %s" % _stamp(frames / 60.0 * 3.0))
 	print("FACTORY route failures: ", failures)
 	walker.queue_free()
 	level.queue_free()

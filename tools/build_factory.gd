@@ -1,37 +1,35 @@
 extends "res://tools/level_kit.gd"
-## Bakes the Level 1 factory greybox: scenes/levels/factory.tscn.
-## Pass one is volumes only: floors, walls, doorways, ramps, catwalks, windows.
-## No machines, enemies, Johns or secrets yet. Layout numbers match
-## docs/LEVEL_FACTORY_PLAN.md; change them together.
+## Bakes the Level 1 factory: scenes/levels/factory.tscn.
+## Everything here comes from the top-down plan in docs/factory_plan/. Change the
+## plan there, export it, then rebake:
+##   node docs/factory_plan/export.js
 ##   godot --headless --path . -s res://tools/build_factory.gd
+## Built so far: floors, walls, rails, roofs, stairs, fences, lights, beat lines, the
+## exit, line-of-sight blockers, kick doors, pickups and the machine set piece. No
+## placed enemies, Johns or secrets yet.
 
-const GROUND := 0.0
-const UPPER := 6.0
-const HALL_CEIL := 12.0
-const OFFICE_CEIL := 4.5
-const ROOM_CEIL := 9.5
+const PLAN := "res://docs/factory_plan/plan.json"
 
 func _initialize() -> void:
 	call_deferred("build")
 
 func build() -> void:
+	var plan: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PLAN))
 	art.name = "FactoryLevel"
 	art.set_script(load("res://scripts/levels/level_base.gd"))
 	art.set("level_tag", "FACTORY")
 	art.set("tally_title", "LEVEL 1 PLAYTEST  (factory investigation)")
-	art.set("par_time", 600.0) # provisional; set it from the route test's walk time x 2.5
+	art.set("par_time", float(plan["par_seconds"])) # from the plan: 3x the route test walk time
 	art.set("fall_plane", -12.0)
-	art.set("golden_path_units", 1200.0)
+	art.set("golden_path_units", float(plan["golden_units"]))
 	environment()
-	parking_lot()
-	reception_and_offices()
-	factory_floor()
-	catwalks()
-	plant_room()
-	escape_route()
+	outline(plan)
 	skyline()
-	actors()
+	actors(plan)
 	save_scene("res://scenes/levels/factory.tscn")
+
+func v3(a: Array) -> Vector3:
+	return Vector3(float(a[0]), float(a[1]), float(a[2]))
 
 func environment() -> void:
 	var env := WorldEnvironment.new()
@@ -43,194 +41,249 @@ func environment() -> void:
 	env.environment = settings
 	add(env, "WorldEnvironment")
 	var sun := DirectionalLight3D.new()
-	sun.transform = Transform3D(Basis(Vector3(0.766, -0.383, 0.515), Vector3(0, 0.802, 0.597), Vector3(-0.643, -0.457, 0.614)), Vector3(0, 20, 0))
+	# Basis() takes columns and these numbers are the rows from the city scene file,
+	# so transpose; without it the sun shines up and every floor outdoors is black.
+	sun.transform = Transform3D(Basis(Vector3(0.766, -0.383, 0.515), Vector3(0, 0.802, 0.597), Vector3(-0.643, -0.457, 0.614)).transposed(), Vector3(0, 20, 0))
 	sun.light_color = Color(1, 0.9, 0.76)
 	sun.light_energy = 1.35
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 200.0
 	add(sun, "Sun")
-	# Ground under everything; the building floors sit on top.
-	slab("Ground", -70, -100, 120, 90, -0.05, 1.0, "concrete_dark")
 
-# 1. Parking lot: x -40..40, z 20..60. Start at the far corner, dogleg to the doors.
-func parking_lot() -> void:
-	slab("Lot", -40, 20, 40, 60, GROUND, 0.5, "asphalt")
-	wall("LotFenceS", -40, 60, 40, 60.6, 3.0, "dark")
-	wall("LotFenceW", -40.6, 20, -40, 60, 3.0, "dark")
-	wall("LotFenceE_S", 40, 31, 40.6, 60, 3.0, "dark")
-	wall("LotFenceE_N", 40, 20, 40.6, 23, 3.0, "dark")
-	# A delivery bay juts into the lot, so the walk to the doors is not a straight line.
-	building("LotBay", 6, 24, 30, 38, 5.0, "plaster_grey")
-	box("LotBayDoor", Vector3(18, 2.0, 38.3), Vector3(8, 4.0, 0.5), "hazard", 0, true)
-	beat_line("Beat1Line", Vector3(-24, 1.5, 46), Vector3(14, 3, 1), 1)
+## Floors, walls, rails, roofs, fences and shut doors arrive as ready-made boxes;
+## stairs go through ramp() so their feet land flush.
+func outline(plan: Dictionary) -> void:
+	var counts := {}
+	for piece in plan["boxes"]:
+		var kind: String = piece["kind"]
+		counts[kind] = int(counts.get(kind, 0)) + 1
+		box("%s%d" % [kind.capitalize(), counts[kind]], v3(piece["c"]), v3(piece["s"]), piece["m"], 0, true)
+	var index := 0
+	for r in plan["ramps"]:
+		ramp("Stair%d" % index, v3(r["low"]), v3(r["high"]), float(r["w"]), bool(r["along_x"]), "metal_blue")
+		index += 1
+	index = 0
+	for l in plan["lights"]:
+		var tint: Array = l["tint"]
+		light("Lamp%d" % index, v3(l["at"]), Color(tint[0], tint[1], tint[2]), float(l["energy"]), float(l["range"]))
+		# Compatibility draws only 32 lights in view, so lamps in other buildings fade out
+		# rather than use up the budget.
+		var lamp := art.get_node("Lamp%d" % index) as OmniLight3D
+		lamp.distance_fade_enabled = true
+		lamp.distance_fade_begin = 45.0
+		lamp.distance_fade_length = 10.0
+		index += 1
+	blockers(plan)
+	kick_doors(plan)
+	pickups(plan)
+	enemies(plan)
+	johns(plan)
+	ambushes(plan)
+	secrets(plan)
+	dressing(plan)
+	machine(plan)
+	for b in plan["beats"]:
+		beat_line("Beat%dLine" % int(b["beat"]), v3(b["at"]), v3(b["size"]), int(b["beat"]))
+	var finish: Dictionary = plan["exit"]
+	trigger("LevelExit", v3(finish["at"]), v3(finish["size"]), "level_exit")
 
-# 2. Reception x -10..10, z 12..20; offices x 10..50, z -10..12.
-func reception_and_offices() -> void:
-	slab("Reception", -10, 12, 10, 20, GROUND, 0.5, "plaster")
-	wall("RecW", -10.6, 12, -10, 20, OFFICE_CEIL, "plaster_grey")
-	wall("RecS_W", -10, 20, -3, 20.6, OFFICE_CEIL, "plaster_grey")
-	wall("RecS_E", 3, 20, 10, 20.6, OFFICE_CEIL, "plaster_grey")
-	box("RecDoorHead", Vector3(0, 3.4, 20.3), Vector3(6, 2.2, 0.6), "plaster_grey", 0, true)
-	box("RecCeil", Vector3(0, OFFICE_CEIL + 0.2, 16), Vector3(20, 0.4, 8), "concrete_dark", 0, true)
-	box("RecDesk", Vector3(-4, 0.55, 15), Vector3(6, 1.1, 1.6), "teal", 0, true)
-	light("RecLight", Vector3(0, 3.8, 16))
-	beat_line("Beat2Line", Vector3(0, 1.5, 19), Vector3(6, 3, 1), 2)
-	# Offices: a corridor east with rooms off it, then the door onto the floor.
-	slab("Offices", 10, -10, 50, 20, GROUND, 0.5, "plaster")
-	wall("OffS", 10, 20, 50, 20.6, OFFICE_CEIL, "plaster_grey")
-	wall("OffE", 50, -10, 50.6, 20, OFFICE_CEIL, "plaster_grey")
-	box("OffCeil", Vector3(30, OFFICE_CEIL + 0.2, 5), Vector3(40, 0.4, 30), "concrete_dark", 0, true)
-	# Partitions with doorways, so it reads as rooms rather than a hall.
-	for i in 3:
-		var x := 18.0 + float(i) * 11.0
-		wall("OffPartA%d" % i, x, -10, x + 0.5, -2, OFFICE_CEIL, "plaster")
-		wall("OffPartB%d" % i, x, 4, x + 0.5, 20, OFFICE_CEIL, "plaster")
-	for i in 4:
-		light("OffLight%d" % i, Vector3(14.0 + float(i) * 10.0, 3.8, 1.0))
-	# North wall of the offices, with the door onto the factory floor at x 26..34.
-	wall("OffN_W", 10, -10.6, 38, -10, OFFICE_CEIL, "plaster_grey")
-	wall("OffN_E", 46, -10.6, 50, -10, OFFICE_CEIL, "plaster_grey")
-	box("OffN_Head", Vector3(42, 3.6, -10.3), Vector3(8, 1.8, 0.6), "plaster_grey", 0, true)
-	beat_line("Beat3Line", Vector3(42, 1.5, -11), Vector3(8, 3, 1), 3)
+## Machines, containers, tanks and vehicles that break sight lines on open floors.
+## Plain greybox shapes at the plan's footprints and heights; art comes later.
+func blockers(plan: Dictionary) -> void:
+	var index := 0
+	for b in plan["blockers"]:
+		var label := "Blocker%d%s" % [index, String(b["name"]).to_pascal_case()]
+		match String(b["shape"]):
+			"car":
+				car(label, v3(b["at"]), float(b["yaw"]), b["m"])
+			"round":
+				tank(label, v3(b["at"]), float(b["r"]), float(b["h"]), b["m"])
+			"hollow":
+				hollow_box(label, v3(b["c"]), v3(b["s"]), String(b["open"]), b["m"])
+			_:
+				box(label, v3(b["c"]), v3(b["s"]), b["m"], 0, true)
+		index += 1
 
-# 3. The interior, drawn as an irregular plan rather than a grid. The shell is a
-# plain rectangle, as a real factory is; everything inside is off-axis.
-#
-#   Goods-in     small, SE, where the office door lands
-#   Main hall    big and L-shaped, tall, wraps the north and east
-#   Closets      electrical and break room, small, wedged between hall and packing
-#   Packing      long narrow strip down the west
-#   Boiler annex NW, its south-east corner cut off on the diagonal
-#   Mezzanine    one short run from the hall, over the closets, down into packing
-#
-# The direct door from the hall into packing is buried under racking, so the
-# mezzanine is the way across. From packing you reach the annex, which powers the
-# plant room door. On the way back the racking can be shoved aside, opening a
-# shortcut, the way the city's alley doors opened from the far side.
-const CAT := 6.0
-const HALL_H := 11.0
-const ROOM_H := 5.5
+## Kick doors sized to their doorways. Only the door that teaches kicking shows the prompt.
+## The route test opens every node named KickDoor*, so keep the prefix.
+func kick_doors(plan: Dictionary) -> void:
+	var index := 0
+	for d in plan["kick_doors"]:
+		var door := scene("KickDoor%d%s" % [index, String(d["name"]).get_slice(",", 0).to_pascal_case()], "res://scenes/props/kick_door.tscn", v3(d["at"]), float(d["yaw"]))
+		door.set("opening_width", float(d["width"]))
+		door.set("opening_height", float(d["height"]))
+		if not bool(d["prompt"]):
+			door.set("prompt", "")
+		index += 1
 
-func factory_floor() -> void:
-	slab("HallFloor", -30, -70, 50, -10, GROUND, 0.5, "concrete")
-	enclosure("Shell", -30, -70, 50, -10, HALL_H, "concrete_dark", [["s", 38, 46], ["e", -46, -40]])
+const PICKUPS := {
+	"gun": "res://scenes/props/gun_pickup.tscn",
+	"shotgun": "res://scenes/props/shotgun_pickup.tscn",
+	"ammo": "res://scenes/props/ammo_pickup.tscn",
+	"health": "res://scenes/props/health_pickup.tscn",
+}
 
-	# Goods-in: the office door lands here, not in a hall.
-	wall_path("GoodsW", [Vector2(32, -10), Vector2(32, -17), Vector2(32, -21), Vector2(32, -26)], ROOM_H, "plaster_grey", [1])
-	wall_run("GoodsN", Vector2(32, -26), Vector2(50, -26), ROOM_H, "plaster_grey")
-	box("GoodsCeil", Vector3(41, ROOM_H + 0.3, -18), Vector3(18, 0.6, 16), "concrete_dark", 0, true)
-	light("GoodsLight", Vector3(41, 4.6, -18), Color(0.95, 0.97, 1.0), 3.5, 18.0)
-	beat_line("Beat4Line", Vector3(41, 1.5, -14), Vector3(10, 3, 1), 4)
+## Weapons, plus the ammo and health the plan's dead ends pay. Provisional until the
+## enemies pass decides what the fights need.
+func pickups(plan: Dictionary) -> void:
+	var index := 0
+	for p in plan["pickups"]:
+		var kind := String(p["kind"])
+		var lift := 0.8 if kind == "gun" or kind == "shotgun" else 0.2
+		scene("Pickup%d%s" % [index, kind.capitalize()], PICKUPS[kind], v3(p["at"]) + Vector3(0, lift, 0))
+		index += 1
 
-	# Packing: a long narrow strip down the west side. The door into the hall at
-	# the north end is the one under the racking.
-	# East wall, full height, with a door to the break room, a high opening where
-	# the mezzanine crosses in, and the doorway the racking buries.
-	wall_run("PackE0", Vector2(-14, -10), Vector2(-14, -20), HALL_H, "plaster_grey")
-	wall_run("PackE1", Vector2(-14, -24), Vector2(-14, -28), HALL_H, "plaster_grey")
-	box("PackEUnder", Vector3(-14, 2.3, -30), Vector3(0.6, 4.6, 4), "plaster_grey", 0, true)
-	box("PackEOver", Vector3(-14, 9.8, -30), Vector3(0.6, 2.4, 4), "plaster_grey", 0, true)
-	wall_run("PackE2", Vector2(-14, -32), Vector2(-14, -36), HALL_H, "plaster_grey")
-	wall_run("PackE3", Vector2(-14, -40), Vector2(-14, -48), HALL_H, "plaster_grey")
-	wall_run("PackN", Vector2(-30, -48), Vector2(-24, -48), HALL_H, "plaster_grey")
-	wall_run("PackN2", Vector2(-20, -48), Vector2(-14, -48), HALL_H, "plaster_grey")
-	for i in 3:
-		light("PackLight%d" % i, Vector3(-22.0, 4.6, -18.0 - float(i) * 12.0), Color(0.95, 0.97, 1.0), 3.5, 18.0)
+## The plant room climax: coolant pipes, waves, the seal and the escape countdown.
+## See scripts/levels/machine_set_piece.gd.
+func machine(plan: Dictionary) -> void:
+	var sp: Dictionary = plan["setpiece"]
+	var node := Node3D.new()
+	node.set_script(load("res://scripts/levels/machine_set_piece.gd"))
+	for key in ["start_at", "start_size", "seal_at", "respawn_at", "exit_at", "exit_size", "end_zone_at", "end_zone_size"]:
+		node.set(key, v3(sp[key]))
+	node.set("seal_radius", float(sp["seal_radius"]))
+	node.set("seal_length", float(sp["seal_length"]))
+	node.set("escape_seconds", float(sp["escape_seconds"]))
+	var pipes := []
+	for p in sp["pipes"]:
+		pipes.append([v3(p[0]), v3(p[1])])
+	node.set("pipes", pipes)
+	var waves := []
+	for w in sp["waves"]:
+		waves.append([int(w[0]), int(w[1]), int(w[2])])
+	node.set("waves", waves)
+	for key in ["melee_hatches", "ranged_hatches", "vents", "alarms"]:
+		var points := []
+		for at in sp[key]:
+			points.append(v3(at))
+		node.set(key, points)
+	var events := []
+	for ev in sp["escape_events"]:
+		events.append({
+			"kind": String(ev["kind"]), "at": v3(ev["at"]), "size": v3(ev["size"]),
+			"trigger": v3(ev["trigger"]) if ev["trigger"] != null else null,
+			"radius": float(ev["radius"]), "delay": float(ev["delay"]), "duration": float(ev["duration"]),
+		})
+	node.set("escape_events", events)
+	add(node, "MachineSetPiece")
 
-	# Two closets wedged between packing and the hall, different sizes.
-	wall_path("BreakRoom", [Vector2(-14, -21), Vector2(-5, -21), Vector2(-5, -12)], 4.0, "plaster")
-	box("BreakCeil", Vector3(-9.5, 4.3, -16.5), Vector3(9, 0.6, 9), "concrete_dark", 0, true)
-	light("BreakLight", Vector3(-9.5, 3.4, -16.5), Color(1.0, 0.9, 0.7), 2.5, 12.0)
-	wall_path("Electrical", [Vector2(-14, -27), Vector2(-7, -27), Vector2(-7, -35), Vector2(-14, -35)], 4.0, "plaster", [1])
-	box("ElecCeil", Vector3(-10.5, 4.3, -31), Vector3(7, 0.6, 8), "concrete_dark", 0, true)
-	light("ElecLight", Vector3(-10.5, 3.4, -31), Color(1.0, 0.8, 0.5), 2.0, 10.0)
+const ENEMIES := {
+	"fodder": "res://scenes/enemies/fodder.tscn",
+	"hunter": "res://scenes/enemies/hunter.tscn",
+	"rammer": "res://scenes/enemies/rammer.tscn",
+}
 
-	# Boiler annex, north-west, with its south-east corner cut on the diagonal.
-	wall_path("Annex", [
-		Vector2(-30, -52), Vector2(-24, -52), Vector2(-20, -52),
-		Vector2(-12, -60), Vector2(-12, -70),
-	], ROOM_H + 2.0, "concrete_dark", [1])
-	box("AnnexCeil", Vector3(-21, ROOM_H + 2.3, -61), Vector3(18, 0.6, 18), "concrete_dark", 0, true)
-	light("AnnexLight", Vector3(-21, 6.0, -61), Color(1.0, 0.75, 0.5), 4.0, 20.0)
-	building("Switchgear", -28, -68, -22, -62, 3.0, "metal_blue")
+## Placed enemies. Anything that starts off the level it fights on is a Hunter.
+func enemies(plan: Dictionary) -> void:
+	var index := 0
+	for e in plan["enemies"]:
+		var kind := String(e["kind"])
+		scene("Enemy%d%s" % [index, kind.capitalize()], ENEMIES[kind], v3(e["at"]) + Vector3(0, 0.3, 0))
+		index += 1
 
-	# The racking that buries the direct route between hall and packing.
-	box("Racking", Vector3(-14, 2.4, -38), Vector3(5, 4.8, 4), "rust", 0, true)
-	box("RackingSpill", Vector3(-11, 0.9, -38), Vector3(4, 1.8, 4), "plaster_ochre", 0.25, true)
+const SHIRTS := [Color("c8443a"), Color("3a6ec8"), Color("4a9a4a"), Color("d8b43a"), Color("7a4ac8"), Color("d8743a")]
 
-	# Machine volumes in the hall, placed off-axis rather than in rows.
-	building("VatA", 2, -66, 12, -58, 3.4, "rust")
-	building("LineA", 18, -62, 40, -56, 2.2, "metal_blue")
-	building("LineB", 6, -50, 24, -44, 2.2, "metal_blue")
-	building("Kettle", 30, -48, 40, -40, 2.8, "rust")
-	building("Hopper", -6, -56, 0, -48, 3.0, "rust")
-	building("Pallets", 20, -34, 30, -28, 1.6, "plaster_ochre")
-	building("Crates", 42, -36, 48, -30, 1.8, "plaster_ochre")
-	for at in [Vector3(-2, 9.0, -62), Vector3(24, 9.0, -60), Vector3(42, 9.0, -50), Vector3(16, 9.0, -36)]:
-		light("HallLight%d" % int(at.x), at, Color(0.95, 0.97, 1.0), 5.0, 30.0)
+## Cardboard Johns pretending to work. Every one of them is called John.
+func johns(plan: Dictionary) -> void:
+	var index := 0
+	for p in plan["johns"]:
+		var john := scene("John%d" % index, "res://scenes/props/john_cutout.tscn", v3(p["at"]), float(p["yaw"]))
+		john.set("shirt", SHIRTS[index % SHIRTS.size()])
+		index += 1
 
-# 4. The mezzanine: up in the hall, west over the two closets, down in packing.
-# One crossing, two rooms, and it exists only because the racking blocks the door.
-func catwalks() -> void:
-	ramp("StairA", Vector3(2, GROUND, -28), Vector3(2, 3.0, -34), 4.0, false)
-	slab("StairLanding", 0, -38, 4, -34, 3.0, 0.4, "metal_blue")
-	ramp("StairB", Vector3(2, 3.0, -38), Vector3(-4, 3.0, -38), 4.0, true)
-	ramp("StairC", Vector3(-4, 3.0, -36), Vector3(-4, CAT, -30), 4.0, false)
-	catwalk("SpanA", -20, -32, -4, -28, CAT, true)
-	slab("SpanLanding", -24, -33, -20, -28, CAT, 0.3, "metal_blue")
-	ramp("DownB", Vector3(-22, CAT, -33), Vector3(-22, GROUND, -45), 5.0, false)
-	for at in [Vector3(-8, CAT + 1.4, -33.7), Vector3(-14, CAT + 1.4, -26.3)]:
-		box("Vent%d" % int(at.x), at, Vector3(2.0, 2.0, 0.3), "dark", 0, false)
-	beat_line("Beat5Line", Vector3(-11, CAT + 1.5, -30), Vector3(10, 3, 1), 5)
+## Dead ends that bite on the way back out.
+func ambushes(plan: Dictionary) -> void:
+	for a in plan["ambushes"]:
+		ambush("Ambush" + String(a["name"]).to_pascal_case(), v3(a["at"]), v3(a["size"]), v3(a["spawn"]), int(a["count"]))
 
-# 5. Plant room: east off the hall at ground level.
-func plant_room() -> void:
-	slab("PlantFloor", 50, -60, 90, -20, GROUND, 0.5, "concrete")
-	enclosure("Plant", 50, -60, 90, -20, HALL_H, "concrete_dark", [["w", -46, -40], ["s", 56, 70]])
-	box("PlantRoof", Vector3(70, HALL_H + 0.3, -40), Vector3(40, 0.6, 40), "concrete_dark", 0, true)
-	building("Machine", 70, -54, 86, -34, 7.0, "rust")
-	catwalk("MachWalkN", 64, -56, 88, -54, 3.0, true)
-	catwalk("MachWalkE", 86, -54, 88, -34, 3.0, false)
-	ramp("MachRamp", Vector3(64, GROUND, -48), Vector3(64, 3.0, -54), 5.0, false)
-	for i in 4:
-		light("PlantLight%d" % i, Vector3(56.0 + float(i) * 10.0, 9.0, -40.0), Color(1.0, 0.8, 0.6), 4.5, 26.0)
-	beat_line("Beat6Line", Vector3(62, 1.5, -30), Vector3(10, 3, 1), 6)
+const SIGN_STYLES := {
+	"corporate": {"backing": "car_white", "ink": Color("1d3557"), "font": ["Arial", "Helvetica"], "weight": 700},
+	"office": {"backing": "teal", "ink": Color("f4f1e6"), "font": ["Verdana", "Arial"]},
+	"hazard": {"backing": "hazard", "ink": Color("15161a"), "font": ["Arial Black", "Arial"], "weight": 800},
+	"wrong": {"backing": "plaster", "ink": Color("b0302a"), "font": ["Comic Sans MS", "Arial"], "weight": 700},
+	"frame": {"backing": "plaster_ochre", "ink": Color("15161a"), "font": ["Georgia"], "italic": true},
+}
 
-# 6. Escape: south out of the plant room down a long dock, then west into the
-# far end of the parking lot. It never crosses the way in, so the approach and
-# the escape use opposite sides of the lot.
-func escape_route() -> void:
-	slab("Dock", 56, -20, 70, 30, GROUND, 0.5, "concrete")
-	wall("DockE", 70, -20, 70.6, 30, OFFICE_CEIL, "concrete_dark")
-	wall("DockW_N", 56, -20, 56.6, 18, OFFICE_CEIL, "concrete_dark")
-	box("DockRoof", Vector3(63, OFFICE_CEIL + 0.3, -2), Vector3(14, 0.6, 36), "concrete_dark", 0, true)
-	for i in 3:
-		light("DockLight%d" % i, Vector3(63.0, 3.8, -12.0 + float(i) * 16.0))
-	# West run back to the lot.
-	slab("YardRun", 30, 24, 56, 30, GROUND, 0.5, "asphalt")
-	wall("YardRunN", 30, 23.4, 56, 24, 4.0, "dark")
-	wall("YardRunS", 30, 30, 56, 30.6, 4.0, "dark")
-	light("YardRunLight", Vector3(43, 3.4, 27), Color(1.0, 0.9, 0.7), 2.5, 16.0)
-	var finish := Area3D.new()
-	finish.collision_layer = 0
-	finish.collision_mask = 2
-	finish.position = Vector3(34, 1.5, 20)
-	add(finish, "LevelExit")
-	finish.add_to_group("level_exit", true)
-	var shape := CollisionShape3D.new()
-	var b := BoxShape3D.new()
-	b.size = Vector3(8, 3, 6)
-	shape.shape = b
-	finish.add_child(shape)
-	shape.owner = art
-	beat_line("Beat7Line", Vector3(34, 1.5, 24), Vector3(8, 3, 1), 7)
+## Signs that are confidently wrong, JOHN painted on every parking bay, and window bands
+## on the fronts people see. Visual only: no collision.
+func dressing(plan: Dictionary) -> void:
+	var index := 0
+	for s in plan["signs"]:
+		var style: Dictionary = SIGN_STYLES[String(s["style"])].duplicate()
+		style["height"] = float(s["height"])
+		styled_sign("Sign%d" % index, String(s["text"]), v3(s["at"]), float(s["width"]), float(s["yaw"]), style)
+		index += 1
+	index = 0
+	for t in plan["floor_text"]:
+		var paint := Label3D.new()
+		paint.text = String(t["text"])
+		paint.font_size = 64
+		paint.pixel_size = 0.009
+		paint.modulate = Color(0.92, 0.9, 0.82)
+		paint.outline_size = 0
+		paint.position = v3(t["at"]) + Vector3(0, 0.03, 0)
+		paint.rotation = Vector3(-PI / 2.0, float(t["yaw"]), 0)
+		add(paint, "BayPaint%d" % index)
+		index += 1
+	index = 0
+	for w in plan["windows"]:
+		window_band("Windows%d" % index, v3(w["at"]), float(w["width"]), float(w["yaw"]))
+		index += 1
 
-## Blocks outside the windows so the factory is not standing in a field.
+## A blocker you can walk into: back, sides and lid, with one face open (n, s, e or w).
+## No floor, because a 0.12 lip at the mouth would stop the player dead.
+func hollow_box(label: String, centre: Vector3, size: Vector3, open: String, material: String) -> void:
+	var t := 0.12
+	var half := size / 2.0
+	box(label + "Lid", centre + Vector3(0, half.y - t / 2.0, 0), Vector3(size.x, t, size.z), material, 0, true)
+	var faces := {
+		"e": [Vector3(half.x - t / 2.0, 0, 0), Vector3(t, size.y, size.z)],
+		"w": [Vector3(-half.x + t / 2.0, 0, 0), Vector3(t, size.y, size.z)],
+		"s": [Vector3(0, 0, half.z - t / 2.0), Vector3(size.x, size.y, t)],
+		"n": [Vector3(0, 0, -half.z + t / 2.0), Vector3(size.x, size.y, t)],
+	}
+	for side in faces:
+		if side == open:
+			continue
+		box("%s%s" % [label, side.to_upper()], centre + faces[side][0], faces[side][1], material, 0, true)
+
+const REWARDS := {
+	"ammo": "res://scenes/props/ammo_pickup.tscn",
+	"health": "res://scenes/props/health_pickup.tscn",
+	"boost": "res://scenes/props/boost_pickup.tscn",
+}
+
+## Secrets: the reward and a box that counts it once. Never signposted.
+func secrets(plan: Dictionary) -> void:
+	for s in plan["secrets"]:
+		var label := "Secret" + String(s["name"]).to_pascal_case()
+		var at := v3(s["at"])
+		scene(label + "Reward", REWARDS[String(s["reward"])], at + Vector3(0, 0.2, 0))
+		var box_size: Array = s["trigger"]
+		trigger(label, at + Vector3(0, 1.0, 0), Vector3(float(box_size[0]), 3.0, float(box_size[1])), "secrets")
+
+## A standing cylinder with collision; pipe() on its own is visual only.
+func tank(label: String, base: Vector3, radius: float, height: float, material: String) -> void:
+	var centre := base + Vector3(0, height / 2.0, 0)
+	pipe(label, centre, height, radius, material)
+	var body := StaticBody3D.new()
+	body.position = centre
+	add(body, label + "Solid")
+	var collision := CollisionShape3D.new()
+	var shape := CylinderShape3D.new()
+	shape.radius = radius
+	shape.height = height
+	collision.shape = shape
+	body.add_child(collision)
+	collision.owner = art
+
+## Blocks outside the compound so the factory is not standing in a field.
 func skyline() -> void:
 	var spots := [
-		[Vector3(-60, 0, -40), 26.0], [Vector3(-58, 0, 10), 18.0], [Vector3(-52, 0, 60), 22.0],
-		[Vector3(110, 0, -60), 30.0], [Vector3(104, 0, 0), 20.0], [Vector3(100, 0, 50), 24.0],
-		[Vector3(10, 0, -96), 34.0], [Vector3(60, 0, -92), 28.0], [Vector3(-20, 0, 84), 20.0],
+		[Vector3(-140, 0, -100), 30.0], [Vector3(-145, 0, -30), 22.0], [Vector3(-138, 0, 40), 26.0], [Vector3(-142, 0, 110), 18.0],
+		[Vector3(125, 0, -110), 34.0], [Vector3(130, 0, -40), 24.0], [Vector3(122, 0, 30), 20.0], [Vector3(128, 0, 100), 28.0],
+		[Vector3(-60, 0, -162), 32.0], [Vector3(10, 0, -166), 26.0], [Vector3(70, 0, -160), 36.0],
+		[Vector3(-50, 0, 136), 20.0], [Vector3(30, 0, 140), 24.0],
 	]
 	var index := 0
 	for spot in spots:
@@ -239,6 +292,9 @@ func skyline() -> void:
 		building("Block%d" % index, at.x - 12, at.z - 12, at.x + 12, at.z + 12, h, "brick_dark")
 		index += 1
 
-func actors() -> void:
-	var player := scene("Player", "res://scenes/player/player.tscn", Vector3(-30, 0.3, 55))
-	player.rotation.y = PI
+func actors(plan: Dictionary) -> void:
+	var spawn: Dictionary = plan["spawn"]
+	var player := scene("Player", "res://scenes/player/player.tscn", v3(spawn["at"])) as Node3D
+	player.rotation.y = float(spawn["yaw"])
+	# Deaths put the player back at the start until losing restarts the level.
+	player.set("respawn_point", v3(spawn["at"]) + Vector3(0, 0.2, 0))

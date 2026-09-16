@@ -34,6 +34,9 @@ var _was_on_floor := true
 @export var max_hp := 100.0
 @export var kick_range := 2.2
 @export var kick_damage := 10.0
+## Where a death puts the player back. Level 01 keeps its old spot by the start; a level
+## or set piece can move it. A placeholder until losing restarts the level.
+@export var respawn_point := Vector3(0, 0.5, 4)
 @export var kick_force := 11.0
 @export var kick_cooldown := 0.55
 
@@ -371,7 +374,7 @@ func take_damage(amount: float) -> void:
 	if _hp <= 0.0:
 		get_tree().call_group("run_stats", "record_death", global_position)
 		_hp = max_hp
-		global_position = Vector3(0, 0.5, 4)
+		global_position = respawn_point
 		_update_hud()
 
 func _update_hud() -> void:

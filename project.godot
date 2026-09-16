@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="SUPER ZERO"
-config/version="alpha 0.0.001"
+config/version="alpha 0.0.002"
 run/main_scene="res://scenes/levels/l01_district04.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -20,6 +20,12 @@ config/icon="res://icon.svg"
 
 InputBootstrap="*res://scripts/input_bootstrap.gd"
 Sound="*res://scripts/audio/sound_bank.gd"
+
+[debug]
+
+file_logging/enable_file_logging=true
+file_logging/log_path="user://logs/superzero.log"
+file_logging/max_log_files=10
 
 [display]
 
@@ -35,10 +41,3 @@ window/stretch/aspect="expand"
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-
-[debug]
-
-file_logging/enable_file_logging=true
-file_logging/enable_file_logging.pc=true
-file_logging/log_path="user://logs/superzero.log"
-file_logging/max_log_files=10

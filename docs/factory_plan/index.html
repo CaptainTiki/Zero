@@ -1,0 +1,177 @@
+<title>Factory Complex Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --paper: #E6E8E1; --panel: #F2F3EE; --ink: #1D2320; --ink-2: #58615B; --rule: #C9CEC4;
+  --grid: #DCDFD7; --grid-major: #C5CABF;
+  --outdoor: #D5D0BF; --backdrop: #DEDBD0; --mass: #8F978E; --indoor: #BCC2B7; --edge: #5F675F;
+  --lv-B: #5E9294; --lv-G: #BCC2B7; --lv-C1: #E1A61F; --lv-C2: #DA622D; --rail: #6B4E12;
+  --blocker: #2B312D; --blocker-low: #6F776F; --blocker-text: #E6E8E1;
+  --route: #C42A4E; --escape: #2D68C8; --kick: #1E8756; --shutter: #7D837D; --secret: #8C3BB8;
+  --hazard: #E6B422; --halo: rgba(242, 243, 238, .85);
+  --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121513; --panel: #1A1E1B; --ink: #E3E7DF; --ink-2: #99A29A; --rule: #2E3530;
+    --grid: #1A1E1B; --grid-major: #333A35;
+    --outdoor: #35362D; --backdrop: #1E201C; --mass: #0C0E0D; --indoor: #4B544C; --edge: #9AA39A;
+    --lv-B: #2F6B6D; --lv-G: #4B544C; --lv-C1: #E1AA2C; --lv-C2: #E4733E; --rail: #FFE08A;
+    --blocker: #050605; --blocker-low: #5B635C; --blocker-text: #C9CFC6;
+    --route: #FF5D80; --escape: #6CA3FF; --kick: #3FC486; --shutter: #8F958F; --secret: #C88CFF;
+    --hazard: #E6B422; --halo: rgba(18, 21, 19, .85);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121513; --panel: #1A1E1B; --ink: #E3E7DF; --ink-2: #99A29A; --rule: #2E3530;
+  --grid: #1A1E1B; --grid-major: #333A35;
+  --outdoor: #35362D; --backdrop: #1E201C; --mass: #0C0E0D; --indoor: #4B544C; --edge: #9AA39A;
+  --lv-B: #2F6B6D; --lv-G: #4B544C; --lv-C1: #E1AA2C; --lv-C2: #E4733E; --rail: #FFE08A;
+  --blocker: #050605; --blocker-low: #5B635C; --blocker-text: #C9CFC6;
+  --route: #FF5D80; --escape: #6CA3FF; --kick: #3FC486; --shutter: #8F958F; --secret: #C88CFF;
+  --hazard: #E6B422; --halo: rgba(18, 21, 19, .85);
+}
+html, body { background: var(--paper); color: var(--ink); }
+body { font: 15px/1.5 var(--f-body); padding-inline: 20px; padding-block: 20px 48px; }
+.wrap { max-width: 1480px; margin: 0 auto; display: grid; gap: 18px; }
+
+header { display: grid; gap: 10px; }
+.eyebrow { font: 600 13px/1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+h1 { font: 700 clamp(30px, 4vw, 44px)/1 var(--f-display); letter-spacing: .01em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+.lede { margin: 0; max-width: 72ch; color: var(--ink-2); }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 4px; }
+.stat { display: grid; gap: 2px; }
+.stat b { font: 600 24px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.stat span { font: 500 12px/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: start; }
+@media (max-width: 1080px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+.mapcol { display: grid; gap: 8px; min-width: 0; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; background: var(--panel); flex-wrap: wrap; }
+.seg button, .zoom button, .toggles label {
+  font: 600 14px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; color: var(--ink);
+}
+.seg button { border: 0; background: transparent; padding: 9px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.seg i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; border: 1px solid var(--edge); }
+.toggles { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.toggles label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--ink-2); }
+.toggles input { accent-color: var(--route); margin: 0; }
+.zoom { display: inline-flex; gap: 4px; margin-left: auto; }
+.zoom button { border: 1px solid var(--rule); background: var(--panel); border-radius: 6px; min-width: 34px; padding: 8px 10px; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--route); outline-offset: 2px; }
+
+.map { position: relative; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--paper); height: clamp(460px, 80vh, 1150px); }
+.map svg { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; user-select: none; }
+.map svg.dragging { cursor: grabbing; }
+.readout { position: absolute; left: 10px; bottom: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; pointer-events: none; }
+.readout .xy, .readout .what { background: var(--panel); border: 1px solid var(--rule); border-radius: 5px; padding: 5px 9px; }
+.readout .xy { font: 500 12px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.readout .what { font-size: 13px; line-height: 1.35; max-width: 62ch; }
+.readout .what:empty { display: none; }
+.readout .what b { font-family: var(--f-display); font-size: 15px; letter-spacing: .03em; }
+.readout .what em { font-style: normal; color: var(--ink-2); }
+
+aside { display: grid; gap: 22px; min-width: 0; }
+section h2 { font: 700 18px/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; margin: 0 0 10px; padding-bottom: 7px; border-bottom: 2px solid var(--ink); }
+.legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 12px; font-size: 13px; }
+.legend div { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.legend svg { flex: none; }
+.note { font-size: 13px; color: var(--ink-2); margin: 10px 0 0; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th { font: 600 12px/1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); text-align: left; padding: 0 0 6px; }
+td { padding: 5px 0; border-top: 1px solid var(--rule); vertical-align: middle; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; padding-left: 10px; }
+td .bar { height: 5px; border-radius: 3px; background: var(--route); margin-top: 3px; }
+tr.esc td .bar { background: var(--escape); }
+tr.total td { border-top: 2px solid var(--ink); font-weight: 600; }
+.seq { font: 600 12px/1 var(--f-mono); color: var(--ink-2); margin-right: 6px; }
+
+.spaces { display: grid; gap: 12px; }
+.space h3 { margin: 0; font: 600 16px/1.1 var(--f-display); letter-spacing: .03em; text-transform: uppercase; display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+.space h3 small { font: 500 12px/1 var(--f-mono); color: var(--ink-2); text-transform: none; letter-spacing: 0; }
+.space p { margin: 3px 0 0; font-size: 13.5px; }
+.pill { font: 600 11px/1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--edge); border-radius: 99px; padding: 3px 7px 2px; color: var(--ink-2); }
+
+ol.q { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: 14px; }
+
+/* map classes */
+.lbl { font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; fill: var(--ink); paint-order: stroke; stroke: var(--halo); stroke-width: .7px; stroke-linejoin: round; pointer-events: none; }
+.fine { display: none; }
+svg.zoomed .fine { display: inline; }
+.axis { font-family: var(--f-mono); fill: var(--ink-2); pointer-events: none; }
+#map :is(rect, polygon, polyline, path, circle, line) { vector-effect: non-scaling-stroke; }
+#map .cor, #map .pat { vector-effect: none; }
+.ghost { opacity: .2; }
+.over { opacity: .6; }
+.over :is(rect, path, polygon, polyline, circle, line) { fill: none !important; stroke: var(--ink-2) !important; stroke-dasharray: 5 3; }
+.over text { display: none; }
+.xray { opacity: .7; }
+.hit { cursor: help; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Super Zero · Level 1 · Factory investigation · Draft 2, September 16, 2026</div>
+    <h1>Factory complex plan</h1>
+    <p class="lede">Walkable space only. Ten spaces across five buildings, two yards and a basement, joined by corridors, a skybridge and tunnels. Pick a storey to isolate it; hover anything for its name, size and height. Coordinates are Godot x and z, north up.</p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="layout">
+    <div class="mapcol">
+      <div class="toolbar">
+        <div class="seg" id="levels" role="group" aria-label="Storey"></div>
+        <div class="toggles" id="toggles"></div>
+        <div class="zoom">
+          <button type="button" id="zin" aria-label="Zoom in">+</button>
+          <button type="button" id="zout" aria-label="Zoom out">−</button>
+          <button type="button" id="zfit">Fit</button>
+        </div>
+      </div>
+      <div class="map">
+        <svg id="map" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Top-down plan of the factory complex"></svg>
+        <div class="readout"><span class="xy" id="xy">x —  z —</span><span class="what" id="what"></span></div>
+      </div>
+    </div>
+
+    <aside>
+      <section>
+        <h2>Key</h2>
+        <div class="legend" id="legend"></div>
+        <p class="note">Blockers show their height when zoomed in. Dark ones hide a standing enemy; hatched ones are under 1.8 and only stop you.</p>
+      </section>
+      <section>
+        <h2>Golden path</h2>
+        <table id="budget"></table>
+        <p class="note" id="budgetNote"></p>
+      </section>
+      <section>
+        <h2>Spaces</h2>
+        <div class="spaces" id="spaces"></div>
+      </section>
+      <section>
+        <h2>Decided</h2>
+        <ol class="q" id="decisions"></ol>
+      </section>
+      <section>
+        <h2>Still open</h2>
+        <ol class="q" id="questions"></ol>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script src="plan_floors.js"></script>
+<script src="plan_items.js"></script>
+<script src="plan_dressing.js"></script>
+<script src="bake.js"></script>
+<script src="app.js"></script>
