@@ -16,15 +16,31 @@ This file carries working knowledge between machines. Session-by-session state l
 
 ## Design direction and taste
 
-- **Spiritual successor to Serious Sam, on purpose.** Dumb fearless hero, corny jokes, horde
-  shooting all stay. It must not be a two-bit copy, so the enemy premise is what changes.
-  See `docs/STORY.md` "Direction under review".
+- **Direction, decided September 15, 2026.** A Men in Black style organisation defends Earth
+  from aliens who are quietly terraforming it behind ordinary businesses and terrible disguises.
+  Horde shooting stays; the quipping hero does not. Zero is fearless, dim and mostly silent, and
+  the comedy comes from the world: cardboard cutout employees, signage that is confidently wrong,
+  and every alien being named John. The mastermind is super smart and misses key details. Full
+  canon in `docs/STORY.md`.
+- **No alien dialogue yet.** Build gameplay first and add voices later. The mastermind probably
+  stays silent for the first level or two.
 - **Mission length.** The current Level 01 greybox is a playtest build, one section of a
   Mission 01 that ships at 10 to 15 minutes. Serious Sam 4's first mission is the reference.
 - **Don't push survival systems.** Armour and more health pickups are the same thing with
   different flavour. Report damage trends as data, never as a blocker.
-- **Secrets should be genuinely hidden.** The user got 0 of 8 in the reference mission.
-  Level 01's secrets are the easy, teaching tier.
+- **Secrets are genuinely hidden and never signposted.** No tells, markers or hints. If it's
+  obvious it isn't a secret, it's an ammo pickup. A couple may be easier, but never obvious.
+  Missing one is what makes a player want another run. Twelve per level is the upper limit, so
+  improve them by moving them rather than adding more.
+- **Run length band is 8 to 15 minutes.** Eight is the low end of acceptable, fifteen the limit.
+- **Par rule of thumb: about 3x the headless route test's walk time.** That test reports walk
+  time with no fights. The city level walks in 2:40 and its par is 8:00. Re-derive par whenever
+  the route changes, since a par set for a shorter level marks everyone down.
+- **The kill total includes enemies behind unfound secrets, on purpose.** Ambush enemies count
+  from level start even if their secret is never found. A short kill count tells the player
+  they missed part of the level and should replay it. Don't "fix" this.
+- **The end tally and beacons are developer tools**, for reading playtests. Real players finish
+  a level and the next one loads.
 - **Audio.** Wants dry, stylised game gunshots, not range recordings. No generic thump on
   regular hits. Enemy hurt sounds are creature voices, pitched up and short, never metal
   clanks. Music is not sourced yet. Every clip and licence is logged in `docs/ASSETS.md`.

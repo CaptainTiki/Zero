@@ -1,0 +1,5 @@
+#!/bin/sh
+# Bump the build number so every commit is a distinguishable build, then stage it.
+# Enable with:  git config core.hooksPath .githooks
+python tools/bump_version.py || exit 1
+git add project.godot

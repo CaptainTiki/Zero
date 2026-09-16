@@ -70,6 +70,7 @@ func apply_kick(_damage: float, from: Vector3, _force: float) -> void:
 	if is_open:
 		return
 	is_open = true
+	get_tree().call_group("run_stats", "record_door_kick", name)
 	kicked_open.emit()
 	_impact_audio.play()
 	_panel_collision.set_deferred("disabled", true)

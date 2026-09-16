@@ -6,7 +6,11 @@ Last updated: September 13, 2026
 
 **Start here, September 13, 2026.** Two threads are open. The story one is the live conversation.
 
-1. **Story direction is being reconsidered, nothing decided yet.** The user worried the game is a
+1. **Story direction is DECIDED, September 15, 2026: the Men in Black / terraforming premise.**
+   See `docs/STORY.md`, fifth draft. Level 1 is a new factory level; the existing city level
+   becomes Level 2. The notes below record how we got there and are kept for context only.
+
+   ~~Story direction is being reconsidered, nothing decided yet.~~ The user worried the game is a
    two-bit Serious Sam copy. They decided to stay Sam-like on purpose, as a spiritual successor:
    dumb fearless hero, corny jokes and horde shooting all stay. The enemy premise is the thing that
    changes, because a wisecracking hero shooting aliens in a modern city is Serious Sam and Duke
@@ -54,6 +58,13 @@ Last updated: September 13, 2026
    plus `tests/l01_interiors_test.gd`. All thirteen tests pass. Playtests 9 to 11 are logged in
    `docs/LEVEL01_PLAN.md`. The user said armour is not a priority, so ignore the armour line in
    the scope note below.
+
+3. **First outside playtest, September 15, 2026.** A friend's first run is logged as playtest 12
+   in `docs/LEVEL01_PLAN.md`: 8:07, liked the feel, recoil and shotgun. The trapped HunterLoop in
+   the back gap is becoming a new secret rather than a fix; sketch in the plan doc. The kill total counting unspawned ambush
+   enemies was reviewed and is intended.
+   Level design notes there are deferred until the story direction is decided. Damage and
+   healing logging is wanted and doesn't depend on direction.
 
 Working knowledge that used to live only in local memory is now in `CLAUDE.md`.
 

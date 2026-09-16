@@ -34,9 +34,12 @@ func _ready() -> void:
 	secrets.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$Root.add_child(secrets)
 
-func set_progress(found: int, total: int, kills: int, total_kills: int) -> void:
+func set_progress(found: int, total: int, kills: int, total_kills: int, johns := 0, johns_total := 0) -> void:
 	if secrets:
-		secrets.text = "SECRETS %d / %d     KILLS %d / %d" % [found, total, kills, total_kills]
+		var line := "SECRETS %d / %d     KILLS %d / %d" % [found, total, kills, total_kills]
+		if johns_total > 0:
+			line += "     JOHNS %d / %d" % [johns, johns_total]
+		secrets.text = line
 
 func set_status(weapon_name: String, hp: float, max_hp: float, _has_gun: bool, ads: bool, ammo := "", boost_left := 0.0) -> void:
 	var extra := " (ADS)" if ads else ""

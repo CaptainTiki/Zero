@@ -405,3 +405,175 @@ Fixed with a 0.7 kerb across the top of the exit ramp. The player clears it easi
 jump velocity 4.5 against gravity 9.8 gives an apex just over 1.0. Enemies have no step-up
 at all, so any lip stops them. This is better than covering the slot, which would lock a
 player out of a drain secret they had missed.
+
+## Playtest 12 (friend, first time through, September 15, 2026)
+
+First player other than the user. 8:07, 168/173 kills, 11/12 secrets (missed SecretStub),
+80 damage taken. Pistol 330 shots, shotgun 105. Played on Godot 4.7 stable, RTX 2070.
+
+| Stretch | Time | Kills |
+|---|---|---|
+| Yard to Route 12 | 1:43 | 21 |
+| Canal West and Mill Road | 1:56 | 37 |
+| Drains | 1:15 | 31 |
+| Back up to the plaza | 1:53 | 33 |
+| Arena and lift | 1:16 | 46 |
+
+Pacing was even, with no dead stretch. A thorough first-timer finished in 8 minutes against
+the 13 to 14 projected, so the mission is still under the 10 to 15 minute band.
+
+### What landed
+
+- Enjoyed the old-school look and said it felt good to play.
+- Pistol recoil kick and the shotgun with gibs were the highlights.
+- Treated the shotgun as a limited resource for bigger enemies and the pistol as the
+  unlimited default. That is the intended weapon economy working without being taught.
+- Found SecretMillAlley first time, which the user missed twice.
+
+### Where it went wrong
+
+- **Route clarity.** Some "is this the way" moments, put down to the loose greybox.
+- **Ambushes surprised him** and he took more damage early than the user does. The barge
+  ambush hit him while he was still standing on the barge, which the user never sees.
+- **Saved the last health pickup** until after the arena waves.
+- **Rooftop confusion.** Going for the pharmacy-roof secret, he tried to jump off the roof,
+  which would skip the corner road, alley and canal walkway loop. The user had to show him
+  the way back to the street.
+
+### Bugs found in the log (not fixed yet)
+
+- ~~The kill total counts ambush enemies before they exist.~~ **Decided: intended, not a bug.**
+  `_kills_total` includes every ambush's enemies from level start, even though an ambush only
+  spawns when its secret is found. If you don't find all the secrets, you don't meet all the
+  enemies, and the kill count says so. A later level may hide a large ambush behind a secret
+  door, a big share of the level, and the shortfall tells the player they missed something
+  worth replaying. On this run the missed stub secret held 4 enemies, costing 0.9 points;
+  a player who skips every ambush secret loses about 5.3 points from kills alone.
+- ~~HunterLoop is sealed in the back-alley gap.~~ **Becoming a secret instead.** It spawns at
+  (72, 0.3, -90), and `BackGapRubble` turned that gap into a dead-end pocket (x 70..74,
+  z -100..-80) that opens only onto the back alley. Nobody finds it, and the Hunter inside
+  shows up as a survivor. Rather than move the Hunter, make the pocket a secret with the Hunter
+  as its guard. The short kill count and the end-of-level beacon become the sign that
+  something is there, which is the kill-count rule working as intended.
+
+  Sketch, to build whenever the user wants it:
+  - Hide the pocket's mouth on the back alley so it reads as a wall or dumpsters, leaving a
+    narrow gap. The Hunter can see out through it, so its shots coming from a blank wall are
+    the in-level tell.
+  - Reward inside worth the detour, since it sits off the back alley, which is already off
+    the cross street. A secret inside a side route: the harder tier.
+  - Possibly visible from the pharmacy roof at 8.4, over the 4.8 rubble. A secret you spot from
+    a height and then have to work out how to reach.
+  - Secret count goes to 13; update `tests/l01_secrets_test.gd`.
+
+### Level design notes, deferred until the story direction is decided
+
+- **Seal the museum until the arena is clear.** He walked across the museum threshold between
+  waves two and three. A player looking for the lift will walk in and only then discover a
+  fight outside. Security keeps the doors shut until the waves are done.
+- **Rooftop edge.** Put guard rails along the roof edge with an obvious opening at the way down.
+  Make the secret's air-conditioner climb read less like a ladder, more like stacked boxes.
+  Open question: rail it off completely, or leave a jumpable skip as a deliberate speed-run
+  route that doesn't read as the main path.
+- **Ambush tells.** Surprise is the point, but a cue half a second before, like a door bang or a
+  growl, makes it feel fair. The monster premise gives a natural one: a closet door creaking.
+- **Barge ambush.** Walkway fodder can reach a player on the barge from above, since the height
+  difference is inside the 1.4 melee allowance. Decide whether that reads as fair.
+- **Route readability generally** is set dressing, lighting and framing, which is polish for
+  after the direction is settled.
+
+### Instrumentation to add
+
+The end-of-run tally and the survivor beacons are developer tools for reading playtests, not
+player-facing. A real player's run ends and the next level loads.
+
+**Built September 15, 2026.** Damage and healing log with timestamps and the resulting health.
+Yellow beacons mark every secret the player walked past, cyan ones mark surviving enemies.
+Deaths now print instead of being silent, doors kicked print, dry fires print, pickups refused
+while full print (throttled to one every four seconds per kind), specials print, and Johns print
+with a timestamp so their spacing across a run is readable. A run summary at the finish covers
+deaths, falls out of the world, doors kicked, accuracy per weapon, Johns, dry fires, refusals,
+specials, and distance walked against the golden path as a wander ratio.
+
+Two per-level knobs are exported on the level script: `fall_plane`, which sits 10 below the
+lowest geometry and puts a fallen player back on their last safe footing, and
+`golden_path_units`, which the wander ratio is measured against.
+
+### Still to build: pause menu
+
+An escape menu with an **unstuck** button, for when a player wedges themselves in geometry.
+Too pre-alpha to build now, but when it exists, log every use: an unstuck press is a bug report
+with a position attached. Escape currently drops the end-of-run tally, so that binding has to be
+reconciled when the menu arrives.
+
+- Log damage taken and healing to the console with timestamps and amounts, so a playtest shows
+  when a player got hit, by roughly what, and how many health pickups they used and when.
+- Yellow beacons over missed secrets at the end of a run, next to the cyan ones over surviving
+  enemies, with their positions printed to the console the same way.
+
+Neither depends on story direction.
+
+## Secret rework: make them actually hidden (September 15, 2026)
+
+Under the Men in Black direction this city level becomes Level 2, and it needs its secrets
+reworked before then. Scores confirm the problem: a first-time player scored 96% and found
+11 of 12 secrets. Target bands are a normal player at 50 to 60% of everything, speedrunners
+lower, completionists as high as they like if they hunt.
+
+### Audit of the twelve
+
+| Secret | Where | Verdict |
+|---|---|---|
+| SecretWreck | Yard, on the wreck roof | **Open.** Visible by turning around at spawn. |
+| SecretTerrace | Plaza terrace, up a visible ramp | **Open.** Reward sits in plain view. |
+| SecretCulDeSac | Cul-de-sac west of the Mill Road T | **Open.** Seen from the junction. |
+| SecretCistern | On a plinth in the open cistern | **Open.** Lit and central. |
+| SecretStore | Behind the kickable storeroom door | Teaching tier. The door colour advertises it. |
+| SecretStub | Past the south bus on Route 12 | Half hidden by the bus. The friend missed this one. |
+| SecretPatrol | Past the corner bus | Same pattern as the stub. |
+| SecretLoop | Back alley off the cross street | The alley mouth is visible. |
+| SecretBarge | Drop through the walkway rail gap | Decent. You must commit to a drop. |
+| SecretPharmRoof | Air-conditioner stack up from the shop roof | Decent. Seen before it is reachable. |
+| SecretMillAlley | Dead-end alley off Mill Road | **Good.** A narrow mouth on a long road. |
+| SecretSpur | Blind spur off the main drain | **Good.** No reason to look. |
+
+Two of twelve clear the bar. Four are in plain sight.
+
+### Concealment techniques to use
+
+1. **Hollow containers.** Dumpsters, crates and barrels are solid boxes today. Make them hollow
+   with an opening on one side, and put the reward inside. Needs a `container()` helper in the
+   builder: a box shell with one face open, facing away from the golden path.
+2. **Behind a barrel stack.** A gap you only see if you walk round the back of something.
+3. **More kickable doors** off the main route, each opening onto a short offshoot.
+4. **Grates and vents**, which suit the drains and a factory.
+5. **Seen but not reachable.** A reward on a roof you spot early and only work out later.
+   The pharmacy roof already does this; there should be two or three more.
+6. **A drop you have to take**, like the barge.
+7. **A pocket with an occupant.** The trapped Hunter sketch above: shots coming out of an
+   apparently blank wall are the tell. Would be secret 13.
+
+### Rules (decided by the user, September 15, 2026)
+
+- **Never put a reward in open sight of the golden path.** "If they're obvious they're not
+  secret. That's just an ammo pickup."
+- **Don't signpost them.** No tells, markers or hints. Games are allowed a difficulty level and
+  the player is not told where anything is. The friend finished, saw the one he missed, and
+  immediately wanted another run. More to miss makes that pull stronger, so the design goal is
+  the re-run, not the clean sweep.
+- **A couple may be easier, but never obvious.** Easier means less devious, still hidden.
+- **Move the existing twelve, don't add more.** Twelve is the upper limit for a level.
+- The Hunter pocket sketch therefore replaces one of the four secrets currently in the open
+  rather than becoming a thirteenth.
+- **Where an obvious secret is moved away from, leave an ammo pickup.** The spot still rewards
+  looking around, it just stops pretending to be a secret.
+- Aim for a normal player finding about a third.
+- `tests/l01_secrets_test.gd` must still walk to every one of them; update its routes with
+  each change.
+
+### Run length
+
+The friend agreed an 8 minute run is at the low end of acceptable. Fifteen minutes is the upper
+limit. So the band is 8 to 15, and the level wants to grow toward the middle of it. That also
+settles the time score: par at 12:00 sits inside the band, so once runs land there naturally,
+time stops being the free 20 points it is today. The fix is length, not the par number.

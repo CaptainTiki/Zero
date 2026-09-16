@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/props/john_cutout.gd" id="1_john"]
+
+[node name="JohnCutout" type="StaticBody3D"]
+script = ExtResource("1_john")

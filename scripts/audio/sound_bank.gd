@@ -32,6 +32,7 @@ const EVENTS := {
 	"boost_end": [[KENNEY_SCIFI + "forceField_004.ogg"], -8.0, 0.8, 0.85],
 	"gib": [[KENNEY_IMPACT + "impactSoft_medium_000.ogg", KENNEY_IMPACT + "impactSoft_medium_001.ogg"], -9.0, 0.55, 0.7],
 	"crate_break": [[KENNEY_IMPACT + "impactWood_heavy_000.ogg", KENNEY_IMPACT + "impactWood_heavy_001.ogg", KENNEY_IMPACT + "impactPlank_medium_000.ogg"], -4.0, 0.9, 1.1],
+	"john_flat": [[KENNEY_IMPACT + "impactPlank_medium_000.ogg", KENNEY_IMPACT + "impactWood_heavy_001.ogg"], -7.0, 1.35, 1.6],
 	# Creature voices.
 	"fodder_idle": [[OGA + "monster_starninjas/monster.3.ogg", OGA + "monster_starninjas/monster.5.ogg", OGA + "monster_starninjas/monster.9.ogg"], -8.0, 1.1, 1.3],
 	"fodder_alert": [[OGA + "monster_starninjas/monster.1.ogg", OGA + "monster_starninjas/monster.2.ogg"], -6.0, 1.15, 1.3],

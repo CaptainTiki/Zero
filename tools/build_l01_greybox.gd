@@ -19,6 +19,7 @@ func build() -> void:
 	service_lane()
 	route_12()
 	canal_street()
+	john_trial()
 	west_district()
 	storm_drains()
 	plaza()
@@ -828,3 +829,18 @@ func cistern() -> void:
 	scene("RammerCistern", "res://scenes/enemies/rammer.tscn", Vector3(34, -5.2, -114))
 	scene("HealthCistern", "res://scenes/props/health_pickup.tscn", Vector3(44, -4.2, -120))
 	scene("AmmoCistern", "res://scenes/props/ammo_pickup.tscn", Vector3(18, -5.3, -104))
+
+# Trial placement of cardboard Johns along the early route, so the prop can be
+# judged by hand. The real home for these is the factory level; this is a test
+# bed, not a fiction. Twelve of them, so each is worth 0.83% of the bonus.
+func john_trial() -> void:
+	var spots := [
+		[Vector3(-8, 0, -8), 0.4], [Vector3(6, 0, -6), -1.2],
+		[Vector3(20, 0, 2.6), 1.6], [Vector3(30, 0, -2.6), 3.0], [Vector3(40, 0, 2.6), 0.2], [Vector3(48, 0, -2.6), -1.9],
+		[Vector3(57, 0, 10), 2.4], [Vector3(70, 0, -10), -0.6], [Vector3(56, 0, -34), 1.1],
+		[Vector3(56, 0, -68), 0.9], [Vector3(66, 0, -52), -2.2], [Vector3(76, 0, -68), 0.3],
+	]
+	var index := 0
+	for spot in spots:
+		scene("John%d" % index, "res://scenes/props/john_cutout.tscn", spot[0], spot[1])
+		index += 1

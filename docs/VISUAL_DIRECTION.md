@@ -33,3 +33,29 @@ Goal: the whole slice reads as one city so outside testers see the intended game
 Regenerate with `godot --headless --path . -s res://tools/build_city_dress.gd`. Shared helpers are in `tools/art_kit.gd`. Regeneration replaces manual edits to `city_dress.tscn`.
 
 Verification: `tests/city_dress_test.gd` walks the player body from the checkpoint exit to the tunnel closure on the two open lanes, confirms the plaza side walls, and climbs the ramp onto the platform. Rendered at 1280×720 in Compatibility; about 2,000 draw calls at the crash yard, vsync-bound on an RTX 2080. If weaker test machines struggle, the first lever is disabling shadow casting on the backdrop towers.
+
+## Cardboard John (September 15, 2026)
+
+`scenes/props/john_cutout.tscn`, built procedurally by `scripts/props/john_cutout.gd`. The
+aliens' idea of a human employee, and the recurring gag of the Men in Black direction. Human
+shaped, every panel 0.05 thick, about 1.8 tall on a small easel foot.
+
+Blockout look: cardboard tan head, arms and legs, red t-shirt, blue jeans with a dark leg gap,
+one arm frozen mid-wave, mismatched goofy eyes with pupils pointing two ways, a far-too-wide
+fixed smile, and a blank badge.
+
+Flattened by a kick, a punch, a pistol round or a shotgun blast. It launches away from the hit,
+tumbles with a random spin, bursts paper twice, clacks, counts itself once and frees itself
+after about 1.4 s. Kicking costs no ammo and is meant to be the best way.
+
+### Production notes, from the first look
+
+- **Roughly double the geometry density** when this moves past blockout. The head sits low on
+  the shoulders and the arms are short and stubby at this resolution.
+- **Texture him rather than flat colours.** Printed cardboard, with the name written badly on
+  the badge in marker pen.
+- **The name badge is deferred.** It is a blank white rectangle for now; the text comes with the
+  texture pass.
+- **He disappears edge-on.** At 0.05 thick, a John turned away is nearly invisible at range.
+  Good for hiding them, possibly annoying when hunting them. Judge it in motion, and angle them
+  toward the player's approach if it reads badly.

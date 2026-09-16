@@ -284,6 +284,7 @@ func grant_shotgun() -> void:
 
 func add_shells(amount: int) -> bool:
 	if _shells >= shell_capacity:
+		get_tree().call_group("run_stats", "record_pickup_refused", "shells")
 		return false
 	_shells = mini(shell_capacity, _shells + amount)
 	_sfx_event("pickup_ammo")
@@ -291,6 +292,7 @@ func add_shells(amount: int) -> bool:
 	return true
 
 func apply_boost(duration: float) -> bool:
+	get_tree().call_group("run_stats", "record_special", "boost")
 	_boost_left = maxf(_boost_left, duration)
 	_sfx_event("boost")
 	_update_hud()
@@ -342,8 +344,11 @@ func _update_viewmodel_pose(delta: float) -> void:
 
 func restore_health(amount: float) -> bool:
 	if amount <= 0.0 or _hp >= max_hp:
+		get_tree().call_group("run_stats", "record_pickup_refused", "health")
 		return false
+	var before := _hp
 	_hp = minf(max_hp, _hp + amount)
+	get_tree().call_group("run_stats", "record_heal", _hp - before, _hp)
 	_sfx_event("pickup_health")
 	_update_hud()
 	return true
@@ -352,8 +357,9 @@ func take_damage(amount: float) -> void:
 	if _hurt_cd > 0.0:
 		return
 	_hurt_cd = 0.35
-	get_tree().call_group("run_stats", "record_damage", minf(amount, _hp))
+	var applied := minf(amount, _hp)
 	_hp = maxf(0.0, _hp - amount)
+	get_tree().call_group("run_stats", "record_damage", applied, _hp)
 	_update_hud()
 	_sfx_event("player_hurt", _sfx_hurt)
 	if hud and hud.has_method("flash_hurt"):
@@ -363,6 +369,7 @@ func take_damage(amount: float) -> void:
 	tw.tween_property(camera, "position", start + Vector3(0.05, -0.04, 0.05), 0.04)
 	tw.tween_property(camera, "position", start, 0.1)
 	if _hp <= 0.0:
+		get_tree().call_group("run_stats", "record_death", global_position)
 		_hp = max_hp
 		global_position = Vector3(0, 0.5, 4)
 		_update_hud()
@@ -430,6 +437,7 @@ func _try_fire() -> void:
 	if col and col.has_method("take_damage"):
 		var weak: bool = col.has_method("is_weak_hit") and col.is_weak_hit(hit.position)
 		col.take_damage(pistol_damage, weak)
+		get_tree().call_group("run_stats", "record_hit", "pistol")
 		ImpactFx.flesh(get_parent(), hit.position, weak)
 		_register_hit(weak)
 	elif not hit.is_empty():
@@ -443,6 +451,7 @@ func _try_shotgun() -> void:
 	if _shells <= 0:
 		_shotgun_timer = 0.3
 		_sfx_event("shotgun_empty", _sfx_melee, 1.6)
+		get_tree().call_group("run_stats", "record_dry_fire", "shotgun")
 		_update_hud()
 		return
 	_shells -= 1
@@ -477,6 +486,8 @@ func _try_shotgun() -> void:
 		entry["amount"] += shotgun_damage * falloff
 		entry["weak"] += 1 if weak else 0
 		hits[col] = entry
+	if not hits.is_empty():
+		get_tree().call_group("run_stats", "record_hit", "shotgun")
 	for col in hits:
 		var entry: Dictionary = hits[col]
 		var amount: float = entry["amount"]
