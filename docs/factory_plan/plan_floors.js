@@ -5,7 +5,7 @@ window.PLAN = {
   bounds: [-106, -128, 196, 228],
   rate: 5.85, // units per second walking, from 1,200 units in 3:25
   target: 1200,
-  par: 645, // 3x the route test's walk, 3:35 on September 16, 2026 after playtest 1. Re-measure when the route changes.
+  par: 555, // 3x the route test's walk, 3:05 on September 17, 2026 with the cauldron. Re-measure when the route changes.
 
   // Solid building mass: walls and the space between rooms.
   // h is the roof height; wall and floor are greybox materials for the bake.
@@ -19,10 +19,12 @@ window.PLAN = {
 
   // Floors. kind: outdoor | backdrop (seen, not reachable) | indoor | pit | room (basement) | deck
   zones: [
-    { id: "lot", name: "Parking lot", lv: "G", kind: "outdoor", poly: [[-100, 48], [-50, 48], [-50, 47], [10, 47], [10, 96], [-100, 96]], label: [-48, 71] },
-    { id: "truck", name: "Truck yard", lv: "G", kind: "outdoor", poly: [[20, 6], [84, 6], [84, 96], [10, 96], [10, 47], [20, 47]], label: [62, 66] },
-    { id: "yard", name: "Central yard", lv: "G", kind: "outdoor", rect: [-50, -26, 20, 47], label: [-18, 38] },
-    { id: "alley", name: "Bin alley", lv: "G", kind: "outdoor", rect: [-100, -24, -50, -2], label: [-80, -13], note: "Dead end off the yard. Looks like a way round the hall. Ambush on the way back out." },
+    // The three outdoor spaces were cut down after playtest 2 (user's markup, September 16):
+    // each had been bigger than any building, and walking them before going in and after
+    // coming out felt long. The bin alley went altogether.
+    { id: "lot", name: "Parking lot", lv: "G", kind: "outdoor", rect: [-100, 48, -50, 78], label: [-98, 77], note: "Just the front of the admin block. The start is a short dogleg from the doors." },
+    { id: "truck", name: "Truck yard", lv: "G", kind: "outdoor", rect: [20, 6, 84, 52], label: [22, 51], note: "Ends just past the container stack. The exit gate is in its south wall." },
+    { id: "yard", name: "Central yard", lv: "G", kind: "outdoor", rect: [-50, -26, 20, 30], label: [-48, 29] },
     { id: "lane", name: "Service lane", lv: "G", kind: "outdoor", rect: [-62, -86, 0, -70], label: [-44, -75], note: "Behind the hall's kick door. Scaffold blocks the west end, a skip the east. Look up to see the skybridge." },
     { id: "tankfarm", name: "Tank farm", lv: "G", kind: "backdrop", rect: [-8, -70, 20, -26], label: [6, -48], note: "Fenced off. Seen from the yard, never entered." },
     { id: "plantyard", name: "Plant yard", lv: "G", kind: "backdrop", rect: [22, -72, 72, -62], label: [60, -67], note: "Seen below the high catwalk on the escape." },
@@ -43,7 +45,7 @@ window.PLAN = {
     { id: "hallpit", name: "Machine pit", lv: "B", kind: "pit", rect: [-52, -60, -24, -42], label: [-44, -58], note: "Sunken floor at -4 with hazard edges. You fight down here with Hunters above you." },
     { id: "plantpit", name: "Plant pit", lv: "B", kind: "pit", rect: [30, -114, 64, -80], label: [47, -111.6], note: "Pit floor at -4 round the machine." },
     { id: "pump", name: "Pump room", lv: "B", kind: "room", rect: [0, -84, 14, -72], label: [7, -73.8], note: "Where the short way joins the main tunnel. Health on the pumps." },
-    { id: "machinetop", name: "Machine roof", lv: "C2", kind: "deck", rect: [40, -104, 54, -90], label: [47, -103], note: "A 3-wide walkway round the coolant stack. The last three pipes are here." },
+    { id: "machinetop", name: "Machine roof", lv: "C2", kind: "deck", round: [47, -97, 7], poly: [[47, -104], [49.7, -103.5], [51.9, -101.9], [53.5, -99.7], [54, -97], [53.5, -94.3], [51.9, -92.1], [49.7, -90.5], [47, -90], [44.3, -90.5], [42.1, -92.1], [40.5, -94.3], [40, -97], [40.5, -99.7], [42.1, -101.9], [44.3, -103.5]], label: [47, -103], note: "A 3-wide walkway round the coolant stack, with the arms' shoulders on its edge. The ACTIVATE button is on the stack's north side." },
   ],
 
   // Corridors drawn as a centre line with a width.
@@ -80,7 +82,7 @@ window.PLAN = {
     { name: "Machine walk north", lv: "C1", rect: [38, -108, 56, -106] },
     { name: "Machine walk west", lv: "C1", rect: [38, -106, 40, -92] },
     { name: "Top gantry", lv: "C2", rect: [37, -80, 49, -77.5] },
-    { name: "Exit bridge", lv: "C2", rect: [46, -90, 48.5, -72], note: "The high door at the end is shut until the machine blows." },
+    { name: "Exit bridge", lv: "C2", rect: [46, -90.5, 48.5, -72], note: "The high door at the end is shut until the machine blows." },
     { name: "Outside catwalk", lv: "C2", rect: [46, -72, 48.5, -62], note: "Open air, over the plant yard, into the warehouse wall." },
 
     { name: "Warehouse landing", lv: "C2", rect: [44, -62, 50, -58] },
@@ -130,16 +132,13 @@ window.PLAN = {
     { name: "Warehouse high door", at: [47.25, -62], axis: "h", w: 2.5, lv: "C2", type: "open" },
     { name: "Dock roller door", at: [36, -6], axis: "h", w: 5, lv: "G", type: "open" },
     { name: "Dock edge drop", at: [38, 6], axis: "h", w: 8, lv: "G", y: 1.2, type: "oneway", note: "The dock is 1.2 up. You can drop off it but not jump back." },
-    { name: "Yard gate", at: [-12, 47], axis: "h", w: 8, lv: "G", type: "shutter", note: "Locked vehicle gate. The lot is visible through it." },
-    { name: "Exit gate", at: [10, 89], axis: "v", w: 12, lv: "G", type: "exit", note: "Shut from the lot, so the truck yard can't be entered from the start. The level ends on the truck yard side." },
+    { name: "Lot gate", at: [-84, 78], axis: "h", w: 8, lv: "G", type: "shutter", note: "Vehicle gate to the street, shut. The lot has to come from somewhere." },
+    { name: "Exit gate", at: [62, 52], axis: "h", w: 12, lv: "G", type: "exit", note: "Out to the street. The level ends in front of it, past the open trailer." },
   ],
 
   fences: [
-    { name: "Yard fence", pts: [[-50, 47], [-16, 47]] },
-    { name: "Yard fence", pts: [[-8, 47], [20, 47], [20, 6]] },
+    { name: "Yard fence", pts: [[20, 30], [20, 6]] },
     { name: "Tank farm fence", pts: [[-8, -26], [20, -26]] },
     { name: "Tank farm fence", pts: [[-8, -70], [0, -70]] },
-    { name: "Lot fence", pts: [[10, 47], [10, 83]] },
-    { name: "Lot fence", pts: [[10, 95], [10, 96]] },
   ],
 };

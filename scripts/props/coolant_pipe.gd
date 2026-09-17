@@ -1,7 +1,8 @@
 extends StaticBody3D
 ## A coolant pipe on the smog machine. Kicks and shots both break it: three kicks, or
 ## about ten pistol hits. Every hit vents gas, harder as it weakens; the last one
-## bursts it and it keeps venting.
+## bursts it and it vents until told to stop. While not exposed (its pressure arm is up
+## or moving) hits only clang off it.
 
 signal broken(pipe: Node)
 
@@ -10,6 +11,8 @@ signal broken(pipe: Node)
 @export var hp := 220.0
 
 var is_broken := false
+## Only an exposed pipe takes damage.
+var exposed := true
 var _hp := 0.0
 var _body: Node3D
 var _gas: CPUParticles3D
@@ -87,6 +90,11 @@ func take_damage(amount: float, _weak := false) -> void:
 func _hit(amount: float, sound: String) -> void:
 	if is_broken:
 		return
+	if not exposed:
+		var clang := get_tree().root.get_node_or_null("Sound")
+		if clang:
+			clang.play_at("kick_prop", global_position, -6.0)
+		return
 	_hp -= amount
 	var bank := get_tree().root.get_node_or_null("Sound")
 	if bank:
@@ -113,3 +121,7 @@ func _burst() -> void:
 	if bank:
 		bank.play_at("kick_prop", global_position, 4.0)
 	broken.emit(self)
+
+## Ends the venting a burst started.
+func stop_venting() -> void:
+	_gas.emitting = false

@@ -4,6 +4,7 @@
   const P = window.PLAN;
   const b = (name, type, lv, rect, h, note) => ({ name, type, lv, rect, h, note });
   const round = (name, type, lv, c, r, h, note) => ({ name, type, lv, circle: [c[0], c[1], r], h, note });
+  // A blocker can start above its storey's floor with y, like a cauldron held up off the pit.
 
   const cars = [];
   const row = (z, x0, x1, gap) => {
@@ -12,22 +13,26 @@
       cars.push(b("Parked car", "vehicle", "G", [x, z, x + 2.2, z + 4.6], 1.5));
     }
   };
-  row(58, -96, -44, [-70, -64]);
-  row(76, -90, -14, [-40, -32]);
+  // Two rows in front of the admin block, their gaps offset so the walk in is a short dogleg.
+  row(58, -96, -52, [-70, -64]);
+  row(67, -96, -52, [-64, -60]);
 
   P.blockers = [
     ...cars,
-    b("Box truck", "vehicle", "G", [-24, 84, -14, 87], 3.5, "Hides the admin doors from the start."),
-    b("Van", "vehicle", "G", [-56, 86, -50, 88.5], 2.4),
-    { ...b("Guard booth", "building", "G", [0, 66, 4, 70], 3), hollow: "e" },
-    b("Agency car", "vehicle", "G", [1, 93, 6, 95.5], 1.5, "Start and finish."),
+    b("Van", "vehicle", "G", [-98, 73.5, -92, 76], 2.4),
+    { ...b("Guard booth", "building", "G", [-75, 73, -71, 77], 3), hollow: "w" },
+    b("Agency car", "vehicle", "G", [-58, 74.8, -53, 77.3], 1.5, "Start."),
 
     b("Reception desk", "furniture", "G", [-72, 37, -64, 39], 1.1),
     b("Waiting chairs", "furniture", "G", [-58, 45, -52, 47], 1),
     b("Lunch table", "furniture", "G", [-96, 40, -92, 44], 1),
     b("Vending machines", "furniture", "G", [-100, 34, -98, 38], 2),
-    b("Shelving", "rack", "G", [-98.5, 3, -91, 4], 2.4, "Stops short of the west wall: a squeeze to the gap behind."),
-    b("Shelving", "rack", "G", [-98.5, 6, -91, 7], 2.4),
+    // Records (after factory playtest 5, the shelves were too wide to get round): the front
+    // rack leaves a 3-wide way round on the west into the aisle between the racks, where the
+    // room's ammo is. The back rack runs to the east wall and stops short of the west one, a
+    // squeeze to the strip behind it.
+    b("Shelving", "rack", "G", [-98.5, 3, -90.2, 4], 2.4, "Stops short of the west wall: a squeeze to the gap behind."),
+    b("Shelving", "rack", "G", [-97, 6, -90.2, 7], 2.4, "Leaves a 3-wide way round on the west."),
     b("Cubicles", "furniture", "G", [-72, 12, -66, 18], 1.6),
     b("Cubicles", "furniture", "G", [-64, 22, -58, 28], 1.6),
     b("Cubicles", "furniture", "G", [-58, 10, -52, 16], 1.6),
@@ -35,15 +40,12 @@
     b("Manager's desk", "furniture", "G", [-58, 2, -53, 4], 1.1),
 
     b("Shipping container", "container", "G", [-42, 6, -30, 8.5], 2.6, "Blocks the view from the office door to the hall doors."),
-    round("Silo", "tank", "G", [2, 28], 4, 14),
+    round("Silo", "tank", "G", [2, 23], 4, 14),
     round("Silo", "tank", "G", [12, 18], 4, 14),
     b("Pallets", "crates", "G", [-18, 2, -14, 6], 1.8),
     { ...b("Gas cage", "crates", "G", [-6, -16, 0, -10], 2.5), hollow: "n" },
     b("Forklift", "vehicle", "G", [-40, -12, -37, -8], 2.2),
-    b("Skip", "crates", "G", [-48, -24, -44, -21], 1.8),
-    b("Dumpsters", "crates", "G", [-70, -23, -66, -20], 1.8),
-    b("Skip", "crates", "G", [-84, -22, -78, -18], 2, "Stands off the alley wall: a gap behind."),
-    b("Pallet stack", "crates", "G", [-90, -8, -86, -4], 2.4),
+    b("Skip", "crates", "G", [-48, -24, -44, -21], 1.8, "Stands off the yard's corner walls: a gap behind."),
     b("Crate cache", "crates", "G", [-52, -84, -46, -80], 2.4),
     b("Skip and scaffold", "crates", "G", [-4, -84, 0, -72], 2.5, "Blocks the lane's east end."),
     b("Scaffold", "crates", "G", [-62, -86, -60, -70], 6, "Blocks the lane's west end; the city carries on past it."),
@@ -65,11 +67,12 @@
     b("Valve wall", "machine", "G", [-40, -110, -37, -100], 3),
     b("Pumps", "machine", "B", [2, -82, 6, -79], 2),
 
-    b("The machine", "machine", "B", [40, -104, 54, -90], 12, "Smog plant. Pit floor to roof walkway at +8."),
-    round("Coolant stack", "machine", "C2", [47, -97], 4, 4.6, "Rises from the machine's roof. Three coolant pipes are strapped round it."),
-    b("Valve bank", "machine", "B", [32, -100, 36, -90], 3),
-    b("Pump", "machine", "B", [60, -102, 63.5, -96], 2.5),
-    b("Pipe run", "machine", "B", [32, -86, 40, -82], 2),
+    // The smog machine (after factory playtest 4): a potbelly cauldron on one central column,
+    // so from the pit you can see under it to every arm. A cylinder stands in for the belly
+    // until polish.
+    round("Machine column", "machine", "B", [47, -97], 3, 6, "Holds the cauldron up. Open floor all round it."),
+    { ...round("Smog cauldron", "machine", "B", [47, -97], 7, 6, "Potbelly, faked as a cylinder: +2 up to its rim, the roof walkway at +8."), y: 2 },
+    round("Coolant stack", "machine", "C2", [47, -97], 4, 4.6, "Rises from the machine's roof. The ACTIVATE button is on its north side."),
     b("Storage tanks", "tank", "G", [24, -120, 28, -116], 5),
     b("Control desk", "furniture", "G", [66, -120, 70, -116], 1.2),
 
@@ -88,17 +91,15 @@
     b("Box truck", "vehicle", "G", [60, 14, 63, 24], 3.5),
     { ...b("Open trailer", "vehicle", "G", [70, 30, 73, 44], 4), hollow: "s" },
     b("Container stack", "container", "G", [26, 48, 38, 51], 5.2),
-    b("Truck", "vehicle", "G", [46, 54, 60, 57], 3.5),
-    b("Truck", "vehicle", "G", [40, 72, 52, 75], 3.5),
   ];
 
   // Dead ends and what they pay. type: ammo | health | secret | enemy
   P.payoffs = [
     { at: [-54, 39], lv: "G", types: ["ammo"], where: "Waiting room" },
+    { at: [-93.5, 5], lv: "G", types: ["ammo"], where: "Records, the aisle between the racks" },
     { at: [-94, 37.5], lv: "G", types: ["enemy", "health"], where: "Break room" },
     { at: [-52, 5.5], lv: "G", types: ["enemy", "ammo"], where: "Manager's office" },
-    { at: [-96, -12], lv: "G", types: ["ammo", "enemy"], where: "Bin alley, ambush on the way out" },
-    { at: [-12, -35], lv: "C1", types: ["ammo"], where: "Foreman's office" },
+    { at: [-12, -35], lv: "C1", types: ["ammo", "health"], where: "Foreman's office, after the hall fight" },
     { at: [-49, -77], lv: "G", types: ["enemy", "ammo"], where: "Service lane crate cache" },
     { at: [10.5, -78], lv: "B", types: ["health"], where: "Pump room" },
     { at: [26, -110], lv: "G", types: ["ammo"], where: "Plant ring, behind the tanks" },
@@ -107,7 +108,7 @@
 
   // Golden path, in order. Points are [x, z, y].
   P.route = [
-    { name: "Parking lot", pts: [[4, 92, 0], [-30, 88, 0], [-40, 70, 0], [-66, 66, 0], [-70, 49, 0]] },
+    { name: "Parking lot", pts: [[-55.5, 73, 0], [-61.5, 70, 0], [-62, 65, 0], [-66, 60, 0], [-68, 52, 0], [-70, 49, 0]] },
     { name: "Admin block", pts: [[-70, 49, 0], [-70, 44, 0], [-80, 39.5, 0], [-85, 39.5, 0], [-85, 27, 0], [-95.5, 27, 0], [-95.5, 18, 0], [-86, 18, 0], [-86, 8, 0], [-76, 8, 0], [-62, 6, 0], [-62, 20, 0], [-56, 19.5, 0], [-50, 19.5, 0]] },
     { name: "Central yard", pts: [[-50, 19.5, 0], [-38, 20, 0], [-26, 8, 0], [-14, -6, 0], [-24, -18, 0], [-30, -26, 0]] },
     { name: "Hall floor and pit", pts: [[-30, -26, 0], [-18, -31, 0], [-12, -40, 0], [-12, -52, 0], [-24, -58.5, 0], [-36, -58.5, -4], [-40, -55, -4], [-40, -43.5, -4], [-52, -43.5, 0], [-60.75, -29, 0]] },
@@ -115,50 +116,82 @@
     { name: "Skybridge", pts: [[-18.5, -70, 8], [-18.5, -86, 8]] },
     { name: "Tank house", pts: [[-18.5, -86, 8], [-18.5, -114, 8], [-21, -115, 8], [-33, -115, 4], [-38, -112, 4], [-38, -92, 4], [-33, -91, 4], [-21, -91, 0], [-12, -92.5, 0], [-3, -92, 0], [-3, -104, -4]] },
     { name: "Service tunnels", pts: [[-3, -104, -4], [-3, -108, -4], [8, -108, -4], [8, -96, -4], [18, -96, -4], [18, -106, -4], [30, -106, -4]] },
-    { name: "Plant room", pts: [[30, -106, -4], [34, -110, -4], [57, -110, -4], [57, -88, -4], [38, -87, -4], [38, -100, -4], [38, -87, -4], [42, -87.5, -4], [50, -83, -4], [52, -81.5, -4], [64, -81.5, 0], [68, -80, 0], [68, -92, 4], [68, -97, 4], [55, -97, 4], [55, -107, 4], [39, -107, 4], [39, -92, 4], [39, -80, 8], [39, -78.75, 8], [47.25, -78.75, 8], [47.25, -91.5, 8], [41.25, -91.5, 8], [41.25, -102.75, 8], [52.75, -102.75, 8], [52.75, -91.5, 8], [47.25, -91.5, 8]] },
+    { name: "Plant room", pts: [[30, -106, -4], [35, -102, -4], [42, -107.5, -4], [52, -107.5, -4], [57.5, -102, -4], [57.5, -92, -4], [52, -86, -4], [50, -83.5, -4], [52, -81.5, -4], [64, -81.5, 0], [68, -80, 0], [68, -92, 4], [68, -97, 4], [55, -97, 4], [55, -107, 4], [39, -107, 4], [39, -92, 4], [39, -80, 8], [39, -78.75, 8], [47.25, -78.75, 8], [47.25, -91.5, 8], [43.1, -93.1, 8], [41.5, -97, 8], [43.1, -100.9, 8], [47, -102.8, 8], [50.9, -100.9, 8], [52.5, -97, 8], [50.9, -93.1, 8], [47.25, -91.5, 8]] },
     { name: "Escape: warehouse", escape: true, beat: [47.25, -66, 8], pts: [[47.25, -91.5, 8], [47.25, -62, 8], [48, -61, 8], [50, -61, 8], [62, -61, 4], [83, -61, 4], [83, -40, 4], [83, -28, 0], [76, -18, 0], [66, -18, 0], [60, -36, 0], [48, -40, 0], [40, -24, 0], [36, -10, 0], [36, -6, 0]] },
-    { name: "Escape: dock and trucks", escape: true, pts: [[36, -6, 0], [36, -2.5, 1.2], [36, 2, 1.2], [38, 5, 1.2], [38, 10, 0], [38, 30, 0], [54, 40, 0], [40, 62, 0], [24, 84, 0], [14, 89, 0]] },
+    { name: "Escape: dock and trucks", escape: true, pts: [[36, -6, 0], [36, -2.5, 1.2], [36, 2, 1.2], [38, 5, 1.2], [38, 10, 0], [38, 30, 0], [54, 40, 0], [62, 47, 0]] },
   ];
 
-  // Weapons, until the enemies pass places them properly. Points are [x, z, y].
+  // Weapons, and supplies on the golden path where damage builds up. Pickups on the path
+  // wait for a player who is full, so they are there when needed. Points are [x, z, y].
   P.pickups = [
     { kind: "gun", at: [-68, 42, 0], where: "Lobby, by the reception desk" },
     { kind: "shotgun", at: [-38, -29, 0], where: "Hall, inside the doors" },
-    { kind: "health", at: [26, -78, 0], where: "Plant ring, by the south wall" },
-    { kind: "ammo", at: [63, -120, 0], where: "Plant ring, north side by the control desk" },
+    { kind: "health", at: [-14, -89, 0], where: "Tank house floor, after the ambush" },
+    { kind: "health", at: [22, -106, -4], where: "Service tunnel, last leg before the plant room" },
+    { kind: "ammo", at: [25.5, -106, -4], where: "Service tunnel, last leg before the plant room" },
+    { kind: "health", at: [47, -112.5, -4], where: "Plant pit floor, north wall" },
+    { kind: "ammo", at: [48, -82, -4], where: "Plant pit floor, south wall under the exit bridge" },
   ];
 
-  // The plant room climax. Points are [x, z, y].
-  // Walk into the pit and a pipe falls across the tunnel door. Break six coolant pipes,
-  // kicks or shots: three round the machine's base on the pit floor, three strapped round
-  // the stack on its roof. The fight starts with wave 1 and each pipe but the last sends
-  // the next. The last one sends the machine critical and opens the high exit.
+  // The plant room climax, pressure arms (user's design, September 16, 2026). Points are [x, z, y].
+  // Six arms reach out from shoulders on the machine's roof edge, bend at an elbow, and plug
+  // their coolant pipe into a socket in the pit floor. Numbered clockwise from north.
+  //   1. Walk into the pit: a pipe crashes across the tunnel door and the machine hisses.
+  //   2. Pressure builds (hiss, steam leaks). The next arm's beacon spins and the alarm sounds,
+  //      then it comes down and plugs in. The beacon sits on the elbow, well above head height.
+  //   3. Break its pipe, kicks or shots. The arm lifts, steam from both broken ends.
+  //   4. Its wave climbs out round the pit.
+  //   5. The next arm comes down once the wave is dead, or when pressure forces it.
+  //   6. After the sixth pipe the Commander sends you up to the button. Kick it: critical.
+  // A pipe can only be hurt while its arm is down. Arms come down in order, so the fight
+  // keeps moving round the machine.
   P.setpiece = {
-    name: "Coolant pipes",
+    name: "Pressure arms",
     start: { at: [50, -97, -2], size: [28, 4, 34], note: "The whole pit floor east of x 36, so the seal never lands on the player." },
     seal: { at: [31.8, -106, -2.4], radius: 1.6, length: 6 },
     respawn: [38, -110, -3.5],
-    pipes: [
-      { at: [54.5, -97, -2.5], size: [0.9, 3, 0.9], where: "Base, east face, pit floor" },
-      { at: [47, -89.5, -2.5], size: [0.9, 3, 0.9], where: "Base, south face, pit floor" },
-      { at: [39.5, -97, -2.5], size: [0.9, 3, 0.9], where: "Base, west face, pit floor" },
-      { at: [42.55, -97, 9.5], size: [0.9, 3, 0.9], where: "Stack, west side, roof walkway" },
-      { at: [47, -101.45, 9.5], size: [0.9, 3, 0.9], where: "Stack, north side, roof walkway" },
-      { at: [51.45, -97, 9.5], size: [0.9, 3, 0.9], where: "Stack, east side, roof walkway" },
+    // Evenly round the cauldron's rim every 60 degrees, turned 15 off north so none drops
+    // through the exit bridge (south) or the bridge from the east landing (east).
+    arms: [
+      { n: 1, shoulder: [48.8, -103.8, 8], elbow: [50.5, -110, 7], socket: [50.6, -110.5, -4], where: "North-north-east" },
+      { n: 2, shoulder: [53.8, -98.8, 8], elbow: [60, -100.5, 7], socket: [60.5, -100.6, -4], where: "East-north-east" },
+      { n: 3, shoulder: [51.9, -92.1, 8], elbow: [56.5, -87.5, 7], socket: [56.9, -87.1, -4], where: "South-east" },
+      { n: 4, shoulder: [45.2, -90.2, 8], elbow: [43.5, -84, 7], socket: [43.4, -83.5, -4], where: "South-south-west, beside the exit bridge" },
+      { n: 5, shoulder: [40.2, -95.2, 8], elbow: [34, -93.5, 7], socket: [33.5, -93.4, -4], where: "West-south-west" },
+      { n: 6, shoulder: [42.1, -101.9, 8], elbow: [37.5, -106.5, 7], socket: [37.1, -106.9, -4], where: "North-west" },
     ],
-    // [fodder, hunters, rammers]. Melee spawns at a hatch on the player's level; Hunters at
-    // ranged hatches, which can be anywhere they can see. Up on the walks, Rammers come as fodder.
-    waves: [[4, 0, 0], [3, 1, 1], [4, 2, 0], [3, 2, 0], [3, 2, 0], [4, 2, 0]],
+    // Struts from the cauldron's shoulder up to the plant room ceiling, between the arms and
+    // clear of the exit bridge. Visual only, all above head height.
+    irons: [
+      { from: [51.9, -101.9, 7], to: [54.8, -104.8, 13] },
+      { from: [53.8, -95.2, 7], to: [57.6, -94.2, 13] },
+      { from: [42.1, -92.1, 7], to: [39.2, -89.2, 13] },
+      { from: [40.2, -98.8, 7], to: [36.4, -99.8, 13] },
+    ],
+    order: [1, 3, 5, 2, 4, 6],
+    // A lifted arm raises its elbow straight up this far, so the pipe's foot hangs 5 above the
+    // pit floor, out of reach. check.js checks both poses against the walkways.
+    lift: 5,
+    first_arm_seconds: 4,
+    pressure_seconds: 45,
+    // How long the next arm's beacon spins and the alarm sounds before it drops.
+    warning_seconds: 3,
+    // One wave per pipe for the first five, [fodder, hunters, rammers]. The sixth sends none.
+    // Everything fights on the pit floor, so every Rammer is a real one: one a wave, two in the last.
+    waves: [[5, 0, 1], [5, 0, 1], [5, 0, 1], [5, 0, 1], [5, 0, 2]],
+    line_last_pipe: "COMMANDER: Now find the button to lock it in.",
+    button: { at: [47, -101.6, 8], face: "n", sign: "ACTIVATE", where: "Roof, on the coolant stack's north side" },
+    // Melee hatches are used by level. Six round the pit floor, between the sockets; the ring,
+    // walk and gantry ones only matter if the player climbs during a wave.
     melee_hatches: [
-      [60, -112, -4], [58, -86, -4], [34, -88, -4],
+      [33, -111, -4], [61, -111, -4], [62.5, -97, -4], [61, -86.5, -4], [33, -83, -4], [31.5, -97, -4],
       [62, -118, 0], [32, -118, 0], [26, -76, 0], [68, -76, 0],
       [39, -107, 4], [47, -107, 4], [55, -107, 4], [55, -100, 4],
       [38, -78.75, 8], [44, -78.75, 8], [47.25, -84, 8],
     ],
-    ranged_hatches: [[26, -100, 0], [26, -86, 0], [26, -114, 0], [62, -119, 0], [68, -102, 0]],
     exit: { at: [47.25, -72, 9.6], size: [2.6, 3.3, 0.5] },
-    vents: [[41, -91, 8.2], [53, -91, 8.2], [41, -103, 8.2], [53, -103, 8.2], [47, -97, 12.8], [37, -104, -4], [57, -92, -4]],
-    escape_seconds: 65,
+    vents: [[50.9, -100.9, 8.2], [50.9, -93.1, 8.2], [43.1, -93.1, 8.2], [43.1, -100.9, 8.2], [47, -97, 12.8], [40, -97, -4], [54, -97, -4]],
+    escape_seconds: 90,
     // Once the machine is critical the place falls apart round the escape. A fall drops a pipe,
     // beam or crate to rest at [x, z, y] with size [x, y, z]; steam jets up for a few seconds.
     // With no trigger they happen on a delay after critical; with one, when the player comes
@@ -166,7 +199,7 @@
     escape_events: [
       { kind: "fall", at: [58, -113, -3.6], size: [6, 0.8, 0.8], delay: 1.0, where: "Pit floor" },
       { kind: "fall", at: [26, -100, 0.4], size: [0.8, 0.8, 6], delay: 2.2, where: "Plant ring" },
-      { kind: "fall", at: [60, -86, -3.6], size: [0.8, 0.8, 4], delay: 3.4, where: "Pit floor" },
+      { kind: "fall", at: [38, -108.5, -3.6], size: [4, 0.8, 0.8], delay: 3.4, where: "Pit floor" },
       { kind: "steam", at: [45, -67, 0], trigger: [47.25, -72, 8], radius: 3.5, duration: 3, where: "Up past the outside catwalk" },
       { kind: "steam", at: [72, -59.6, 4], trigger: [62, -61, 4], radius: 4, duration: 3, where: "Beside the warehouse catwalk" },
       { kind: "fall", at: [72, -23.5, 0.4], size: [0.8, 0.8, 7], trigger: [83, -30, 0], radius: 4, where: "Container lane, leaves a gap on the right" },
@@ -186,16 +219,16 @@
   ];
 
   P.spaces = [
-    { name: "Parking lot", size: "110 x 48, outdoor", scale: "open", text: "Start at the agency car by the east gate. Rows of cars and a box truck make the walk to the admin doors a dogleg." },
+    { name: "Parking lot", size: "50 x 30, outdoor", scale: "open", text: "Start at the agency car in front of the admin block. Two rows of cars with offset gaps make the short walk to the doors a dogleg." },
     { name: "Admin block", size: "50 x 48, ceiling 4", scale: "tight", text: "Lobby, a corridor that turns four times, the taught kick door into an open-plan office of cubicles and cutouts. Four dead-end rooms hang off it." },
-    { name: "Central yard", size: "70 x 72, outdoor", scale: "open", text: "The hub between buildings. Silos, a container and the tank farm fence. You can see the hall, the tank house over its roof and the warehouse shutters you'll come out behind." },
+    { name: "Central yard", size: "70 x 56, outdoor", scale: "open", text: "The hub between buildings. Silos, a container and the tank farm fence. You can see the hall, the tank house over its roof and the warehouse shutters you'll come out behind." },
     { name: "Production hall", size: "54 x 44, roof 13", scale: "medium", text: "Presses and a container office on the floor, a machine pit in the middle. Fight across the floor, down through the pit under catwalk Hunters, then climb back and cross over it." },
     { name: "Skybridge", size: "16 long at +8", scale: "tight", text: "Enclosed, windows both sides. A breather over the service lane." },
     { name: "Tank house", size: "40 x 32, roof 16", scale: "vertical", text: "Enter at the top and spiral down past two vats: +8 between them, +4 round the west wall, the floor, then stairs to the basement." },
     { name: "Service tunnels", size: "3 wide, 3.5 clear", scale: "tight", text: "Winding, with a T to the pump room. The pit tunnel from the hall arrives there too: the short way, which skips the catwalks, skybridge and tank house." },
-    { name: "Plant room", size: "50 x 50, pit at -4", scale: "arena", text: "The climax. Up from the pit floor to the tiled ring, the machine walk at +4, then its roof at +8 to set the last charge." },
+    { name: "Plant room", size: "50 x 50, pit at -4", scale: "arena", text: "The climax. A potbelly cauldron on one column, open underneath, so every arm can be seen from the pit. Six arms reach from its rim into the pit floor. One at a time an arm plugs its coolant pipe in; break it and a wave climbs out. After the sixth, up through the ring and walkways to the roof to kick the button." },
     { name: "Warehouse", size: "64 x 56, roof 13", scale: "maze", text: "Escape part one. In high, down the east catwalks, through a container maze to the dock. A secret sits in plain view with no time to take it." },
-    { name: "Truck yard", size: "74 x 90, outdoor", scale: "open", text: "Escape part two. Drop off the dock, weave the trailers, out through the gate to the agency car." },
+    { name: "Truck yard", size: "64 x 46, outdoor", scale: "open", text: "Escape part two. Drop off the dock, weave the trailers, past the open trailer to the gate in the south wall." },
   ];
 
   P.decisions = [
@@ -207,9 +240,17 @@
     "If the escape countdown runs out, log it and end the run for now. Losing will restart the level once that exists.",
     "Enemies that start on a different level from the fight must be ranged. Hunters can start anywhere they can see; melee enemies start on the player's level.",
     "After playtest 1: all six coolant pipes are on the machine, the escape gets a lit end zone and 65 seconds, and the pit tunnel door hides behind the drum washers, with catwalk Hunters drawing players up.",
+    "After playtest 2, Level 1 ramps up the way the story reads: nobody attacks in the lot, lone fodder in the offices, a light first fight in the yard, Hunters from the hall catwalks on. Health sits on the path where damage builds, stairs above ground get side rails, deaths respawn at the last beat line, and machine waves wait a moment and space out.",
+    "Outdoor spaces cut down after playtest 2 (user's markup): the lot is only the front of the admin block, the yard stops at z 30, the truck yard stops past the container stack, and the bin alley is gone. The start no longer sits by the exit gate; the level ends at the gate either way.",
+    "The machine is a potbelly cauldron on a single column (user, after playtest 4), since playtest 4 spent up to 24 s finding an arm behind the old square machine. Arms sit evenly round its rim, with iron struts from the cauldron to the ceiling.",
+    "Level 1's enemy mix (user): about 75% fodder, 20% Rammers, 5% Hunters. No Rammer before halfway; the first is a lone ambush on the tank house floor. Hunters only on the escape, so the hall catwalks and the machine's waves have none.",
+    "Machine climax after playtest 3 (user's design): six pressure arms plug their coolant pipes into the pit floor one at a time, in the order 1, 3, 5, 2, 4, 6 so the fight keeps moving round the machine. Break a pipe, its arm lifts and a wave climbs out; the next arm comes down when the wave is dead or after 45 seconds of pressure, warned by a spinning beacon on its elbow and an alarm. Waves are five fodder and a Rammer, two Rammers in the last. After the sixth pipe, the Commander sends you up to kick the ACTIVATE button, which starts a 90 second escape.",
   ];
 
   P.questions = [
+    "The cauldron is 7 in radius from +2 to its rim at +8, on a column 3 in radius. Big enough to read as the machine, and still easy to see under from anywhere in the pit?",
+    "Four irons to the ceiling, or some to the walls? They're visual only either way.",
+    "Where a lifted arm's pipe end sits, high enough to read as out of reach. Its pipe can't be hurt while up either way.",
     "Storeys every 4.0: stairs are 12 long and a catwalk leaves 3.7 underneath, room for a Hunter at 3.2. Enough height difference?",
   ];
 })();

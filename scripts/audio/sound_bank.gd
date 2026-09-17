@@ -19,6 +19,13 @@ const EVENTS := {
 	"punch_hit": [[KENNEY_IMPACT + "impactPunch_medium_000.ogg", KENNEY_IMPACT + "impactPunch_medium_001.ogg", KENNEY_IMPACT + "impactPunch_medium_002.ogg"], -4.0, 0.9, 1.1],
 	"kick_hit": [[KENNEY_IMPACT + "impactPunch_heavy_000.ogg", KENNEY_IMPACT + "impactPunch_heavy_001.ogg", KENNEY_IMPACT + "impactPunch_heavy_002.ogg", KENNEY_IMPACT + "impactPunch_heavy_003.ogg"], -2.0, 0.85, 1.0],
 	"kick_prop": [[KENNEY_IMPACT + "impactMetal_heavy_000.ogg", KENNEY_IMPACT + "impactMetal_heavy_001.ogg"], -4.0, 0.9, 1.1],
+	# The smog machine's pressure arms. Placeholders from the Kenney sci-fi pack until designed
+	# machine audio is found: see docs/ASSETS.md.
+	"machine_alarm": [[KENNEY_SCIFI + "laserRetro_000.ogg", KENNEY_SCIFI + "laserRetro_001.ogg"], -4.0, 0.62, 0.68],
+	"steam_hiss": [[KENNEY_SCIFI + "thrusterFire_000.ogg", KENNEY_SCIFI + "thrusterFire_001.ogg", KENNEY_SCIFI + "thrusterFire_002.ogg"], -6.0, 1.15, 1.35],
+	"arm_move": [[KENNEY_SCIFI + "spaceEngineLow_000.ogg", KENNEY_SCIFI + "spaceEngineLow_001.ogg"], -6.0, 0.8, 0.9],
+	"arm_clunk": [[KENNEY_SCIFI + "impactMetal_000.ogg", KENNEY_SCIFI + "impactMetal_001.ogg", KENNEY_SCIFI + "impactMetal_002.ogg"], -2.0, 0.6, 0.7],
+	"button_press": [[KENNEY_SCIFI + "computerNoise_000.ogg"], -2.0, 0.95, 1.05],
 	# hit_confirm: cut after playtest (read as a generated thump). The crosshair tick and the enemy hurt voice carry it.
 	"weak_hit": [[KENNEY_IMPACT + "impactPlate_light_000.ogg", KENNEY_IMPACT + "impactPlate_light_001.ogg", KENNEY_IMPACT + "impactPlate_light_002.ogg"], -5.0, 1.1, 1.3],
 	# Ricochet-style scenery hits were cut after playtest; dust puffs carry the miss.

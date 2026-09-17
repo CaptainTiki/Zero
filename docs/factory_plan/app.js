@@ -292,7 +292,7 @@
       const [sx, sz, sy] = sp.start.at, [w, , d] = sp.start.size;
       const ag = group(g, vis(lvOf(sy)));
       el("rect", { x: sx - w / 2, y: sz - d / 2, width: w, height: d, style: "fill:none;stroke:var(--route);stroke-width:1.5px;stroke-dasharray:2 4" }, ag);
-      reg(ag, { name: "Machine fight starts", kind: "Step in here and the way back is sealed", lv: lvOf(sy), size: `${w} × ${d}`, note: sp.start.note });
+      reg(ag, { name: "Machine fight starts", kind: `Step in here and the way back is sealed; the first arm comes down ${sp.first_arm_seconds || 0} s later`, lv: lvOf(sy), size: `${w} × ${d}`, note: sp.start.note });
       const [ex, ez, ey] = sp.seal.at;
       const seal = group(g, vis(lvOf(ey)));
       el("rect", { x: ex - sp.seal.radius, y: ez - sp.seal.length / 2, width: sp.seal.radius * 2, height: sp.seal.length, rx: 1, style: "fill:var(--shutter);stroke:var(--ink);stroke-width:1.2px" }, seal);
@@ -300,7 +300,7 @@
       const [xx, xz, xy] = sp.exit.at;
       const shut = group(g, vis(lvOf(xy)));
       el("line", { x1: xx - sp.exit.size[0] / 2, y1: xz, x2: xx + sp.exit.size[0] / 2, y2: xz, style: "stroke:#D8342A;stroke-width:6px" }, shut);
-      reg(shut, { name: "High exit shutter", kind: "Red until the last coolant pipe breaks, then it lifts", lv: lvOf(xy) });
+      reg(shut, { name: "High exit shutter", kind: sp.button ? "Red until the button is kicked, then it lifts" : "Red until the last coolant pipe breaks, then it lifts", lv: lvOf(xy) });
       const waves = sp.waves.map(([f, h, r], i) => `${i + 1}: ${f}F ${h}H ${r}R`).join(" · ");
       const hatch = (at, ranged) => {
         const hg = group(g, vis(lvOf(at[2])));
@@ -308,12 +308,60 @@
         reg(hg, { name: ranged ? "Hunter hatch" : "Melee hatch", kind: ranged ? "Hunters climb out here, any level" : "Fodder and Rammers, used when the player is on this level", lv: lvOf(at[2]), note: "Waves: " + waves });
       };
       sp.melee_hatches.forEach(at => hatch(at, false));
-      sp.ranged_hatches.forEach(at => hatch(at, true));
+      (sp.ranged_hatches || []).forEach(at => hatch(at, true));
+      // The end zone sits in front of the exit gate, as bake.js builds it.
       const pad = group(g, vis("G"));
       const end = P.route[P.route.length - 1].pts.slice(-1)[0];
-      el("rect", { x: end[0] - 2, y: end[1] - 6, width: 8, height: 12, style: "fill:rgba(64,220,110,.35);stroke:#2FB35A;stroke-width:2px" }, pad);
-      reg(pad, { name: "End zone", kind: "Lights up when the machine goes critical; ends the run on arrival", lv: "G", size: "8 × 12" });
-      sp.pipes.forEach((p, i) => {
+      const gate = P.doors.find(dr => dr.type === "exit");
+      let zone = { x: end[0] - 2, z: end[1] - 6, w: 8, d: 12 };
+      if (gate) {
+        const across = gate.axis === "h";
+        const side = Math.sign(across ? end[1] - gate.at[1] : end[0] - gate.at[0]) || 1;
+        const cx = across ? gate.at[0] : gate.at[0] + side * 5, cz = across ? gate.at[1] + side * 5 : gate.at[1];
+        const zw = across ? gate.w : 8, zd = across ? 8 : gate.w;
+        zone = { x: cx - zw / 2, z: cz - zd / 2, w: zw, d: zd };
+      }
+      el("rect", { x: zone.x, y: zone.z, width: zone.w, height: zone.d, style: "fill:rgba(64,220,110,.35);stroke:#2FB35A;stroke-width:2px" }, pad);
+      reg(pad, { name: "End zone", kind: "Lights up when the machine goes critical; ends the run on arrival", lv: "G", size: `${zone.w} × ${zone.d}` });
+      // Pressure arms: shoulder on the machine's roof edge, elbow, pipe plugged into a pit floor
+      // socket. A dashed line joins the sockets in the order the arms come down.
+      const arms = sp.arms || [], order = sp.order || [];
+      const armAt = n => arms.find(a => a.n === n);
+      if (order.length > 1) {
+        const og = group(g, vis("B"));
+        const pts = order.map(armAt).filter(Boolean).map(a => a.socket);
+        el("polyline", { points: pts.map(q => q[0] + "," + q[1]).join(" "), style: "fill:none;stroke:var(--hazard);stroke-width:1.6px;stroke-dasharray:3 3;opacity:.9" }, og);
+        for (let i = 0; i < pts.length - 1; i++) {
+          const [a, b] = [pts[i], pts[i + 1]], mx = (a[0] + b[0]) / 2, mz = (a[1] + b[1]) / 2, ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+          const tip = (dx, dz) => (mx + Math.cos(ang) * dx - Math.sin(ang) * dz) + "," + (mz + Math.sin(ang) * dx + Math.cos(ang) * dz);
+          el("polygon", { points: [tip(1, 0), tip(-0.6, 0.7), tip(-0.6, -0.7)].join(" "), style: "fill:var(--hazard);stroke:var(--ink);stroke-width:.8px" }, og);
+        }
+        reg(og, { name: "Arm order", kind: "Arms come down " + order.join(", ") + ", so the fight moves round the machine", lv: "B" });
+      }
+      const nth = k => k + ({ 1: "st", 2: "nd", 3: "rd" }[k] || "th");
+      arms.forEach(a => {
+        const k = order.indexOf(a.n) + 1;
+        const ag2 = group(g, visSpan("B", "C2"));
+        el("polyline", { points: [a.shoulder, a.elbow, a.socket].map(q => q[0] + "," + q[1]).join(" "), style: "fill:none;stroke:var(--ink);stroke-width:5px;stroke-linecap:round;stroke-linejoin:round" }, ag2);
+        el("polyline", { points: [a.shoulder, a.elbow, a.socket].map(q => q[0] + "," + q[1]).join(" "), style: "fill:none;stroke:var(--hazard);stroke-width:2.5px;stroke-linecap:round;stroke-linejoin:round" }, ag2);
+        el("circle", { cx: a.elbow[0], cy: a.elbow[1], r: 0.7, style: "fill:#D8342A;stroke:var(--ink);stroke-width:1px" }, ag2);
+        badge(a.socket[0], a.socket[1], k ? `${a.n} · ${nth(k)}` : "A" + a.n, "var(--hazard)", "#1A1A17", ag2, 6.4);
+        const wave = sp.waves[k - 1];
+        const then = k && k < order.length && wave ? `, then wave ${k} climbs out: ${wave[0]} fodder, ${wave[2]} Rammers` : k === order.length ? ", then the Commander sends you up to the button" : "";
+        reg(ag2, { name: `Arm ${a.n}, down ${k ? nth(k) : "?"}`, kind: `Plugs its pipe into the pit floor. 3 kicks or 10 pistol hits break it${then}`, lv: "B", note: `${a.where}. Red dot: its beacon, up on the elbow at +${a.elbow[2]}, spins with the alarm for ${sp.warning_seconds || 0} s before it drops. Pressure forces the next arm down after ${sp.pressure_seconds} s` });
+      });
+      (sp.irons || []).forEach(iron => {
+        const ig = group(g, visSpan("C1", "C2"));
+        el("line", { x1: iron.from[0], y1: iron.from[1], x2: iron.to[0], y2: iron.to[1], style: "stroke:var(--ink);stroke-width:3px;stroke-linecap:round" }, ig);
+        reg(ig, { name: "Iron strut", kind: `Cauldron to ceiling, +${iron.from[2]} to +${iron.to[2]}. Visual only`, lv: "C2" });
+      });
+      if (sp.button) {
+        const bg = group(g, vis(lvOf(sp.button.at[2])));
+        badge(sp.button.at[0], sp.button.at[1] - 1.8, sp.button.sign || "BUTTON", "#D8342A", "#FFF", bg, 8.6);
+        el("circle", { cx: sp.button.at[0], cy: sp.button.at[1], r: 0.8, style: "fill:#D8342A;stroke:var(--ink);stroke-width:1.2px" }, bg);
+        reg(bg, { name: "Button: " + (sp.button.sign || "button"), kind: "Kick it after the sixth pipe: the machine goes critical and the escape countdown starts (" + sp.escape_seconds + " s)", lv: lvOf(sp.button.at[2]), note: sp.button.where + (sp.line_last_pipe ? '. "' + sp.line_last_pipe + '"' : "") });
+      }
+      (sp.pipes || []).forEach((p, i) => {
         const pg = group(g, vis(lvOf(p.at[2])));
         badge(p.at[0], p.at[1], "P" + (i + 1), "var(--hazard)", "#1A1A17", pg, 3.4);
         reg(pg, { name: `Coolant pipe ${i + 1}`, kind: "3 kicks or 10 pistol hits" + (i < sp.pipes.length - 1 ? `, sends wave ${i + 2}` : ", sends the machine critical"), lv: lvOf(p.at[2]), note: p.where });
@@ -343,7 +391,7 @@
       el("rect", { x: tx - w / 2, y: tz - d / 2, width: w, height: d, style: "fill:rgba(216,52,42,.12);stroke:#D8342A;stroke-width:1.5px;stroke-dasharray:4 3" }, ag);
       el("line", { x1: tx, y1: tz, x2: a.spawn[0], y2: a.spawn[1], style: "stroke:#D8342A;stroke-width:1px;stroke-dasharray:2 3" }, ag);
       badge(a.spawn[0], a.spawn[1], "×" + a.count, "#D8342A", "#FFF", ag, 3);
-      reg(ag, { name: "Ambush: " + a.name, kind: `Step in the dashed box and ${a.count} fodder climb out behind you`, lv: lvOf(ty) });
+      reg(ag, { name: "Ambush: " + a.name, kind: `Step in the dashed box and ${a.count} ${a.kind === "rammer" ? (a.count === 1 ? "Rammer climbs" : "Rammers climb") : a.kind === "hunter" ? "Hunters climb" : "fodder climb"} out`, lv: lvOf(ty) });
     });
     (P.johns || []).forEach(p => {
       const jg = group(g, vis(lvOf(p.at[2])));
@@ -417,7 +465,8 @@
     if (state.layers.walls && window.bakePlan) drawBuilt(root);
     if (state.layers.labels) {
       Z.forEach(z => drawLabel(z, root, vis(z.lv)));
-      el("text", { x: -9, y: 94.5, class: "lbl", "text-anchor": "middle", style: "font-size:2px" }, group(root, vis("G"))).textContent = "Start and finish";
+      const start = P.route[0].pts[0];
+      el("text", { x: start[0], y: start[1] + 2.6, class: "lbl", "text-anchor": "middle", style: "font-size:2px" }, group(root, vis("G"))).textContent = "Start";
     }
     applyView();
   }
@@ -573,6 +622,8 @@
     [badge("A") + badge("+") + badge("E"), "Ammo, health, enemy"],
     [badge("S", true), "Secret"],
     [line("stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-dasharray:1 5"), "Short way"],
+    [sw(`<polyline points="3,4 14,6 30,14" style="fill:none;stroke:var(--ink);stroke-width:5;stroke-linecap:round"/><polyline points="3,4 14,6 30,14" style="fill:none;stroke:var(--hazard);stroke-width:2.5;stroke-linecap:round"/>`), "Pressure arm to its socket"],
+    [line("stroke:var(--hazard);stroke-width:2;stroke-dasharray:3 3"), "Order the arms come down"],
   ];
   legend.innerHTML = items.map(([s, t]) => `<div>${s}<span>${t}</span></div>`).join("");
 

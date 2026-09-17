@@ -42,7 +42,24 @@ func run() -> void:
 		var flat := Vector2(now.x - from.x, now.z - from.z).length()
 		check(now.y > from.y - 1.0, "%s placed at %s fell to %s" % [e.name, from, now])
 		check(flat < 1.0, "%s placed at %s was pushed %.1f sideways to %s" % [e.name, from, flat, now])
-	print("FACTORY population: %d enemies, %d Johns, %d ambushes, failures %d" % [start.size(), johns.size(), get_nodes_in_group("ambush").size(), failures])
+	# Each ambush climbs out as the kind the plan gives it.
+	for a in plan["ambushes"]:
+		var area: Area3D = level.get_node_or_null("Ambush" + String(a["name"]).to_pascal_case())
+		check(area != null, "ambush %s is in the scene" % a["name"])
+		if area == null:
+			continue
+		var kind := String(a.get("kind", "fodder"))
+		var before := {}
+		for e in get_nodes_in_group("enemies"):
+			before[e] = true
+		level._on_ambush(player, area)
+		await physics_frame
+		var spawned := 0
+		for e in get_nodes_in_group("enemies"):
+			if not before.has(e) and String(e.scene_file_path).ends_with(kind + ".tscn"):
+				spawned += 1
+		check(spawned == int(a["count"]), "ambush %s: %d %s climbed out, plan says %d" % [a["name"], spawned, kind, int(a["count"])])
+	print("FACTORY population: %d enemies, %d Johns, %d ambushes, failures %d" % [start.size(), johns.size(), (plan["ambushes"] as Array).size(), failures])
 	level.queue_free()
 	await process_frame
 	quit(1 if failures else 0)

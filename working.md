@@ -4,37 +4,133 @@ Last updated: September 16, 2026
 
 ## Resume here
 
-**Start here, September 16, 2026, end of day.** The factory, Level 1, is playable end to end
-and has had two playtests. The city is Level 2.
+**Latest, September 17, 2026, after playtest 5.** A completionist run at 7:49: 88/93 kills and 7/10
+secrets. The timer ran out in the truck yard about 10 units short of the pad, just after the open
+trailer secret. The cauldron fixed arm finding (3 to 5 s each), and all 20 escape enemies died.
+The records racks were too wide to get round; fixed (a 3-wide way round the front rack, ammo in
+the middle aisle, the back rack's squeeze kept for the secret).
+
+**User's wishes from playtest 5, order not yet agreed:**
+- **Escape ending.** The countdown stops when you leave the building, not at the pad. Explosions
+  and booms from the factory behind you. The truck yard is free time to fight and search, and
+  the pad ends the level when you walk onto it.
+- **More content.** Go north from the pump room's underground walkways into new rooms (a mixing
+  station, and maybe a second room) north of the tank house and pump room, entering the plant
+  room from the north instead of the west.
+- **A new enemy, not urgent.** A big, slow fodder with a large health pool, more than a Rammer. Its
+  big arms slam the ground to squash you. Placed in the way in corridors, and in the arena.
+- **Weapon pickups, later.** They spin, bob and glow so nobody walks past one. The user walked
+  past the shotgun in playtest 5.
+- **Editor visibility pass** (see `CLAUDE.md`, How we plan a level), queued.
+
+**Latest, September 17, 2026.** Ready for **playtest 5**: the cauldron machine, the round roof rail
+(the user loved "circle mode"), and escape enemies on the run. The route walk is 3:05 and par is
+9:15. **Next, after the playtest:** the editor visibility pass (see `CLAUDE.md`, How we plan a
+level). Bake the machine's arms, button, hatches and shutter into the scene, then add
+placeholders for the seal, falling debris and end zone.
+
+**After playtest 4.** Two things were in progress.
+
+1. **Escape enemies on the run: built, waiting on playtest 5.** The user wants to compare this
+   with turning the escape into a winding corridor. Every escape enemy now waits at the far end
+   of the stretch you're about to run, with Hunters high and straight ahead. The service lane
+   fodder and the foreman's office fodder became ambushes, because as placed enemies they got
+   stranded every run. Same total, 93.
+2. **Cauldron machine: built September 17.** The user approved the plan page (Draft 4), irons
+   to the ceiling "for now". It's ready for playtest 5 together with the escape change.
+   - A potbelly cauldron (a cylinder for now, 7 radius, +2 to +8) sits on one column (3
+     radius), so the pit can see under it.
+   - The arms are evenly spaced every 60 degrees from 15 degrees, with sockets at radius 14,
+     outside the +4 walk loop. Four irons run to the ceiling. The roof deck is a 16-sided
+     polygon.
+   - The pit route loops inside the sockets. The old pit blockers are gone.
+   - `bake.js` and `check.js` gained blocker `y` and `irons`. `build_factory.gd` builds the
+     irons as visual struts and renders big tanks with 24 sides.
+   - The roof walk loops round the stack on the round deck, past the button. The golden path is
+     1,112 units, the walk 3:05, and par 9:15. All factory tests pass.
+
+**Pressure arms, built September 17.** They were ready for playtest 4.
+Six arms plug their pipes into the pit floor one at a time (1, 3, 5, 2, 4, 6), each warned by a
+spinning beacon and an alarm. Breaking a pipe lifts the arm and sends a wave of 5 fodder and a
+Rammer (two in the last). The next arm comes when the wave is dead or after 45 s. After the
+sixth, kick the ACTIVATE button on the roof for a 90 s escape. See "Pressure arms built" in
+`docs/LEVEL_FACTORY_PLAN.md`. Factory tests pass; golden path 1,138 units, route walk 3:09, par 9:25.
+
+For playtest 4, read:
+- the arm cycle's log lines;
+- whether "pressure forces" ever fires, which means a wave took over 45 s;
+- how long the fight takes from "machine fight started" to "button kicked";
+- escape time left.
+
+The lifted arm pose (elbow up 5, pipe foot 5 above the pit floor) was my call; see whether it
+reads as out of reach.
+
+**Start here, September 16, 2026, evening, on the desktop.** The factory, Level 1, has been
+softened for a first level after playtest 2 and its outdoor spaces cut down. Both are waiting
+on playtest 3. The city is Level 2.
+
+**The outdoor cuts.** The user found the lot, yard and truck yard too big to walk, and marked up
+a map:
+- The lot is only the admin block's front (50 x 30), with the start a short dogleg from the
+  doors.
+- The yard stops at z 30.
+- The truck yard stops past the container stack, and the exit gate is in its south wall.
+- The bin alley is gone.
+- Secrets are still ten (guard booth and skip moved), and kills total 97.
+- Golden path 1,177 units, walk 3:15, par 9:45.
+
+Details are in "Outdoor spaces cut down" in `docs/LEVEL_FACTORY_PLAN.md`.
+
+**Enemy mix.** The user set Level 1 at about 75% fodder, 20% Rammers and 5% Hunters, with no
+Rammers before halfway and Hunters only on the escape. It's now 70 / 18 / 5 of 93:
+- The first half is fodder only.
+- The first Rammer is a lone ambush at the tank house stair foot. Ambushes now take a kind.
+- The machine waves are fodder and Rammers.
+- The escape has all five Hunters.
+
+See "Enemy mix for a first level" in the plan doc.
+
+**The difficulty ramp.** A review read playtest 2 as too rough for the game's first level, and
+the user took all the recommendations:
+- Nobody attacks in the lot, and there are 4 lone fodder in the offices.
+- The yard is a light first fight. (Hunters first appeared on the hall catwalks until the enemy
+  mix moved them all to the escape.)
+- 58 placed enemies and 101 kills in total (97 after the outdoor cuts, 93 after the enemy mix).
+- Health is on the path where damage builds: foreman's office, tank house floor, the tunnel's
+  last leg.
+- Stairs above ground are railed from 1.0 up.
+- Deaths respawn at the furthest beat line.
+- Machine waves wait 2.5 s and keep a 10 s gap.
+- Stranded wave melee climbs out again on the player's level.
+
+All of it is in "Difficulty ramp after playtest 2" in `docs/LEVEL_FACTORY_PLAN.md`, with what to
+read in the playtest 3 log. Factory tests pass. `run/main_scene` still points at the city, so
+F5 runs Level 2; the user hasn't said whether to switch it.
 
 **Where it is.** The factory is a complex of buildings, yards, a skybridge and tunnels, planned
 top-down in `docs/factory_plan/` (published at https://claude.ai/artifact/9U5yqC8s3ZciVmCmG7sg8A)
 and baked from that plan. The user made plan-first the way every level gets designed; the
 method is "How we plan a level" in `CLAUDE.md`. Built so far: outlines, blockers, kick doors,
-the one-way dock, 46 cutout Johns, 76 placed enemies, 3 ambushes, 10 secrets, placeholder signs,
+the one-way dock, 46 cutout Johns, 57 placed enemies, 2 ambushes, 10 secrets, placeholder signs,
 the machine climax (six coolant pipes, six waves of 31, a seal, the high exit, a lit end zone,
-a 65-second escape) and the time-bomb escape (falling debris, steam, alarms). Golden path 1,300
-units, route walk 3:35, par 10:45. The full build history and both playtests are in
+a 65-second escape) and the time-bomb escape (falling debris, steam, alarms). Golden path 1,177
+units, route walk 3:15, par 9:45. The full build history and both playtests are in
 `docs/LEVEL_FACTORY_PLAN.md`.
 
-**Playtest 2** (8:47, 94/119 kills, 39/46 Johns, 3/10 secrets, 2 deaths). Four fixes proposed,
-waiting on the user:
-1. **Side rails on stairs.** The user dropped off the warehouse stair and skipped half the
-   escape. Every high stair has the gap. A clear bug, do it.
-2. **Respawn at the last beat reached**, not the lot, until losing restarts the level. The first
-   death cost 2:02 of walking back.
-3. **Stagger the machine waves** a few seconds after each pipe breaks. Three pipes in 16 seconds
-   stacked 15 enemies. The user's call.
-4. **Regroup stranded melee** in the set piece: enemies that can't reach the player climb out
-   at a hatch on the player's level. The user's call.
+**Playtest 2** (8:47, 94/119 kills, 39/46 Johns, 3/10 secrets, 2 deaths). Its four proposed
+fixes (stair rails, respawn at the last beat, staggered waves, regrouping stranded melee) are
+all built in the difficulty ramp above.
 
 **To change the factory:** edit the plan's data files, run `node docs/factory_plan/export.js`
 (fix anything its check prints), rebake with `tools/build_factory.gd`, then run the factory
 tests: `factory_route_test` (in the background), `machine_set_piece_test`,
-`factory_population_test`, `factory_secrets_test`. Screenshots come from `tools/shoot_level.gd`.
+`factory_population_test`, `factory_secrets_test`, `factory_stairs_test`. Screenshots come from
+`tools/shoot_level.gd`. The published plan page predates the ramp; republish it before
+reviewing the plan with the user.
 
-**This machine:** Godot at `C:/Godot/Godot_v4.7-stable_win64_console.exe`, Python 3.12 installed
-for the version bump, and Node for the plan export.
+**Machines:** the laptop has Godot at `C:/Godot/Godot_v4.7-stable_win64_console.exe` and
+Python 3.12 for the version bump; the desktop uses the Steam install in `CLAUDE.md`. Both have
+Node for the plan export.
 
 **Start here, September 13, 2026.** Two threads are open. The story one is the live conversation.
 

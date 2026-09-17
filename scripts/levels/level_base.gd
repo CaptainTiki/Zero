@@ -21,9 +21,20 @@ signal beat_reached(beat: int, elapsed: float)
 @export var ambience := "ambience_wind"
 ## Headline on the end-of-run tally.
 @export var tally_title := "LEVEL 01 PLAYTEST  (one section of Mission 01)"
+## Deaths put the player back at the furthest beat line they have crossed instead of
+## where the level set respawn_point. A stopgap until losing restarts the level. A set
+## piece that seals the way back must move the respawn behind its seal itself, as the
+## factory's machine does; Level 01's arena doesn't, so Level 01 leaves this off.
+@export var respawn_at_beats := false
 
-## Ambushes spawn these, so the base owns it.
+## Ambushes spawn these, so the base owns them. Scenes baked before ambushes had a kind
+## spawn fodder.
 const FODDER := preload("res://scenes/enemies/fodder.tscn")
+const AMBUSH_KINDS := {
+	"fodder": FODDER,
+	"rammer": preload("res://scenes/enemies/rammer.tscn"),
+	"hunter": preload("res://scenes/enemies/hunter.tscn"),
+}
 
 const WEIGHT_KILLS := 0.4
 const WEIGHT_SECRETS := 0.4
@@ -35,11 +46,15 @@ var arena_enabled := true
 ## runs before this node's.
 var extra_expected_kills := 0
 
+## Beat lines sit 1.5 above the floor they cross; a respawn goes 0.5 above it.
+const BEAT_RESPAWN_DROP := 1.0
+
 var _elapsed := 0.0
 var _label: Label
 var _hint: Label
 var _stats_label: Label
 var _reached := {}
+var _respawn_beat := 0
 var _finished := false
 var _lift_open := false
 var _kills := 0
@@ -202,12 +217,13 @@ func _on_ambush(body: Node, area: Area3D) -> void:
 		return
 	var spawn: Vector3 = area.get_meta("spawn")
 	var count: int = int(area.get_meta("count"))
+	var kind := String(area.get_meta("kind", "fodder"))
 	for i in count:
-		var e := FODDER.instantiate()
+		var e: Node3D = (AMBUSH_KINDS.get(kind, FODDER) as PackedScene).instantiate()
 		add_child(e)
 		e.global_position = spawn + Vector3(randf_range(-1.5, 1.5), 0.5, randf_range(-1.5, 1.5))
 		e.set("_alerted", true)
-	print("%s " % level_tag + "ambush %s: %d at %s" % [area.name, count, _stamp(_elapsed)])
+	print("%s " % level_tag + "ambush %s: %d %s at %s" % [area.name, count, kind, _stamp(_elapsed)])
 	area.queue_free()
 
 ## Cardboard Johns are a bonus on top of completion, never part of it.
@@ -259,7 +275,9 @@ func _track_player(delta: float) -> void:
 
 func record_death(at: Vector3) -> void:
 	_deaths += 1
-	print("%s " % level_tag + "DEATH %d at %s  at %s" % [_deaths, _stamp(_elapsed), at])
+	var player := get_tree().get_first_node_in_group("player")
+	var back: String = ", respawning at %s" % player.get("respawn_point") if player and "respawn_point" in player else ""
+	print("%s " % level_tag + "DEATH %d at %s  at %s%s" % [_deaths, _stamp(_elapsed), at, back])
 
 func record_door_kick(door_name: String) -> void:
 	_doors_kicked += 1
@@ -319,6 +337,10 @@ func _on_beat_line(body: Node, area: Area3D) -> void:
 	_walk_at_beat[beat] = _walked
 	_secrets_at_beat[beat] = _secrets_found
 	print("%s beat %d reached at %s  (kills so far %d)" % [level_tag, beat, _stamp(_elapsed), _kills])
+	# The furthest beat wins, so wandering back over an earlier line doesn't set a player back.
+	if respawn_at_beats and beat > _respawn_beat and "respawn_point" in body:
+		_respawn_beat = beat
+		body.set("respawn_point", area.global_position - Vector3(0, BEAT_RESPAWN_DROP, 0))
 	beat_reached.emit(beat, _elapsed)
 
 ## Lets the level exit finish the run. Level 01 opens it when the museum lift arrives,

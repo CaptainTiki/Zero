@@ -85,9 +85,10 @@ func secret(label: String, at: Vector3, reward: String) -> void:
 
 ## Dead-end ambush: trigger at the end, enemies spawn at the mouth.
 
-## Dead-end ambush: trigger at the end, enemies spawn at the mouth.
-func ambush(label: String, at: Vector3, size: Vector3, spawn: Vector3, count: int) -> void:
-	trigger(label, at, size, "ambush", {"spawn": spawn, "count": count})
+## Dead-end ambush: trigger at the end, enemies spawn at the mouth. `kind` is fodder,
+## rammer or hunter.
+func ambush(label: String, at: Vector3, size: Vector3, spawn: Vector3, count: int, kind := "fodder") -> void:
+	trigger(label, at, size, "ambush", {"spawn": spawn, "count": count, "kind": kind})
 
 func beat_line(label: String, at: Vector3, size: Vector3, beat: int) -> void:
 	var area := Area3D.new()
@@ -178,6 +179,24 @@ func ramp(label: String, low: Vector3, high: Vector3, width: float, along_x: boo
 		var solid := art.get_node_or_null(label + "Solid") as Node3D
 		if solid:
 			solid.rotation.x = sign_z * tilt
+
+## A rail down one side of a ramp, sloped with it. `offset` is across the ramp from its
+## centre line, so half the ramp's width either way. The rail stands 1.1 clear of the
+## slope and dips into the ramp's thickness below, leaving no gap to slip under. It starts
+## where the ramp is `open_rise` up: stepping off lower than a jump skips nothing, and a
+## route can still step onto the ramp's foot from the side.
+func ramp_rail(label: String, low: Vector3, high: Vector3, offset: float, along_x: bool, open_rise := 1.0) -> void:
+	var run := absf(high.x - low.x) if along_x else absf(high.z - low.z)
+	var rise := high.y - low.y
+	if run <= 0.01 or rise <= open_rise:
+		push_warning("ramp rail %s has no run or no rise above %.1f" % [label, open_rise])
+		return
+	var side := Vector3(0, 0, offset) if along_x else Vector3(offset, 0, 0)
+	var start := low.lerp(high, open_rise / rise)
+	# ramp() hangs a box below the line through its ends, so lift the ends until the box's
+	# top is the rail's top, measured square to the slope.
+	var lift := Vector3(0, 1.1 / cos(atan(rise / run)), 0)
+	ramp(label, start + side + lift, high + side + lift, 0.12, along_x, "dark", 1.35)
 
 ## A raised walkway with rails down both long sides.
 func catwalk(label: String, x0: float, z0: float, x1: float, z1: float, top: float, along_x: bool, material := "metal_blue") -> void:

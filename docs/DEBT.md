@@ -50,6 +50,11 @@ death there doesn't strand the player behind the seal.
 Fix: the decided direction is that losing restarts the level from the beginning. Replace
 `respawn_point` with a level restart when that is built.
 
+Eased September 16, 2026, still owed: the factory sets `level_base.gd`'s `respawn_at_beats`, so
+a death puts the player back at the furthest beat line crossed. Factory playtest 2's first death
+cost 2:02 of walking back from the lot. Level 01 leaves it off, because its arena seals a beat
+line's far side and doesn't move the respawn itself.
+
 ## Factory
 
 ### Coolant pipes splash red when shot
@@ -60,10 +65,13 @@ too. Fix: let a target choose its impact effect, or give pipes a spark effect.
 
 ### Machine audio is borrowed
 
-The meltdown clangs and pipe bursts reuse `kick_prop`, and there is no steam hiss. Needs a
-metal groan, a steam burst and a hiss loop, logged in `docs/ASSETS.md` when sourced.
+The meltdown clangs and pipe bursts reuse `kick_prop`. Since the pressure arms (September 17,
+2026) the alarm, steam hiss, arm movement, arm clunk and button press are Kenney sci-fi clips
+standing in (`laserRetro`, `thrusterFire`, `spaceEngineLow`, `impactMetal`, `computerNoise`).
+Needs a proper alarm, a metal groan, a steam burst and a hiss loop, a hydraulic arm and a heavy
+clunk, logged in `docs/ASSETS.md` when sourced.
 
-### Stairs have no side rails
+### ~~Stairs have no side rails~~
 
 Found in factory playtest 2, September 16, 2026. `bake.js` rails catwalk edges but not
 stairs, so a player can step off the side of any stair. On the escape the user dropped off
@@ -73,7 +81,14 @@ enemies and four of the eleven escape events. The same gap lets players skip cli
 Fix: sloped side rails on every stair whose top is above ground, built along the ramp in
 `build_factory.gd`, with openings only at the two ends.
 
-### Set piece melee enemies strand below the player
+Paid September 16, 2026. `bake.js` gives each stair that climbs from ground or higher to +2 or
+more a `rails` list of the sides no wall closes, and `level_kit.gd`'s `ramp_rail()` builds them.
+A rail starts where its stair is 1.0 up, since a drop under a jump skips nothing and the plant
+room's golden path steps onto the machine-walk stair's foot from the side. Pit ramps and
+stairwells down stay open. `tests/factory_stairs_test.gd` walks the player's body
+at both sides of every such stair.
+
+### ~~Set piece melee enemies strand below the player~~
 
 Found in factory playtest 2. Wave fodder that spawned on the pit floor ended the run pinned
 against the pit's south wall once the player climbed to the machine roof: no navmesh, so they
@@ -82,3 +97,9 @@ stack the same way.
 
 Fix, if the user wants it: melee enemies that haven't closed on the player for a few seconds
 climb out again at a hatch on the player's level.
+
+Paid September 16, 2026. Wave melee that spends `regroup_after` (5 s) on a different level from
+the player climbs out again at the nearest hatch on the player's level, at least 6 away, one per
+hatch every 0.7 s. A Rammer stays below while the player is up on the walks. Each one is logged
+as `stranded fodder climbed out again`. The truck yard fodder were moved into straight lines to
+the escape route instead.

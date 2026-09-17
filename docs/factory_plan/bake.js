@@ -330,10 +330,31 @@
       }
     panels.forEach(p => boxes.push({ kind: "panel", c: p.c, s: p.s, m: p.m }));
 
+    // Stairs that climb above the ground get a rail down each side a wall doesn't already
+    // close, so nobody steps off halfway and skips the climb. rails holds the offsets of the
+    // railed sides across the stair from its centre line. Pit ramps and stairwells down are
+    // left open: stepping off them only lands where they go.
+    const railSides = (r, low, high, alongX) => {
+      if (low[2] < -0.5 || high[2] < 2) return [];
+      const a0 = Math.min(alongX ? r.from[0] : r.from[1], alongX ? r.to[0] : r.to[1]);
+      const a1 = Math.max(alongX ? r.from[0] : r.from[1], alongX ? r.to[0] : r.to[1]);
+      const centre = alongX ? r.from[1] : r.from[0];
+      return [-r.w / 2, r.w / 2].filter(off => {
+        const line = alongX ? Z(centre + off) : X(centre + off);
+        for (let k = alongX ? X(a0) : Z(a0); k < (alongX ? X(a1) : Z(a1)); k++) {
+          const e = edges.get(alongX ? `h:${k}:${line}` : `v:${line}:${k}`);
+          const walled = e && e.thick >= WALL_T && e.spans.some(([lo, hi]) => lo <= low[2] + 0.1 && hi >= high[2] + RAIL_H);
+          if (!walled) return true;
+        }
+        return false;
+      });
+    };
+
     // Ramps as the kit wants them: low and high ends.
     const ramps = P.ramps.map(r => {
       const low = r.from[2] <= r.to[2] ? r.from : r.to, high = low === r.from ? r.to : r.from;
-      return { name: r.name, low: [low[0], low[2], low[1]], high: [high[0], high[2], high[1]], w: r.w, along_x: r.from[1] === r.to[1] };
+      const alongX = r.from[1] === r.to[1];
+      return { name: r.name, low: [low[0], low[2], low[1]], high: [high[0], high[2], high[1]], w: r.w, along_x: alongX, rails: railSides(r, low, high, alongX) };
     });
 
     // Lights: a grid in rooms, a string along corridors.
@@ -375,7 +396,7 @@
     const turn = {};
     const paint = type => { turn[type] = ((turn[type] || 0) + 1) % PAINT[type].length; return PAINT[type][turn[type]]; };
     const blockers = (P.blockers || []).map(b => {
-      const base = LVY[b.lv];
+      const base = b.y != null ? b.y : LVY[b.lv];
       let top = base + b.h;
       if (Math.abs(top - LVY.C1) < 1e-6 || Math.abs(top - LVY.C2) < 1e-6) top -= 0.3;
       const m = PAINT[b.type] ? paint(b.type) : MAT[b.type];
@@ -399,8 +420,17 @@
     const spawn = { at: [first[0][0], first[0][2] + 0.3, first[0][1]], yaw: Math.atan2(-(first[1][0] - first[0][0]), -(first[1][1] - first[0][1])) };
     const lastSeg = P.route[P.route.length - 1].pts;
     const end = lastSeg[lastSeg.length - 1];
-    // The end zone: past the last route point, clear of the gate, big enough to find.
-    const exit = { at: [end[0] + 2, end[2] + 2, end[1]], size: [8, 4, 12] };
+    // The end zone: in front of the exit gate on the route's side, as wide as the gate, 8 deep
+    // and clear of it by 1, so it is big enough to find. Without a gate, just past the route.
+    const gate = P.doors.find(d => d.type === "exit");
+    let exit = { at: [end[0] + 2, end[2] + 2, end[1]], size: [8, 4, 12] };
+    if (gate) {
+      const across = gate.axis === "h";
+      const side = Math.sign(across ? end[1] - gate.at[1] : end[0] - gate.at[0]) || 1;
+      exit = across
+        ? { at: [gate.at[0], end[2] + 2, gate.at[1] + side * 5], size: [gate.w, 4, 8] }
+        : { at: [gate.at[0] + side * 5, end[2] + 2, gate.at[1]], size: [8, 4, gate.w] };
+    }
     const route = [];
     P.route.forEach(s => s.pts.forEach(p => {
       const last = route[route.length - 1];
@@ -426,10 +456,18 @@
       start_at: godot(sp.start.at), start_size: sp.start.size,
       seal_at: godot(sp.seal.at), seal_radius: sp.seal.radius, seal_length: sp.seal.length,
       respawn_at: godot(sp.respawn),
-      pipes: sp.pipes.map(p => [godot(p.at), p.size]),
+      arms: (sp.arms || []).map(a => ({ n: a.n, shoulder: godot(a.shoulder), elbow: godot(a.elbow), socket: godot(a.socket) })),
+      irons: (sp.irons || []).map(i => ({ from: godot(i.from), to: godot(i.to) })),
+      order: sp.order || [],
+      first_arm_seconds: sp.first_arm_seconds || 0,
+      pressure_seconds: sp.pressure_seconds || 0,
+      warning_seconds: sp.warning_seconds || 0,
+      lift: sp.lift || 0,
+      line_last_pipe: sp.line_last_pipe || "",
+      button: sp.button ? { at: godot(sp.button.at), yaw: { s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 }[sp.button.face] } : null,
       waves: sp.waves,
       melee_hatches: sp.melee_hatches.map(godot),
-      ranged_hatches: sp.ranged_hatches.map(godot),
+      ranged_hatches: (sp.ranged_hatches || []).map(godot),
       end_zone_at: exit.at, end_zone_size: exit.size,
       exit_at: godot(sp.exit.at), exit_size: sp.exit.size,
       vents: sp.vents.map(godot),
@@ -448,13 +486,47 @@
     // yaw of 0 looks down +z.
     const YAW = { s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 };
     const johns = (P.johns || []).map(p => ({ at: godot(p.at), yaw: YAW[p.face] }));
-    const ambushes = (P.ambushes || []).map(a => ({ name: a.name, at: godot(a.trigger.at), size: a.trigger.size, spawn: godot(a.spawn), count: a.count }));
+    const ambushes = (P.ambushes || []).map(a => ({ name: a.name, at: godot(a.trigger.at), size: a.trigger.size, spawn: godot(a.spawn), count: a.count, kind: a.kind || "fodder" }));
     const signs = (P.signs || []).map(p => ({ text: p.text, at: godot(p.at), width: p.width, height: p.height, yaw: YAW[p.face], style: p.style }));
     const floorText = (P.floor_text || []).map(p => ({ text: p.text, at: godot(p.at), yaw: YAW[p.face] }));
     const windows = (P.windows || []).map(p => ({ at: godot(p.at), width: p.width, yaw: YAW[p.face] }));
     const secrets = (P.secrets || []).map(p => ({ name: p.name, at: godot(p.at), reward: p.reward, trigger: p.trigger || [2.5, 2.5], path: p.path.map(godot) }));
 
-    return { boxes, ramps, blockers, kick_doors: kickDoors, pickups, setpiece, enemies, johns, ambushes, signs, floor_text: floorText, windows, secrets, lights, beats, spawn, exit, route, golden_units: Math.round(units), par_seconds: par };
+    // Round decks, like the cauldron's rim. Rasterised they get stepped floor edges and
+    // stepped rails, so those pieces go and the builder lays a disc floor and a curved rail,
+    // gapped wherever a walk on the same storey carries on past the rim.
+    const roundDecks = P.zones.filter(z => z.kind === "deck" && z.round).map(z => {
+      const [cx, cz, r] = z.round, top = LVY[z.lv];
+      const walks = P.catwalks.filter(c => c.lv === z.lv).map(c => c.rect);
+      const open = [];
+      for (let a = 0; a < 360; a++) {
+        const rad = a * Math.PI / 180, x = cx + (r + 0.3) * Math.sin(rad), zz = cz - (r + 0.3) * Math.cos(rad);
+        open.push(walks.some(q => x >= q[0] && x <= q[2] && zz >= q[1] && zz <= q[3]));
+      }
+      const gaps = [];
+      for (let a = 0; a < 360; a++) {
+        if (!open[a] || (a > 0 && open[a - 1])) continue;
+        let b = a;
+        while (b + 1 < 360 && open[b + 1]) b++;
+        gaps.push([a - 0.5, b + 0.5]);
+      }
+      // A gap running through north joins its two ends.
+      if (gaps.length > 1 && open[0] && open[359]) {
+        const last = gaps.pop();
+        gaps[0][0] = last[0] - 360;
+      }
+      const inside = (x, zz, lo, hi) => { const d = Math.hypot(x - cx, zz - cz); return d >= lo && d <= hi; };
+      for (let i = boxes.length - 1; i >= 0; i--) {
+        const b = boxes[i];
+        const corners = [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sz]) => [b.c[0] + sx * b.s[0] / 2, b.c[2] + sz * b.s[2] / 2]);
+        const floorHere = b.kind === "floor" && Math.abs(b.c[1] + b.s[1] / 2 - top) < 0.05 && corners.every(([x, zz]) => inside(x, zz, 0, r + 0.05));
+        const railHere = b.kind === "rail" && Math.abs(b.c[1] - (top + RAIL_H / 2)) < 0.05 && corners.every(([x, zz]) => inside(x, zz, r - 0.9, r + 0.4));
+        if (floorHere || railHere) boxes.splice(i, 1);
+      }
+      return { centre: [cx, top, cz], r, rail_h: RAIL_H, gaps };
+    });
+
+    return { round_decks: roundDecks, boxes, ramps, blockers, kick_doors: kickDoors, pickups, setpiece, enemies, johns, ambushes, signs, floor_text: floorText, windows, secrets, lights, beats, spawn, exit, route, golden_units: Math.round(units), par_seconds: par };
   }
 
   function ptsOf(o) { return o.poly || [[o.rect[0], o.rect[1]], [o.rect[2], o.rect[1]], [o.rect[2], o.rect[3]], [o.rect[0], o.rect[3]]]; }

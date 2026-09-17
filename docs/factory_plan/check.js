@@ -62,15 +62,16 @@ module.exports = function check(P) {
     if (f === "s") hi[1] = Infinity; if (f === "n") lo[1] = -Infinity;
     return x > lo[0] && x < hi[0] && z > lo[1] && z < hi[1];
   };
+  const baseOf = b => (b.y != null ? b.y : LVY[b.lv]);
   const blockerHit = (y, x, z, m) => P.blockers.find(b => {
-    const base = LVY[b.lv], top = base + b.h;
+    const base = baseOf(b), top = base + b.h;
     if (top <= y + 0.1 || base >= y + 1.8) return false;
     if (b.circle) return Math.hypot(x - b.circle[0], z - b.circle[1]) < b.circle[2] + m;
     const near = x > b.rect[0] - m && x < b.rect[2] + m && z > b.rect[1] - m && z < b.rect[3] + m;
     return near && !(b.hollow && hollowOpen(b, x, z, m));
   });
   const standsOn = (y, x, z) =>
-    P.blockers.some(b => Math.abs(LVY[b.lv] + b.h - y) < 0.1 && (b.circle ? Math.hypot(x - b.circle[0], z - b.circle[1]) < b.circle[2] - 0.3 : inRect([b.rect[0] + 0.3, b.rect[1] + 0.3, b.rect[2] - 0.3, b.rect[3] - 0.3], x, z)))
+    P.blockers.some(b => Math.abs(baseOf(b) + b.h - y) < 0.1 && (b.circle ? Math.hypot(x - b.circle[0], z - b.circle[1]) < b.circle[2] - 0.3 : inRect([b.rect[0] + 0.3, b.rect[1] + 0.3, b.rect[2] - 0.3, b.rect[3] - 0.3], x, z)))
     || P.shells.some(s => Math.abs(s.h + 0.4 - y) < 0.1 && inRect(s.rect, x, z));
 
   const place = (label, at, margin, blockerMargin) => {
@@ -95,7 +96,59 @@ module.exports = function check(P) {
   (P.ambushes || []).forEach(a => place(`ambush spawn (${a.name})`, a.spawn, 1.9, 1.9));
   if (P.setpiece) {
     P.setpiece.melee_hatches.forEach(at => place("melee hatch", at, 0.6, 0.6));
-    P.setpiece.ranged_hatches.forEach(at => place("ranged hatch", at, 0.6, 0.6));
+    (P.setpiece.ranged_hatches || []).forEach(at => place("ranged hatch", at, 0.6, 0.6));
+    const sp = P.setpiece;
+    // Pressure arms: each socket needs fighting room on the pit floor, clear of blockers and
+    // hatches, and no arm may pass through a walkway or stair at a height that would hit a
+    // player on it (1.8 plus a little) or leave a lip under their feet.
+    (sp.arms || []).forEach(a => {
+      place(`arm ${a.n} socket (${a.where})`, a.socket, 1.2, 1.2);
+      sp.melee_hatches.forEach(h => {
+        if (Math.abs(h[2] - a.socket[2]) < 1 && Math.hypot(h[0] - a.socket[0], h[1] - a.socket[1]) < 3)
+          problems.push(`arm ${a.n} socket within 3 of a hatch at ${h.join(", ")}`);
+      });
+      const decks = [
+        ...P.catwalks.map(c => ({ name: c.name, rect: c.rect, y: LVY[c.lv] })),
+        ...P.zones.filter(z => z.kind === "deck").map(z => ({ name: z.name, rect: z.rect, poly: z.poly, y: LVY[z.lv] })),
+      ];
+      // Down, and lifted: the elbow and everything under it raised by lift.
+      const up = q => [q[0], q[1], q[2] + (sp.lift || 0)];
+      const legs = [[a.shoulder, a.elbow], [a.elbow, a.socket], [a.shoulder, up(a.elbow)], [up(a.elbow), up(a.socket)]];
+      // A socket in the golden path's way would plant a pipe in the walk.
+      P.route.forEach(sec => sec.pts.forEach((q, i) => {
+        if (!i) return;
+        const p0 = sec.pts[i - 1];
+        if (Math.abs(p0[2] - a.socket[2]) > 1 || Math.abs(q[2] - a.socket[2]) > 1) return;
+        const dx = q[0] - p0[0], dz = q[1] - p0[1], len2 = dx * dx + dz * dz || 1;
+        const t = Math.max(0, Math.min(1, ((a.socket[0] - p0[0]) * dx + (a.socket[1] - p0[1]) * dz) / len2));
+        const d = Math.hypot(a.socket[0] - (p0[0] + dx * t), a.socket[1] - (p0[1] + dz * t));
+        if (d < 2.5) problems.push(`arm ${a.n} socket ${d.toFixed(1)} from the golden path in ${sec.name}`);
+      }));
+      let hit = null;
+      for (const [p, q] of legs) {
+        for (let k = 1; k < 40 && !hit; k++) {
+          const t = k / 40, x = p[0] + (q[0] - p[0]) * t, z = p[1] + (q[1] - p[1]) * t, y = p[2] + (q[2] - p[2]) * t;
+          for (const d of decks) {
+            if (d.name === "Machine roof" && p === a.shoulder) continue;
+            const near = d.poly
+              ? [[0, 0], [0.5, 0], [-0.5, 0], [0, 0.5], [0, -0.5]].some(([ox, oz]) => inPoly(d.poly, x + ox, z + oz))
+              : inRect([d.rect[0] - 0.5, d.rect[1] - 0.5, d.rect[2] + 0.5, d.rect[3] + 0.5], x, z);
+            if (!near) continue;
+            if (y > d.y - 0.6 && y < d.y + 2.3) { hit = `${d.name} at ${x.toFixed(1)}, ${z.toFixed(1)}, height ${y.toFixed(1)}`; break; }
+          }
+          for (const r of P.ramps) {
+            if (hit || !inRect(rampRect(r), x, z)) continue;
+            const along = r.from[1] === r.to[1] ? (x - r.from[0]) / (r.to[0] - r.from[0]) : (z - r.from[1]) / (r.to[1] - r.from[1]);
+            const surface = r.from[2] + (r.to[2] - r.from[2]) * Math.max(0, Math.min(1, along));
+            if (y > surface - 0.6 && y < surface + 2.3) hit = `${r.name} at ${x.toFixed(1)}, ${z.toFixed(1)}`;
+          }
+        }
+      }
+      if (hit) problems.push(`arm ${a.n} passes through ${hit}`);
+    });
+    if (sp.order && sp.arms && [...sp.order].sort().join() !== sp.arms.map(a => a.n).sort().join())
+      problems.push("setpiece order must name every arm once");
+    if (sp.button) place(`button (${sp.button.where})`, [sp.button.at[0], sp.button.at[1] - 1.15, sp.button.at[2]], 0.5, 0.4);
   }
 
   // Secrets: at most twelve, each reward on a floor, and its path walkable all the way in.

@@ -78,6 +78,10 @@ Decided September 16, 2026, after several factory layouts that all felt like one
 - **Sight lines.** Corridors turn for no reason except to break them. Machines, containers and
   crates break them on open floors; anything under 1.8 is see-over. Catwalks, up to two storeys
   of them, overlook floors the player has just fought across.
+- **Outdoor spaces stay near the size of the buildings beside them.** The factory's lot, yard
+  and truck yard were each bigger than any building, and the user found walking them before
+  going in and after coming out too long; they were cut to 50 x 30, 70 x 56 and 64 x 46. Start
+  a short walk from the first door, and end the level soon after the last one.
 - **Dead ends pay:** ammo, health, one enemy for the completionist, a secret, or a way through.
 - **Default dimensions.** Storeys at -4, 0, +4 and +8. Stairs are ramps with a 12 run.
   Catwalks 2.0 wide, which a Rammer can't follow onto; widen after playtests if needed.
@@ -91,12 +95,22 @@ Decided September 16, 2026, after several factory layouts that all felt like one
   file. The page's Built walls toggle shows what will be built. Never hand-edit `plan.json`.
   The export also runs `check.js`, which flags anything placed in a wall, a blocker, over a pit
   or on the golden path. Fix every line it prints before baking.
+- **Everything we build should be visible in the editor.** The user inspects levels with the
+  editor's fly camera, so geometry a script creates at runtime is invisible to them. Not a hard
+  rule, but the direction (September 17, 2026): bake set piece geometry (arms, buttons, hatches,
+  shutters, rails) into the scene and have scripts drive the baked nodes. Anything that only
+  appears during a scripted event, like falling debris, a seal or an end zone, gets a
+  placeholder where it will end up, hidden in `_ready()`.
 - **Build in passes, outlines first:** floors, walls, rails, roofs, stairs, lights and beat
   lines, then blockers, then doors, enemies, secrets and dressing, playtesting between passes.
 - **Both ends of a stair meet a platform's edge.** A slab over the top of a ramp is a lip the
   player can't get past, and a foot laid on top of a platform leaves a lip along the stair's
   sides. A stair that is wider than, or offset from, the catwalk it joins walks you into the end
   of the catwalk's rail.
+- **Stairs above ground are railed, from a jump's height up.** `bake.js` rails every side of a
+  stair that climbs to +2 or more and isn't closed by a wall, starting where the stair is 1.0 up,
+  so nobody steps off and skips a climb but a route can still board a stair's foot from the
+  side. Pit ramps and stairwells down stay open.
 
 ## Level design rules
 
@@ -110,6 +124,9 @@ Decided September 16, 2026, after several factory layouts that all felt like one
 - Kickable doors share one colour and are taught once by a floating prompt. Metal shutters
   are never kickable. Cordons are vehicle scale.
 - Difficulty: a competent player takes damage and may die once at the climax.
+- **First level enemy mix** (user, September 16, 2026): about 75% fodder, 20% Rammers, 5%
+  Hunters. No Rammer before about halfway, and the first one comes alone. Hunters only on the
+  escape run.
 - **An enemy that starts on a different level from the fight must be ranged.** With no navmesh,
   melee enemies walk straight at the player and strand against walls and pit edges. Fodder and
   Rammers start on the player's level with a clear line to them; a Hunter can start anywhere it
@@ -133,7 +150,8 @@ Decided September 16, 2026, after several factory layouts that all felt like one
   `factory_route_test`, which walks the route from `docs/factory_plan/plan.json`, and
   `machine_set_piece_test`, which plays the plant room climax without the walk, and
   `factory_population_test`, which settles every placed enemy and flags any that fall or get
-  pushed out of geometry, and `factory_secrets_test`, which walks the way in to every secret.
+  pushed out of geometry, `factory_secrets_test`, which walks the way in to every secret, and
+  `factory_stairs_test`, which walks the player's body at the sides of every stair above ground.
 - Headless quirks: `class_name` types don't resolve, so type as `Node` or `preload`.
   Use `add_to_group(name, true)` for groups that must persist in baked scenes. Lambdas capture
   primitives by value, so write through a dictionary.
@@ -142,7 +160,8 @@ Decided September 16, 2026, after several factory layouts that all felt like one
   drop out, and tile big floors and roofs (the bake uses 12 units) so no one mesh needs more
   than 8.
 - Long GDScript through a bash heredoc breaks easily. Write a Python patch script, or use the
-  file tools.
+  file tools. The repo is LF (`.gitattributes`), but Python's `write_text` on Windows writes CRLF,
+  which also breaks later multi-line matches; open files with `newline=""`, or use node.
 
 ## Code layout
 

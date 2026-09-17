@@ -22,6 +22,8 @@ func build() -> void:
 	art.set("par_time", float(plan["par_seconds"])) # from the plan: 3x the route test walk time
 	art.set("fall_plane", -12.0)
 	art.set("golden_path_units", float(plan["golden_units"]))
+	# A death costs the stretch since the last beat line, not the walk from the car park.
+	art.set("respawn_at_beats", true)
 	environment()
 	outline(plan)
 	skyline()
@@ -61,6 +63,10 @@ func outline(plan: Dictionary) -> void:
 	var index := 0
 	for r in plan["ramps"]:
 		ramp("Stair%d" % index, v3(r["low"]), v3(r["high"]), float(r["w"]), bool(r["along_x"]), "metal_blue")
+		# Side rails where the plan says a stair climbs above ground with nothing closing it.
+		for offset in r.get("rails", []):
+			var side := "A" if float(offset) < 0.0 else "B"
+			ramp_rail("Stair%dRail%s" % [index, side], v3(r["low"]), v3(r["high"]), float(offset), bool(r["along_x"]))
 		index += 1
 	index = 0
 	for l in plan["lights"]:
@@ -82,6 +88,8 @@ func outline(plan: Dictionary) -> void:
 	secrets(plan)
 	dressing(plan)
 	machine(plan)
+	irons(plan)
+	round_decks(plan)
 	for b in plan["beats"]:
 		beat_line("Beat%dLine" % int(b["beat"]), v3(b["at"]), v3(b["size"]), int(b["beat"]))
 	var finish: Dictionary = plan["exit"]
@@ -133,7 +141,7 @@ func pickups(plan: Dictionary) -> void:
 		scene("Pickup%d%s" % [index, kind.capitalize()], PICKUPS[kind], v3(p["at"]) + Vector3(0, lift, 0))
 		index += 1
 
-## The plant room climax: coolant pipes, waves, the seal and the escape countdown.
+## The plant room climax: pressure arms, waves, the seal, the button and the escape countdown.
 ## See scripts/levels/machine_set_piece.gd.
 func machine(plan: Dictionary) -> void:
 	var sp: Dictionary = plan["setpiece"]
@@ -141,13 +149,21 @@ func machine(plan: Dictionary) -> void:
 	node.set_script(load("res://scripts/levels/machine_set_piece.gd"))
 	for key in ["start_at", "start_size", "seal_at", "respawn_at", "exit_at", "exit_size", "end_zone_at", "end_zone_size"]:
 		node.set(key, v3(sp[key]))
-	node.set("seal_radius", float(sp["seal_radius"]))
-	node.set("seal_length", float(sp["seal_length"]))
-	node.set("escape_seconds", float(sp["escape_seconds"]))
-	var pipes := []
-	for p in sp["pipes"]:
-		pipes.append([v3(p[0]), v3(p[1])])
-	node.set("pipes", pipes)
+	for key in ["seal_radius", "seal_length", "escape_seconds", "first_arm_seconds", "warning_seconds", "pressure_seconds", "lift"]:
+		node.set(key, float(sp[key]))
+	var arms := []
+	for a in sp["arms"]:
+		arms.append({"n": int(a["n"]), "shoulder": v3(a["shoulder"]), "elbow": v3(a["elbow"]), "socket": v3(a["socket"])})
+	node.set("arms", arms)
+	var order := []
+	for n in sp["order"]:
+		order.append(int(n))
+	node.set("order", order)
+	if String(sp.get("line_last_pipe", "")) != "":
+		node.set("line_last_pipe", String(sp["line_last_pipe"]))
+	var button: Dictionary = sp["button"]
+	node.set("button_at", v3(button["at"]))
+	node.set("button_yaw", float(button["yaw"]))
 	var waves := []
 	for w in sp["waves"]:
 		waves.append([int(w[0]), int(w[1]), int(w[2])])
@@ -194,7 +210,7 @@ func johns(plan: Dictionary) -> void:
 ## Dead ends that bite on the way back out.
 func ambushes(plan: Dictionary) -> void:
 	for a in plan["ambushes"]:
-		ambush("Ambush" + String(a["name"]).to_pascal_case(), v3(a["at"]), v3(a["size"]), v3(a["spawn"]), int(a["count"]))
+		ambush("Ambush" + String(a["name"]).to_pascal_case(), v3(a["at"]), v3(a["size"]), v3(a["spawn"]), int(a["count"]), String(a.get("kind", "fodder")))
 
 const SIGN_STYLES := {
 	"corporate": {"backing": "car_white", "ink": Color("1d3557"), "font": ["Arial", "Helvetica"], "weight": 700},
@@ -265,7 +281,10 @@ func secrets(plan: Dictionary) -> void:
 ## A standing cylinder with collision; pipe() on its own is visual only.
 func tank(label: String, base: Vector3, radius: float, height: float, material: String) -> void:
 	var centre := base + Vector3(0, height / 2.0, 0)
-	pipe(label, centre, height, radius, material)
+	var mesh := pipe(label, centre, height, radius, material)
+	# Big round things, the smog cauldron and the vats, read as round rather than octagonal.
+	if radius >= 3.0:
+		(mesh.mesh as CylinderMesh).radial_segments = 24
 	var body := StaticBody3D.new()
 	body.position = centre
 	add(body, label + "Solid")
@@ -277,6 +296,70 @@ func tank(label: String, base: Vector3, radius: float, height: float, material: 
 	body.add_child(collision)
 	collision.owner = art
 
+## Round decks, like the cauldron's rim: a disc floor and a curved rail round its edge, cut
+## open where a walk joins. The plan's raster would give both stepped edges.
+func round_decks(plan: Dictionary) -> void:
+	var index := 0
+	for d in plan.get("round_decks", []):
+		var centre := v3(d["centre"])
+		var radius := float(d["r"])
+		tank("RoundDeck%dFloor" % index, centre - Vector3(0, 0.3, 0), radius, 0.3, "metal_blue")
+		rim("RoundDeck%dRail" % index, centre, radius, float(d["rail_h"]), 0.2, d["gaps"])
+		index += 1
+
+## A round rail: a CSG cylinder with a smaller one taken out of it, from 0.3 below `centre`
+## (hiding the floor's edge) to `height` above, its outside at `radius`. Gaps are
+## [from, to] in degrees clockwise from north (-z), each cut with a CSG box.
+func rim(label: String, centre: Vector3, radius: float, height: float, thickness: float, gaps: Array) -> void:
+	var ring := CSGCylinder3D.new()
+	ring.radius = radius
+	ring.height = height + 0.3
+	ring.sides = 48
+	ring.position = centre + Vector3(0, (height - 0.3) / 2.0, 0)
+	ring.use_collision = true
+	ring.material = mat("dark")
+	add(ring, label)
+	var hollow := CSGCylinder3D.new()
+	hollow.operation = CSGShape3D.OPERATION_SUBTRACTION
+	hollow.radius = radius - thickness
+	hollow.height = height + 1.0
+	hollow.sides = 48
+	# A cut face takes the material of the shape doing the cutting.
+	hollow.material = ring.material
+	add(hollow, label + "Hollow", ring)
+	var index := 0
+	for gap in gaps:
+		var mid := deg_to_rad((float(gap[0]) + float(gap[1])) / 2.0)
+		var span := deg_to_rad(float(gap[1]) - float(gap[0]))
+		var cut := CSGBox3D.new()
+		cut.operation = CSGShape3D.OPERATION_SUBTRACTION
+		cut.material = ring.material
+		cut.size = Vector3(2.0 * radius * sin(span / 2.0), height + 1.0, thickness * 6.0)
+		cut.position = Vector3(sin(mid), 0, -cos(mid)) * (radius - thickness / 2.0)
+		# Its x axis along the tangent at mid.
+		cut.rotation.y = -mid
+		add(cut, "%sGap%d" % [label, index], ring)
+		index += 1
+
+## Iron struts from the smog cauldron up to the plant room ceiling. Visual only: they all
+## run above head height.
+func irons(plan: Dictionary) -> void:
+	var index := 0
+	for iron in plan["setpiece"].get("irons", []):
+		strut("MachineIron%d" % index, v3(iron["from"]), v3(iron["to"]), 0.45, "dark")
+		index += 1
+
+## A square bar from one point to another, visual only.
+func strut(label: String, from: Vector3, to: Vector3, width: float, material: String) -> void:
+	var node := MeshInstance3D.new()
+	var bar := BoxMesh.new()
+	bar.size = Vector3(width, width, from.distance_to(to))
+	bar.material = mat(material)
+	node.mesh = bar
+	node.position = (from + to) / 2.0
+	node.basis = Basis.looking_at((to - from).normalized(), Vector3.UP if absf((to - from).normalized().y) < 0.99 else Vector3.FORWARD)
+	add(node, label)
+
 ## Blocks outside the compound so the factory is not standing in a field.
 func skyline() -> void:
 	var spots := [
@@ -284,6 +367,9 @@ func skyline() -> void:
 		[Vector3(125, 0, -110), 34.0], [Vector3(130, 0, -40), 24.0], [Vector3(122, 0, 30), 20.0], [Vector3(128, 0, 100), 28.0],
 		[Vector3(-60, 0, -162), 32.0], [Vector3(10, 0, -166), 26.0], [Vector3(70, 0, -160), 36.0],
 		[Vector3(-50, 0, 136), 20.0], [Vector3(30, 0, 140), 24.0],
+		# Closer in, on ground the outdoor spaces gave up after playtest 2, so a wall seen
+		# from the lot, the yard or the truck yard has the city behind it.
+		[Vector3(-20, 0, 62), 16.0], [Vector3(50, 0, 80), 20.0], [Vector3(-75, 0, 100), 14.0], [Vector3(-80, 0, -13), 8.0],
 	]
 	var index := 0
 	for spot in spots:
@@ -296,5 +382,6 @@ func actors(plan: Dictionary) -> void:
 	var spawn: Dictionary = plan["spawn"]
 	var player := scene("Player", "res://scenes/player/player.tscn", v3(spawn["at"])) as Node3D
 	player.rotation.y = float(spawn["yaw"])
-	# Deaths put the player back at the start until losing restarts the level.
+	# A death before the first beat line puts the player back at the start; after that the
+	# level moves respawn_point up to each beat line, until losing restarts the level.
 	player.set("respawn_point", v3(spawn["at"]) + Vector3(0, 0.2, 0))

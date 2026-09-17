@@ -85,6 +85,11 @@ func run() -> void:
 		check(walker.position.distance_to(target) < 2.0, "Reached waypoint %d at %s (stopped at %s)" % [index, target, walker.position])
 	for beat in range(1, PLAN_ROUTE.beat_count() + 1):
 		check(reached.has(beat), "Beat %d line crossed" % beat)
+	# Deaths respawn at the furthest beat line crossed, standing on its floor.
+	for area in get_nodes_in_group("beat_lines"):
+		if int(area.get_meta("beat")) == PLAN_ROUTE.beat_count():
+			var expected: Vector3 = area.global_position - Vector3(0, 1.0, 0)
+			check(walker.respawn_point.distance_to(expected) < 0.01, "Respawn moved to the last beat line: %s, expected %s" % [walker.respawn_point, expected])
 	check(exit_hit.has("done"), "Level exit reached")
 	print("FACTORY route: %.0f units walked in %.1f s at walk speed, no fights" % [distance, frames / 60.0])
 	print("FACTORY suggested par: %s" % _stamp(frames / 60.0 * 3.0))
