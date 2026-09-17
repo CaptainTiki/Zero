@@ -90,6 +90,7 @@ func outline(plan: Dictionary) -> void:
 	machine(plan)
 	irons(plan)
 	round_decks(plan)
+	pumps(plan)
 	for b in plan["beats"]:
 		beat_line("Beat%dLine" % int(b["beat"]), v3(b["at"]), v3(b["size"]), int(b["beat"]))
 	var finish: Dictionary = plan["exit"]
@@ -149,7 +150,7 @@ func machine(plan: Dictionary) -> void:
 	node.set_script(load("res://scripts/levels/machine_set_piece.gd"))
 	for key in ["start_at", "start_size", "seal_at", "respawn_at", "exit_at", "exit_size", "end_zone_at", "end_zone_size"]:
 		node.set(key, v3(sp[key]))
-	for key in ["seal_radius", "seal_length", "escape_seconds", "first_arm_seconds", "warning_seconds", "pressure_seconds", "lift"]:
+	for key in ["seal_radius", "seal_length", "seal_yaw", "escape_seconds", "first_arm_seconds", "warning_seconds", "pressure_seconds", "lift"]:
 		node.set(key, float(sp[key]))
 	var arms := []
 	for a in sp["arms"]:
@@ -161,12 +162,24 @@ func machine(plan: Dictionary) -> void:
 	node.set("order", order)
 	if String(sp.get("line_last_pipe", "")) != "":
 		node.set("line_last_pipe", String(sp["line_last_pipe"]))
+	if sp.get("outside_at") != null:
+		node.set("outside_at", v3(sp["outside_at"]))
+		node.set("outside_size", v3(sp["outside_size"]))
+	if String(sp.get("line_out", "")) != "":
+		node.set("line_out", String(sp["line_out"]))
+	var finale := []
+	for f in sp.get("finale", []):
+		finale.append({"kind": String(f["kind"]), "at": v3(f["at"]), "delay": float(f["delay"]), "size": float(f["size"])})
+	node.set("finale", finale)
 	var button: Dictionary = sp["button"]
 	node.set("button_at", v3(button["at"]))
 	node.set("button_yaw", float(button["yaw"]))
 	var waves := []
 	for w in sp["waves"]:
-		waves.append([int(w[0]), int(w[1]), int(w[2])])
+		var wave := []
+		for count in w:
+			wave.append(int(count))
+		waves.append(wave)
 	node.set("waves", waves)
 	for key in ["melee_hatches", "ranged_hatches", "vents", "alarms"]:
 		var points := []
@@ -187,6 +200,7 @@ const ENEMIES := {
 	"fodder": "res://scenes/enemies/fodder.tscn",
 	"hunter": "res://scenes/enemies/hunter.tscn",
 	"rammer": "res://scenes/enemies/rammer.tscn",
+	"brute": "res://scenes/enemies/brute.tscn",
 }
 
 ## Placed enemies. Anything that starts off the level it fights on is a Hunter.
@@ -349,6 +363,20 @@ func irons(plan: Dictionary) -> void:
 		strut("MachineIron%d" % index, v3(iron["from"]), v3(iron["to"]), 0.45, "dark")
 		index += 1
 
+## The compressor hall's pumps, each over its housing blocker. See scripts/props/compressor_pump.gd.
+func pumps(plan: Dictionary) -> void:
+	var index := 0
+	for p in plan.get("pumps", []):
+		var pump := Node3D.new()
+		pump.set_script(load("res://scripts/props/compressor_pump.gd"))
+		pump.set("width", float(p["width"]))
+		pump.set("depth", float(p["depth"]))
+		pump.set("period", float(p["period"]))
+		pump.set("phase", float(p["phase"]))
+		pump.position = v3(p["at"])
+		add(pump, "CompressorPump%d" % index)
+		index += 1
+
 ## A square bar from one point to another, visual only.
 func strut(label: String, from: Vector3, to: Vector3, width: float, material: String) -> void:
 	var node := MeshInstance3D.new()
@@ -365,7 +393,7 @@ func skyline() -> void:
 	var spots := [
 		[Vector3(-140, 0, -100), 30.0], [Vector3(-145, 0, -30), 22.0], [Vector3(-138, 0, 40), 26.0], [Vector3(-142, 0, 110), 18.0],
 		[Vector3(125, 0, -110), 34.0], [Vector3(130, 0, -40), 24.0], [Vector3(122, 0, 30), 20.0], [Vector3(128, 0, 100), 28.0],
-		[Vector3(-60, 0, -162), 32.0], [Vector3(10, 0, -166), 26.0], [Vector3(70, 0, -160), 36.0],
+		[Vector3(-60, 0, -190), 32.0], [Vector3(10, 0, -194), 26.0], [Vector3(70, 0, -188), 36.0],
 		[Vector3(-50, 0, 136), 20.0], [Vector3(30, 0, 140), 24.0],
 		# Closer in, on ground the outdoor spaces gave up after playtest 2, so a wall seen
 		# from the lot, the yard or the truck yard has the city behind it.

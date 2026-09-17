@@ -14,5 +14,15 @@ static func route() -> Array:
 		points.append(Vector3(float(p[0]), float(p[1]), float(p[2])))
 	return points
 
+## The short ways, each { name, pts }: the plan's P.alt, in Godot order.
+static func alts() -> Array:
+	var ways := []
+	for a in _plan().get("alts", []):
+		var points := []
+		for p in a["pts"]:
+			points.append(Vector3(float(p[0]), float(p[1]), float(p[2])))
+		ways.append({"name": String(a["name"]), "pts": points})
+	return ways
+
 static func beat_count() -> int:
 	return (_plan()["beats"] as Array).size()

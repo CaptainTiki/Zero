@@ -1,5 +1,7 @@
+@tool
 extends StaticBody3D
-## A latched door that swings away from the kicker and stays open.
+## A latched door that swings away from the kicker and stays open. A tool script, so the
+## editor builds the panel and frame too.
 
 signal kicked_open
 signal opening_finished
@@ -16,11 +18,12 @@ var _panel_collision: CollisionShape3D
 var _impact_audio: AudioStreamPlayer3D
 
 func _ready() -> void:
-	_impact_audio = AudioStreamPlayer3D.new()
-	_impact_audio.stream = AudioStreamWAV.load_from_file("res://audio/sfx/props/door_kick.wav")
-	_impact_audio.volume_db = -5.0
-	_impact_audio.position.y = 1.3
-	add_child(_impact_audio)
+	if not Engine.is_editor_hint():
+		_impact_audio = AudioStreamPlayer3D.new()
+		_impact_audio.stream = AudioStreamWAV.load_from_file("res://audio/sfx/props/door_kick.wav")
+		_impact_audio.volume_db = -5.0
+		_impact_audio.position.y = 1.3
+		add_child(_impact_audio)
 	var paint := StandardMaterial3D.new()
 	paint.albedo_color = Color(0.28, 0.37, 0.32)
 	paint.roughness = 0.75

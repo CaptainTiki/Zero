@@ -10,18 +10,55 @@ trailer secret. The cauldron fixed arm finding (3 to 5 s each), and all 20 escap
 The records racks were too wide to get round; fixed (a 3-wide way round the front rack, ammo in
 the middle aisle, the back rack's squeeze kept for the secret).
 
-**User's wishes from playtest 5, order not yet agreed:**
-- **Escape ending.** The countdown stops when you leave the building, not at the pad. Explosions
-  and booms from the factory behind you. The truck yard is free time to fight and search, and
-  the pad ends the level when you walk onto it.
-- **More content.** Go north from the pump room's underground walkways into new rooms (a mixing
-  station, and maybe a second room) north of the tank house and pump room, entering the plant
-  room from the north instead of the west.
-- **A new enemy, not urgent.** A big, slow fodder with a large health pool, more than a Rammer. Its
-  big arms slam the ground to squash you. Placed in the way in corridors, and in the arena.
-- **Weapon pickups, later.** They spin, bob and glow so nobody walks past one. The user walked
-  past the shotgun in playtest 5.
-- **Editor visibility pass** (see `CLAUDE.md`, How we plan a level), queued.
+**Latest, September 17, 2026. Ready for playtest 6, one big test of everything below.** All five
+pieces from playtest 5 are built and the whole suite passes. The route walk is 3:27 and par is
+10:20. Details are in `docs/LEVEL_FACTORY_PLAN.md`, under "Mixing station, compressor hall, the
+brute and weapon glow". Things to watch in the log and in play:
+- **Brute numbers are first guesses:** 480 health, 2.1 speed, 0.85 s wind-up, 30 damage. Watch
+  whether the north tunnel brute feels like a wall or a chore.
+- **The mixing station's vats** at 1.55: does it read as "just see over"? Do fodder or the
+  Rammer strand behind the vats or the mixer drive?
+- **Compressor pump hiss**, and whether the row of pumps is too noisy.
+- **Did the shotgun get picked up this time?**
+
+**Playtest 6 read (September 17, 2026):** the whole level in 9:34 against a 10:20 par, no deaths,
+105/108 kills (the three are the pump room and service tunnel fodder off the golden path), 6/10
+secrets, 44/48 Johns, 158 damage, and the shotgun was used (100 shells at 95%). The full table is
+in `docs/LEVEL_FACTORY_PLAN.md`. Since it: brutes stay as area denial but walk at half the
+player's speed, and the pump room leg pays with health, ammo and a brute in the tunnel behind you.
+The console log for that run was lost to Godot's five-log rotation; test runs now pass
+`--log-file` to a scratch path.
+
+**Since then (user's asks after the cardboard cutout update):** breaking a coolant pipe now snaps
+it off at the floor. The arm pulls a visibly shorter pipe away and leaves a torn stub of pipe
+standing in the socket, wisping gas. In the editor each socket shows an orange stand-in of it.
+
+**Plan from playtest 5, in the order the user agreed:**
+1. **Escape ending: built, ready for playtest 6.** Dropping off the dock into the truck yard
+   stops the countdown ("out of the building"). The Commander says the pickup's at the gate, and
+   the factory blows up behind you:
+   - booms on the warehouse roof, the roller door and the plant room, with fireballs, a flash
+     and a shake;
+   - smoke columns rising over the roofs;
+   - after that, a distant boom every few seconds.
+   
+   The truck yard is free time, and the level ends when you walk onto the pad.
+2. **Editor visibility pass: done.** Tool scripts build enemy bodies, John cutouts, kick doors,
+   the arms, pipes, button, hatches, shutter and end zone in the editor, with orange stand-ins for
+   the seal and falling debris. How it works is in `CLAUDE.md`. Level 01's own runtime pieces
+   (plaza arena, supply crates, throwables) aren't done yet.
+3. **New rooms: built.**
+   - **Route:** leaving the tank house basement you turn left and head north to a mixing
+     station and a compressor hall, then enter the plant room from the north. The pit tunnel
+     shortcut still joins at the pump room intersection, and from there also heads north, so it
+     still skips the tank house.
+   - **Mixing station:** vats or troughs 1.5 to 1.6 tall, just barely see-over, so you can't
+     shoot across the room standing still.
+   - **Compressor hall:** pumps that press down, hiss steam at full compression, and slowly rise
+     again.
+4. **The brute: built.** A big, slow enemy with arms that slam the ground and more health than a
+   Rammer. Placed in the north tunnel and the mixer passage, and in machine waves 3 and 5.
+5. **Weapon pickups: built.** They spin, bob and have a slight glow ("not over the top").
 
 **Latest, September 17, 2026.** Ready for **playtest 5**: the cauldron machine, the round roof rail
 (the user loved "circle mode"), and escape enemies on the run. The route walk is 3:05 and par is

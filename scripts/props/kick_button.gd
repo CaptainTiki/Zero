@@ -1,3 +1,4 @@
+@tool
 extends StaticBody3D
 ## A console with a big red button on top, kicked to set something off: the smog machine's
 ## ACTIVATE button. Kicks only; shots don't press it. Until it's armed a kick just thunks,
@@ -53,7 +54,7 @@ func _ready() -> void:
 	add_child(_lamp)
 
 func _process(delta: float) -> void:
-	if not armed or is_pressed:
+	if not armed or is_pressed or Engine.is_editor_hint():
 		return
 	_blink += delta
 	var on := fmod(_blink, 0.8) < 0.4

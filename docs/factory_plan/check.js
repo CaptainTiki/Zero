@@ -88,12 +88,18 @@ module.exports = function check(P) {
   };
 
   (P.johns || []).forEach(p => place(`John (${p.where})`, p.at, 0.5, 0.45));
-  (P.enemies || []).forEach(p => place(`${p.kind} (${p.where})`, p.at, 0.6, 0.6));
+  // A brute is 1.9 wide: it needs more room than the rest.
+  (P.enemies || []).forEach(p => { const m = p.kind === "brute" ? 1.1 : 0.6; place(`${p.kind} (${p.where})`, p.at, m, m); });
   (P.pickups || []).forEach(p => place(`${p.kind} pickup (${p.where})`, p.at, 0.4, 0.4));
   P.payoffs.forEach(p => {
     if (p.types.some(t => t === "ammo" || t === "health")) place(`payoff pickup (${p.where})`, [p.at[0], p.at[1], LVY[p.lv]], 0.4, 0.4);
   });
-  (P.ambushes || []).forEach(a => place(`ambush spawn (${a.name})`, a.spawn, 1.9, 1.9));
+  // A group is spread round its spawn point, so it wants room for that; a single enemy lands on
+  // the point and only wants room for its own body, which is what puts one brute in a tunnel.
+  (P.ambushes || []).forEach(a => {
+    const m = a.count > 1 ? 1.9 : a.kind === "brute" ? 1.2 : 1.0;
+    place(`ambush spawn (${a.name})`, a.spawn, m, m);
+  });
   if (P.setpiece) {
     P.setpiece.melee_hatches.forEach(at => place("melee hatch", at, 0.6, 0.6));
     (P.setpiece.ranged_hatches || []).forEach(at => place("ranged hatch", at, 0.6, 0.6));

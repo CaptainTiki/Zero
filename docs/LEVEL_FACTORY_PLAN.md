@@ -680,3 +680,166 @@ ceiling looks ok for now", and walls or floor braces are a quick add later if th
   - Lifted arms hang their pipes beside the walkways, clear of them.
   - Arm 4's upper arm and arm 3's rise close beside the exit bridge. They don't block it, and
     they look industrial rather than in the way, but watch it.
+
+### Playtest 5 and the escape ending (September 17, 2026)
+
+**Playtest 5:** a mostly completionist run. 7:49 when the timer ran out in the truck yard, about 10
+units short of the pad and a second after taking the open trailer's boost. The user expected
+the tally to mean they'd reached the pad. 88/93 kills (the 5 missing were on optional routes),
+7/10 secrets, 43/46 Johns, 150 damage, 105 healed, no deaths, no stranded enemies. They walked
+past the shotgun and fired the pistol 417 times.
+
+- **The cauldron worked:** 3 to 5 s from an arm plugging in to its pipe breaking, and a 1:55
+  fight.
+- **Escape enemies on the run worked:** all 20 died on the way out.
+- **Records racks were too wide to get round.** Now the front rack leaves a 3-wide way round the
+  west, there's ammo in the aisle between the racks, and the back rack's squeeze to the secret
+  is kept.
+
+**Escape ending, built.** The user wanted to see the handiwork before the level ends:
+- **Getting out:** `P.setpiece.outside` is the truck yard past the dock edge. Entering it while
+  critical stops the countdown ("out of the building with N s left") and shows `line_out`.
+- **The finale:** `P.setpiece.finale` lists booms (a fireball, a flash, a 2D boom and a
+  distance-scaled shake) and smoke columns, by delay. After the last one, a distant boom from a
+  boom spot every `rumble_every` (6 s, give or take).
+- **Leaving:** the truck yard is free time, and the pad ends the level ("walked onto the pad N s
+  after getting out"). Running out of time before getting out still ends the run.
+- **Particles:** billboarded particles lose their scale unless the material keeps it, so the
+  finale's quads carry their size and use a soft round gradient texture. Plant room fireballs
+  sit mostly behind the warehouse roof. The warehouse roof booms and the smoke columns are what
+  you see from the yard.
+
+### Mixing station, compressor hall, the brute and weapon glow (September 17, 2026)
+
+The rest of the list agreed after playtest 5, built in order. The user will test it all in one
+run.
+
+**New rooms.** North of the tank house and plant room, on the tunnel circuit:
+- **The T.** At the foot of the tank house stair, right goes to the pump room as before, and left
+  goes north up a tunnel that turns twice to the mixing station. The pit's west tunnel door is
+  gone. The short way from the hall pit still arrives at the pump room and comes back along the
+  tunnel to the T, so it still skips the hall catwalks, skybridge and tank house.
+- **Mixing station** (36 x 28, floor at -4, roof at +8). Ten round mixing vats at 1.55, just under
+  eye height: you see heads over them, not a clean shot. A floor-to-roof mixer drive stands in
+  line with the door. Five fodder between the vats and a Rammer at the back. Round vats so a
+  chase slides round them.
+- **Mixer passage.** Jogs so the two rooms' doors don't line up.
+- **Compressor hall** (46 x 30, floor at -4, roof at +10). Five compressor pumps on the north wall,
+  `scripts/props/compressor_pump.gd`: each ram drives down in half a second, hisses steam when it
+  bottoms out, holds, then creeps back up over the rest of its 5 s stroke. Their phases are
+  staggered so the row ripples. Hisses only play within 36 of the player, so the hall doesn't use
+  up the sound bank's players. Waist-high intercoolers and two receiver tanks on the floor, five
+  fodder and a Rammer, and ammo in the nook between the first two pumps.
+- **Plant tunnel.** A straight 16-long tunnel from the compressor hall's south door into the pit's
+  north wall, looking straight at the cauldron. The tunnel's health and ammo moved here, and the
+  pit's health moved west of the door. The seal pipe now lies along x across this tunnel
+  (`seal.along: "x"`, the set piece's `seal_yaw`). The start trigger begins 3 in from the pit's
+  north wall.
+- **Route and par.** The golden path is 1,249 units. The route test walks it in 3:27, so par is
+  10:20. Two more beat lines (12). 105 enemies before brutes, 48 Johns.
+
+**The brute** (`scripts/enemies/brute.gd`, `scenes/enemies/brute.tscn`). A fodder grown huge, 1.9
+wide and 2.8 tall, with long arms whose fists hang at the floor.
+- **Moves** at 2.1, where fodder does 4.3 and the player walks 5.85. It alerts at 16, or at 40
+  with a clear view.
+- **Slams.** Within 3.4 of the player, on the same level, it locks its direction, raises both
+  arms over its head for 0.85 s, then slams. The slam zone is a 2.3-radius circle 2.0 ahead, for 30
+  damage, a camera shake and a dust burst. Then 1.1 s with its fists on the ground. Stepping
+  aside or back during the wind-up dodges it.
+- **Tough.** 480 health with no damage reduction: 22 pistol body shots or 5 or 6 shotgun blasts.
+  The head is the weak spot (1.6 times). Kicks and pellets barely move it, and hurting it wakes it.
+- **Voice** is fodder's pitched well down. The slam is a heavy punch impact pitched down.
+- **Placed** where there's no way round: the north tunnel, just past the T, and the jog in the
+  mixer passage.
+- **In the machine's waves**, as a fourth count: a brute climbs out with wave 3 and wave 5. Up
+  on the walks it comes as fodder, and a stranded brute waits below like a Rammer.
+- **Mix now:** 84 fodder, 15 Rammers, 5 Hunters, 4 brutes of 108 (78 / 14 / 5 / 4 %).
+- `tests/brute_test.gd` covers the walk speed, the wind-up, a slam that lands and one dodged,
+  no slam at a player on another level, body and head damage, kicks and death.
+
+**Weapon pickups** (`scripts/props/gun_pickup.gd`, every level). The model spins and bobs a
+little. A soft warm halo sits behind it, with a small warm light (range 2.8, energy 0.7) on the
+floor round it. The trigger doesn't move. It's kept slight, as asked. The hall's cutout John
+stood right behind the shotgun, so from the doors the gun read as his. He moved a few steps
+east.
+
+### Pipes break off (September 17, 2026)
+
+The user asked for the pipes to break off rather than lift away whole. Breaking one now snaps it
+at the floor:
+
+- **The stub stays.** `scripts/props/pressure_arm.gd` builds a foot of pipe in the socket:
+  0.75 tall, a hazard collar, and a torn rim of metal teeth at different heights. Its collision
+  is a low round post, so a chase slides round it and the player can jump it.
+- **The arm carries the rest away.** `coolant_pipe.gd` has `snap(amount)`, which trims the mesh,
+  the collars and the collision box from the bottom and moves its gas to the new broken end, so
+  the pipe the arm lifts is visibly shorter.
+- **Gas.** Both broken ends vent hard for the arm's 1.2 s, then the stub keeps a thin curl of gas
+  going: pressure still leaking, and a mark of how many pipes are done.
+- **In the editor**, each socket shows a see-through orange stand-in of the stub that will be left
+  there, like the seal pipe and the falling debris.
+
+### Playtest 6 (September 17, 2026): the whole level, new rooms and brutes
+
+Finished at **9:34** against a 10:20 par, no deaths. 105/108 kills, 6/10 secrets, 44/48 Johns,
+158 damage taken over 19 hits, 136 healed from 6 packs (3 refused while full), one boost, 3 doors
+kicked, 3,470 units walked against a 1,249 unit golden path (2.78x). Pistol 230 shots at 80%,
+**shotgun 100 shells at 95%: the glow worked, the shotgun got used.**
+
+Per segment, with the beats in route order:
+
+| Section | Time | Kills |
+|---|---|---|
+| Parking lot | 0:31 | 0 |
+| Admin block | 1:03 | 4 |
+| Central yard | 0:10 | 3 |
+| Hall floor and pit | 1:27 | 23 |
+| Hall catwalks | 0:14 | 1 |
+| Skybridge | 0:01 | 0 |
+| Tank house | 0:29 | 3 |
+| North tunnel | 0:11 | 2 |
+| Mixing station | 0:29 | 8 |
+| Compressor hall | 0:37 | 7 |
+| Plant room climax | 2:49 | 33 |
+| Escape: warehouse | 0:46 | 14 |
+| Truck yard to the pad | 0:42 | 7 |
+
+What it says:
+
+- **The escape ending worked.** Out of the building 46 s into a 90 s countdown, then 42 s of free
+  time in the truck yard with 7 more kills and the open trailer secret, then the pad.
+- **The new rooms cost 1:17 of the run** and 17 kills, and nothing stranded (no falls, and the
+  three missing kills are the pump room and service tunnel fodder on the east branch the golden
+  path no longer takes: the price of the shortcut, by design).
+- **Familiar ground is sprinted:** the yard in 10 s, the catwalks in 14 s, the skybridge in 1 s.
+  Worth watching if it stays that way on a first-time run.
+- **The brutes cost the arena time and landed no hits:** 1:55 in playtest 5 to 2:49 with two
+  brutes added, about 25 s of shooting each, and damage taken averaged 8.3 a hit over 19 hits,
+  which is fodder damage.
+  - **The user's call: leave them.** They are area denial, not duels, this is the first mission,
+    and the user knows to avoid them. They come into their own later, twelve to an arena with a
+    rocket launcher. The one change: **speed 2.1 to 3.0**, half the player's walk, so backing off
+    works but not for ever.
+- **The console log was lost** to Godot's five-log rotation, pushed out by headless test runs
+  afterwards. `--log-file` now goes to a scratch path; see `CLAUDE.md`.
+
+### The walled-off pump room leg, and making it pay (September 17, 2026)
+
+The user found the tunnel leg east of the T "a dead end" and asked to cut it or make it pay. It
+was **a baked wall**, not a layout dead end: `Wall48` at (8, -2, -96), 3.4 wide across the tunnel.
+Trimming `tunMain` to end at (8, -96) left it meeting `tunSpur` seam to seam, and the bake only
+merges corridor spaces where their cells overlap, so it walled the join. The leg is now one
+corridor from the T to the pump room door and the wall is gone. `factory_shortcut_test` walks
+every short way from now on, since the golden path had stopped using that leg and no test covered
+it.
+
+The leg can't go anyway: the pit tunnel shortcut from the hall joins there. So it also pays now,
+the way the user asked for it:
+
+- **Health and ammo** on the pumps, instead of health alone.
+- **A brute in the tunnel behind you.** Reaching the supplies triggers an ambush that puts one
+  brute in the 3-wide tunnel between the pump room and the T, where it fills the doorway. Killing
+  it is the way back out, or the long pit tunnel west to the hall is.
+- **A single ambush enemy no longer gets jittered** round its spawn point (`level_base.gd`): a
+  group needs spreading out, one brute needs to land exactly in the tunnel. `check.js` follows:
+  a group's spawn wants 1.9 of room, a lone brute 1.2, anything else 1.0.

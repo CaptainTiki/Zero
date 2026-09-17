@@ -1,3 +1,4 @@
+@tool
 extends StaticBody3D
 ## A coolant pipe on the smog machine. Kicks and shots both break it: three kicks, or
 ## about ten pistol hits. Every hit vents gas, harder as it weakens; the last one
@@ -121,6 +122,35 @@ func _burst() -> void:
 	if bank:
 		bank.play_at("kick_prop", global_position, 4.0)
 	broken.emit(self)
+
+## Snaps `amount` off the bottom. The arm carries what's left away, and its pipe foot stays
+## behind in the socket, which scripts/props/pressure_arm.gd builds. The broken end vents.
+func snap(amount: float) -> void:
+	var left := maxf(0.5, size.y - amount)
+	# Where the shortened pipe's middle sits, measured from the whole pipe's middle.
+	var centre := size.y / 2.0 - left / 2.0
+	var foot := centre - left / 2.0
+	for child in _body.get_children():
+		var part := child as MeshInstance3D
+		if part == null:
+			continue
+		if part.mesh is CylinderMesh:
+			(part.mesh as CylinderMesh).height = left
+			part.position.y = centre
+		elif part.mesh is BoxMesh and absf((part.mesh as BoxMesh).size.y - size.y) < 0.01:
+			(part.mesh as BoxMesh).size.y = left
+			part.position.y = centre
+		elif part.position.y < foot + 0.25:
+			# A hazard collar below the break comes up to sit just above it.
+			part.position.y = foot + 0.25
+	for child in get_children():
+		var shape := child as CollisionShape3D
+		if shape == null or not (shape.shape is BoxShape3D):
+			continue
+		(shape.shape as BoxShape3D).size.y = left
+		shape.position.y = centre
+	if _gas:
+		_gas.position.y = foot + 0.1
 
 ## Ends the venting a burst started.
 func stop_venting() -> void:

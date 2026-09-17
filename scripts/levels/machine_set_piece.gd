@@ -1,3 +1,4 @@
+@tool
 extends Node3D
 ## The plant room climax: the smog machine's pressure arms. A set piece like
 ## arena_set_piece.gd: drop it into a level.
@@ -13,21 +14,28 @@ extends Node3D
 ## The next arm starts once that wave is dead, or when `pressure_seconds` force it. After the
 ## last pipe the Commander sends you up to the button on the roof. Kicking it sends the machine
 ## critical: steam, shaking, the high exit opens, the end zone lights and the escape countdown
-## starts. If the countdown runs out, that is logged and the run ends, so playtests stay
-## focused. Losing will restart the level once that exists.
+## starts. Dropping off the dock into the truck yard gets you out: the countdown stops, the
+## factory blows up behind you, and the truck yard is yours until you walk onto the pad. If the
+## countdown runs out first, that is logged and the run ends, so playtests stay focused.
+## Losing will restart the level once that exists.
 ##
 ## Melee enemies climb out of a hatch on the player's own level, so they have a straight line
-## to them; up on the walks a Rammer can't follow, so it comes as fodder. A melee enemy left
+## to them; up on the walks a Rammer or a brute can't follow, so it comes as fodder. A melee enemy left
 ## on another level from the player climbs out again on theirs.
 ##
 ## The level it sits in is its parent, running scripts/levels/level_base.gd. It sits at the
 ## world origin, so every point here is a world point.
+##
+## A tool script: in the editor it builds the arms, button, hatches, shutter and end zone, plus
+## see-through stand-ins for what only appears mid-run (the seal pipe, falling debris), so the
+## editor's fly camera shows the plant room as it plays. None of that is saved in the scene.
 
 const ARM := preload("res://scripts/props/pressure_arm.gd")
 const BUTTON := preload("res://scripts/props/kick_button.gd")
 const FODDER := preload("res://scenes/enemies/fodder.tscn")
 const HUNTER := preload("res://scenes/enemies/hunter.tscn")
 const RAMMER := preload("res://scenes/enemies/rammer.tscn")
+const BRUTE := preload("res://scenes/enemies/brute.tscn")
 ## Enemies sharing a hatch climb out this far apart.
 const HATCH_GAP := 0.7
 ## Levels here are 4 apart; an enemy more than this above or below the player is on another.
@@ -42,10 +50,12 @@ const HISS_EVERY := 2.4
 ## Box the player walks into to start the fight: centre and size.
 @export var start_at := Vector3.ZERO
 @export var start_size := Vector3(8, 4, 8)
-## The pipe that falls across the way back: where it lands, radius, length along z.
+## The pipe that falls across the way back: where it lands, radius, and length, along z or,
+## turned by seal_yaw, along x.
 @export var seal_at := Vector3.ZERO
 @export var seal_radius := 1.6
 @export var seal_length := 6.0
+@export var seal_yaw := 0.0
 ## Where a death respawns the player once the seal is down.
 @export var respawn_at := Vector3.ZERO
 ## The arms, each a Dictionary: n, shoulder, elbow and socket (elbow and socket with it down).
@@ -65,7 +75,8 @@ const HISS_EVERY := 2.4
 @export var cleared_pause := 1.5
 ## How long an arm takes to come down or go up.
 @export var move_seconds := 1.4
-## One wave per pipe but the last: [fodder, hunters, rammers], as in the arena set piece.
+## One wave per pipe but the last: [fodder, hunters, rammers], as in the arena set piece, and
+## optionally a fourth count, brutes.
 @export var waves: Array = []
 ## Floor points enemies climb out at. Melee hatches are used by level; ranged ones anywhere.
 @export var melee_hatches: Array = []
@@ -82,6 +93,14 @@ const HISS_EVERY := 2.4
 ## Where steam jets out. The ones in the pit also show pressure building between arms.
 @export var vents: Array = []
 @export var escape_seconds := 90.0
+## The box that counts as out of the building: the truck yard, past the dock edge.
+@export var outside_at := Vector3.ZERO
+@export var outside_size := Vector3.ZERO
+## Booms and smoke once the player is out. Each is a Dictionary: kind "boom" or "smoke", "at",
+## "delay" seconds after getting out, and a boom's "size" across.
+@export var finale: Array = []
+## After the last finale event, a distant boom every this many seconds, give or take.
+@export var rumble_every := 6.0
 ## The place falling apart once the machine is critical. Each is a Dictionary: kind "fall"
 ## (a pipe, beam or crate dropping to rest at "at" with "size") or "steam" (a jet at "at" for
 ## "duration"). With a "trigger" it fires when the player comes within "radius" of it,
@@ -92,11 +111,12 @@ const HISS_EVERY := 2.4
 @export var line_start := "COMMANDER: Those are coolant pipes. Break them."
 @export var line_last_pipe := "COMMANDER: Now find the button to lock it in."
 @export var line_critical := "COMMANDER: That's done it. Now get out of there."
+@export var line_out := "COMMANDER: You're clear. Pickup's at the gate when you want it."
 ## A melee enemy that spends this long on a different level from the player climbs out
 ## again at a hatch on the player's level. No navmesh, so otherwise it waits under a wall.
 @export var regroup_after := 5.0
 
-enum State { WAITING, FIGHT, BUTTON, CRITICAL, DONE }
+enum State { WAITING, FIGHT, BUTTON, CRITICAL, OUT, DONE }
 ## Where the current arm is in its cycle.
 enum Phase { PRESSURE, WARN, DROP, EXPOSED, LIFT }
 
@@ -135,37 +155,29 @@ var _stranded := {}
 ## Hatch -> clock time it can let a regrouping enemy out again.
 var _hatch_free_at := {}
 var _clock := 0.0
+var _since_out := -1.0
+var _finale_fired := {}
+var _rumble_in := 0.0
 
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		_build_editor_view()
+		return
 	_level = get_parent()
 	# Children are ready before their parent, so the level's kill total picks these up.
 	var total := 0
 	for wave in waves:
-		total += int(wave[0]) + int(wave[1]) + int(wave[2])
+		total += int(wave[0]) + int(wave[1]) + int(wave[2]) + (int(wave[3]) if wave.size() > 3 else 0)
 	if _level and "extra_expected_kills" in _level:
 		_level.extra_expected_kills += total
-	for spec in arms:
-		var arm := Node3D.new()
-		arm.set_script(ARM)
-		arm.name = "PressureArm%d" % int(spec["n"])
-		arm.set("number", int(spec["n"]))
-		arm.set("shoulder", spec["shoulder"])
-		arm.set("elbow", spec["elbow"])
-		arm.set("socket", spec["socket"])
-		arm.set("lift", lift)
-		add_child(arm)
+	_build_arms_and_button()
+	for arm in _arm_nodes.values():
 		arm.connect("broken", _on_arm_broken)
-		_arm_nodes[int(spec["n"])] = arm
-	button = StaticBody3D.new()
-	button.set_script(BUTTON)
-	button.name = "ActivateButton"
-	button.position = button_at
-	button.rotation.y = button_yaw
-	add_child(button)
 	button.connect("pressed", _on_button_pressed)
 	_build_exit()
 	_build_start()
 	_build_end_zone()
+	_build_outside()
 	for at in vents:
 		var jet := _steam_jet(at)
 		_steam.append(jet)
@@ -191,6 +203,62 @@ func _ready() -> void:
 	for area in get_tree().get_nodes_in_group("level_exit"):
 		area.body_entered.connect(_on_exit)
 
+func _build_arms_and_button() -> void:
+	for spec in arms:
+		var arm := Node3D.new()
+		arm.set_script(ARM)
+		arm.name = "PressureArm%d" % int(spec["n"])
+		arm.set("number", int(spec["n"]))
+		arm.set("shoulder", spec["shoulder"])
+		arm.set("elbow", spec["elbow"])
+		arm.set("socket", spec["socket"])
+		arm.set("lift", lift)
+		add_child(arm)
+		_arm_nodes[int(spec["n"])] = arm
+	button = StaticBody3D.new()
+	button.set_script(BUTTON)
+	button.name = "ActivateButton"
+	button.position = button_at
+	button.rotation.y = button_yaw
+	add_child(button)
+
+## What the editor shows: the fight's pieces as they stand before it starts, the end zone lit,
+## and see-through orange stand-ins where the seal pipe and the escape's debris land.
+func _build_editor_view() -> void:
+	_build_arms_and_button()
+	_build_exit()
+	_build_end_zone()
+	_end_zone.visible = true
+	var lids := {}
+	for at in melee_hatches + ranged_hatches:
+		lids[at] = true
+	for at in lids:
+		_hatch(at)
+	var ghost := StandardMaterial3D.new()
+	ghost.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	ghost.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	ghost.albedo_color = Color(1.0, 0.45, 0.1, 0.35)
+	var seal := MeshInstance3D.new()
+	var tube := CylinderMesh.new()
+	tube.top_radius = seal_radius
+	tube.bottom_radius = seal_radius
+	tube.height = seal_length
+	seal.mesh = tube
+	seal.material_override = ghost
+	seal.basis = _seal_basis()
+	seal.position = seal_at
+	add_child(seal)
+	for ev in escape_events:
+		if String(ev["kind"]) != "fall":
+			continue
+		var piece := MeshInstance3D.new()
+		var slab := BoxMesh.new()
+		slab.size = ev["size"]
+		piece.mesh = slab
+		piece.material_override = ghost
+		piece.position = ev["at"]
+		add_child(piece)
+
 ## For the route test: the machine is already broken and the way out is open. With
 ## escape_events true the place still falls apart round the walker, but no clock runs.
 func skip(with_escape_events := false) -> void:
@@ -212,6 +280,8 @@ func current_arm():
 	return _arm_nodes.get(int(order[_cycle]))
 
 func _process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
 	_clock += delta
 	_release_queue(delta)
 	if state == State.FIGHT:
@@ -221,12 +291,14 @@ func _process(delta: float) -> void:
 	if _since_critical >= 0.0:
 		_since_critical += delta
 		_run_escape_events()
-	if state != State.CRITICAL:
+	if state == State.OUT:
+		_run_finale(delta)
+	if state != State.CRITICAL and state != State.OUT:
 		return
 	for lamp in _alarm_lights:
 		lamp.visible = true
 		lamp.light_energy = 2.5 + sin(Time.get_ticks_msec() * 0.008) * 2.5
-	if escape_left == INF:
+	if escape_left == INF or state == State.OUT:
 		return
 	escape_left -= delta
 	_line_left -= delta
@@ -379,10 +451,48 @@ func _critical() -> void:
 	_log("machine critical, escape countdown %d s" % int(escape_seconds))
 
 func _on_exit(body: Node) -> void:
-	if state == State.CRITICAL and body.is_in_group("player"):
-		state = State.DONE
-		_log("escaped with %.1f s left" % escape_left)
-		_hint("")
+	if not body.is_in_group("player"):
+		return
+	if state == State.CRITICAL:
+		_log("reached the pad with %.1f s left" % escape_left)
+	elif state == State.OUT:
+		_log("walked onto the pad %.1f s after getting out" % _since_out)
+	else:
+		return
+	state = State.DONE
+	_hint("")
+
+func _on_outside(body: Node) -> void:
+	if state != State.CRITICAL or not body.is_in_group("player"):
+		return
+	state = State.OUT
+	_since_out = 0.0
+	_rumble_in = rumble_every
+	_hint(line_out)
+	_log("out of the building with %.1f s left" % escape_left)
+
+## Booms and smoke from the factory behind the player, then a distant boom now and then.
+func _run_finale(delta: float) -> void:
+	_since_out += delta
+	var booms := []
+	for i in finale.size():
+		var event: Dictionary = finale[i]
+		if String(event["kind"]) == "boom":
+			booms.append(event)
+		if _finale_fired.has(i) or _since_out < float(event["delay"]):
+			continue
+		_finale_fired[i] = true
+		if String(event["kind"]) == "boom":
+			_explode(event["at"], float(event["size"]))
+		else:
+			_smoke_column(event["at"])
+	if _finale_fired.size() < finale.size() or booms.is_empty():
+		return
+	_rumble_in -= delta
+	if _rumble_in <= 0.0:
+		_rumble_in = rumble_every * randf_range(0.7, 1.3)
+		var pick: Dictionary = booms[randi() % booms.size()]
+		_explode(pick["at"], float(pick["size"]) * 0.6)
 
 ## Steam from the pit vents at a strength from 0, off, to 1, full.
 func _pressure_steam(strength: float) -> void:
@@ -399,7 +509,7 @@ func _player_on_socket(arm) -> bool:
 			return true
 	return false
 
-## True once every enemy in the current wave is dead, not counting a Rammer stranded below
+## True once every enemy in the current wave is dead, not counting a Rammer or brute stranded below
 ## a player up on the walks, which can't reach them anyway.
 func _wave_cleared() -> bool:
 	return _alive_in_wave() == 0
@@ -411,7 +521,8 @@ func _alive_in_wave() -> int:
 		if not is_instance_valid(enemy):
 			continue
 		var body := enemy as Node3D
-		if String(body.scene_file_path).ends_with("rammer.tscn") and floor_y > OTHER_LEVEL and absf(body.global_position.y - floor_y) > OTHER_LEVEL:
+		var heavy := String(body.scene_file_path).ends_with("rammer.tscn") or String(body.scene_file_path).ends_with("brute.tscn")
+		if heavy and floor_y > OTHER_LEVEL and absf(body.global_position.y - floor_y) > OTHER_LEVEL:
 			continue
 		alive += 1
 	return alive
@@ -426,26 +537,28 @@ func _send_wave(index: int) -> void:
 	var fodder := int(spec[0])
 	var hunters := int(spec[1])
 	var rammers := int(spec[2])
+	var brutes := int(spec[3]) if spec.size() > 3 else 0
 	var floor_y := _player.global_position.y if _player else start_at.y
-	# A Rammer is too wide for the walks, so up there it comes as fodder.
+	# Rammers and brutes are too wide for the walks, so up there they come as fodder.
 	if floor_y > 2.0:
-		fodder += rammers
+		fodder += rammers + brutes
 		rammers = 0
+		brutes = 0
 	# Without ranged hatches, Hunters climb out with the melee.
 	if ranged_hatches.is_empty():
 		fodder += hunters
 		hunters = 0
 	var melee := _hatches_on_level(floor_y)
 	var used := {}
-	for i in fodder + rammers:
+	for i in fodder + rammers + brutes:
 		var at: Vector3 = melee[_melee_turn % melee.size()]
 		_melee_turn += 1
-		_enqueue(FODDER if i < fodder else RAMMER, at, used)
+		_enqueue(FODDER if i < fodder else RAMMER if i < fodder + rammers else BRUTE, at, used)
 	for i in hunters:
 		var at: Vector3 = ranged_hatches[_ranged_turn % ranged_hatches.size()]
 		_ranged_turn += 1
 		_enqueue(HUNTER, at, used)
-	_log("wave %d / %d: %d fodder, %d hunters, %d rammers" % [index + 1, waves.size(), fodder, hunters, rammers])
+	_log("wave %d / %d: %d fodder, %d hunters, %d rammers, %d brutes" % [index + 1, waves.size(), fodder, hunters, rammers, brutes])
 
 ## Melee hatches on the level the player stands on; failing that, the nearest level.
 func _hatches_on_level(floor_y: float) -> Array:
@@ -480,7 +593,7 @@ func _release_queue(delta: float) -> void:
 			i += 1
 
 ## Wave melee that has spent regroup_after on another level from the player climbs out
-## again at a hatch on the player's level. A Rammer can't fit on the walks, so it waits
+## again at a hatch on the player's level. A Rammer or brute can't fit on the walks, so it waits
 ## below for the player to come back down.
 func _regroup_stranded(delta: float) -> void:
 	if _player == null or not is_instance_valid(_player):
@@ -496,7 +609,7 @@ func _regroup_stranded(delta: float) -> void:
 			continue
 		_stranded[enemy] = float(_stranded[enemy]) + delta
 		var kind := String(body.scene_file_path).get_file().get_basename()
-		if float(_stranded[enemy]) < regroup_after or (kind == "rammer" and floor_y > OTHER_LEVEL):
+		if float(_stranded[enemy]) < regroup_after or ((kind == "rammer" or kind == "brute") and floor_y > OTHER_LEVEL):
 			continue
 		var at = _regroup_hatch(floor_y)
 		if at == null:
@@ -583,6 +696,90 @@ func _fall(at: Vector3, size: Vector3) -> void:
 		burst.emitting = true
 		_shake_near(at))
 
+## A fireball, a flash of light, a boom and a shake, `size` across.
+func _explode(at: Vector3, size: float) -> void:
+	_log("boom at %s" % at)
+	var fire := _burst_particles(at, 28, 1.3, size, [Color(1.0, 0.95, 0.6), Color(1.0, 0.55, 0.1), Color(0.35, 0.08, 0.02, 0.0)])
+	fire.spread = 70.0
+	fire.initial_velocity_min = size * 1.2
+	fire.initial_velocity_max = size * 2.4
+	fire.gravity = Vector3(0, 3.0, 0)
+	fire.emitting = true
+	var flash := OmniLight3D.new()
+	flash.light_color = Color(1.0, 0.6, 0.25)
+	flash.light_energy = 10.0
+	flash.omni_range = size * 6.0
+	flash.position = at
+	add_child(flash)
+	var fade := create_tween()
+	fade.tween_property(flash, "light_energy", 0.0, 0.7)
+	fade.tween_callback(flash.queue_free)
+	get_tree().create_timer(3.0).timeout.connect(fire.queue_free)
+	var bank := get_tree().root.get_node_or_null("Sound")
+	if bank:
+		bank.play("factory_boom", -12.0 + size)
+	for body in get_tree().get_nodes_in_group("player"):
+		var distance := (body as Node3D).global_position.distance_to(at)
+		_shake_near((body as Node3D).global_position, clampf(size * 12.0 / maxf(distance, 1.0), 0.2, 1.5))
+
+## Dark smoke that keeps rising for a while, tall enough to show over the roofs.
+func _smoke_column(at: Vector3) -> void:
+	_log("smoke at %s" % at)
+	var smoke := _burst_particles(at, 40, 9.0, 9.0, [Color(0.25, 0.23, 0.22, 0.75), Color(0.2, 0.2, 0.2, 0.5), Color(0.2, 0.2, 0.2, 0.0)])
+	smoke.one_shot = false
+	smoke.explosiveness = 0.0
+	smoke.spread = 12.0
+	smoke.initial_velocity_min = 3.5
+	smoke.initial_velocity_max = 6.0
+	smoke.gravity = Vector3(0, 0.6, 0)
+	smoke.damping_min = 0.0
+	smoke.damping_max = 0.2
+	smoke.emitting = true
+
+func _burst_particles(at: Vector3, amount: int, lifetime: float, size: float, colors: Array) -> CPUParticles3D:
+	var jet := CPUParticles3D.new()
+	jet.emitting = false
+	jet.one_shot = true
+	jet.explosiveness = 0.9
+	jet.amount = amount
+	jet.lifetime = lifetime
+	jet.direction = Vector3(0, 1, 0)
+	jet.scale_amount_min = 0.5
+	jet.scale_amount_max = 1.0
+	var ramp := Gradient.new()
+	ramp.set_color(0, colors[0])
+	ramp.set_color(1, colors[colors.size() - 1])
+	if colors.size() > 2:
+		ramp.add_point(0.4, colors[1])
+	jet.color_ramp = ramp
+	# Billboarded particles lose their scale unless the material keeps it, so the quad itself
+	# carries the size and the scale only varies it.
+	var puff := QuadMesh.new()
+	puff.size = Vector2(size, size)
+	var look := StandardMaterial3D.new()
+	look.billboard_keep_scale = true
+	look.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	look.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	look.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	look.vertex_color_use_as_albedo = true
+	# A soft round puff rather than a hard square.
+	var soft := Gradient.new()
+	soft.set_color(0, Color(1, 1, 1, 1))
+	soft.set_color(1, Color(1, 1, 1, 0))
+	var dot := GradientTexture2D.new()
+	dot.gradient = soft
+	dot.fill = GradientTexture2D.FILL_RADIAL
+	dot.fill_from = Vector2(0.5, 0.5)
+	dot.fill_to = Vector2(1.0, 0.5)
+	dot.width = 64
+	dot.height = 64
+	look.albedo_texture = dot
+	puff.material = look
+	jet.mesh = puff
+	jet.position = at
+	add_child(jet)
+	return jet
+
 func _steam_burst(at: Vector3, duration: float) -> void:
 	var jet := _steam_jet(at)
 	jet.emitting = true
@@ -604,6 +801,21 @@ func _shake_near(at: Vector3, strength := 1.0) -> void:
 		tw.tween_property(camera, "position", start, 0.1)
 
 # --- greybox pieces ------------------------------------------------------------
+
+func _build_outside() -> void:
+	if outside_size == Vector3.ZERO:
+		return
+	var area := Area3D.new()
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = outside_size
+	shape.shape = box
+	area.add_child(shape)
+	area.position = outside_at
+	add_child(area)
+	area.body_entered.connect(_on_outside)
 
 func _build_start() -> void:
 	var area := Area3D.new()
@@ -687,6 +899,10 @@ func _build_end_zone() -> void:
 	lamp.position.y = 2.5
 	_end_zone.add_child(lamp)
 
+## A cylinder lies along z, then turns by seal_yaw.
+func _seal_basis() -> Basis:
+	return Basis(Vector3.UP, seal_yaw) * Basis(Vector3.RIGHT, PI / 2.0)
+
 func _drop_seal() -> void:
 	var seal := StaticBody3D.new()
 	var shape := CollisionShape3D.new()
@@ -704,8 +920,8 @@ func _drop_seal() -> void:
 	mesh.mesh = tube
 	mesh.material_override = load("res://materials/retro/rust.tres")
 	seal.add_child(mesh)
-	# Lying along z, across the doorway.
-	seal.rotation.x = PI / 2.0
+	# Lying across the doorway, along z or turned by seal_yaw.
+	seal.basis = _seal_basis()
 	add_child(seal)
 	seal.position = seal_at + Vector3(0, 12.0, 0)
 	var drop := create_tween()

@@ -301,11 +301,11 @@
       const shut = group(g, vis(lvOf(xy)));
       el("line", { x1: xx - sp.exit.size[0] / 2, y1: xz, x2: xx + sp.exit.size[0] / 2, y2: xz, style: "stroke:#D8342A;stroke-width:6px" }, shut);
       reg(shut, { name: "High exit shutter", kind: sp.button ? "Red until the button is kicked, then it lifts" : "Red until the last coolant pipe breaks, then it lifts", lv: lvOf(xy) });
-      const waves = sp.waves.map(([f, h, r], i) => `${i + 1}: ${f}F ${h}H ${r}R`).join(" · ");
+      const waves = sp.waves.map(([f, h, r, b], i) => `${i + 1}: ${f}F ${h}H ${r}R${b ? " " + b + "B" : ""}`).join(" · ");
       const hatch = (at, ranged) => {
         const hg = group(g, vis(lvOf(at[2])));
         el("rect", { x: at[0] - 0.9, y: at[1] - 0.9, width: 1.8, height: 1.8, style: `fill:var(--blocker);stroke:${ranged ? "var(--escape)" : "#D8342A"};stroke-width:1.5px` }, hg);
-        reg(hg, { name: ranged ? "Hunter hatch" : "Melee hatch", kind: ranged ? "Hunters climb out here, any level" : "Fodder and Rammers, used when the player is on this level", lv: lvOf(at[2]), note: "Waves: " + waves });
+        reg(hg, { name: ranged ? "Hunter hatch" : "Melee hatch", kind: ranged ? "Hunters climb out here, any level" : "Fodder, Rammers and brutes, used when the player is on this level", lv: lvOf(at[2]), note: "Waves: " + waves });
       };
       sp.melee_hatches.forEach(at => hatch(at, false));
       (sp.ranged_hatches || []).forEach(at => hatch(at, true));
@@ -347,7 +347,7 @@
         el("circle", { cx: a.elbow[0], cy: a.elbow[1], r: 0.7, style: "fill:#D8342A;stroke:var(--ink);stroke-width:1px" }, ag2);
         badge(a.socket[0], a.socket[1], k ? `${a.n} · ${nth(k)}` : "A" + a.n, "var(--hazard)", "#1A1A17", ag2, 6.4);
         const wave = sp.waves[k - 1];
-        const then = k && k < order.length && wave ? `, then wave ${k} climbs out: ${wave[0]} fodder, ${wave[2]} Rammers` : k === order.length ? ", then the Commander sends you up to the button" : "";
+        const then = k && k < order.length && wave ? `, then wave ${k} climbs out: ${wave[0]} fodder, ${wave[2]} Rammers${wave[3] ? ", " + wave[3] + " brute" + (wave[3] > 1 ? "s" : "") : ""}` : k === order.length ? ", then the Commander sends you up to the button" : "";
         reg(ag2, { name: `Arm ${a.n}, down ${k ? nth(k) : "?"}`, kind: `Plugs its pipe into the pit floor. 3 kicks or 10 pistol hits break it${then}`, lv: "B", note: `${a.where}. Red dot: its beacon, up on the elbow at +${a.elbow[2]}, spins with the alarm for ${sp.warning_seconds || 0} s before it drops. Pressure forces the next arm down after ${sp.pressure_seconds} s` });
       });
       (sp.irons || []).forEach(iron => {
@@ -367,6 +367,13 @@
         reg(pg, { name: `Coolant pipe ${i + 1}`, kind: "3 kicks or 10 pistol hits" + (i < sp.pipes.length - 1 ? `, sends wave ${i + 2}` : ", sends the machine critical"), lv: lvOf(p.at[2]), note: p.where });
       });
     }
+    // Compressor pumps: the ram over each housing.
+    (P.pumps || []).forEach((p, i) => {
+      const pg = group(g, vis(lvOf(p.at[2])));
+      el("circle", { cx: p.at[0], cy: p.at[1], r: 1.3, style: "fill:none;stroke:var(--hazard);stroke-width:1.2px" }, pg);
+      el("circle", { cx: p.at[0], cy: p.at[1], r: 0.5, style: "fill:var(--hazard);stroke:var(--ink);stroke-width:.8px" }, pg);
+      reg(pg, { name: `Compressor pump ${i + 1}`, kind: `Its ram drives down, hisses steam and creeps back up, every ${p.period} s. Visual only`, lv: lvOf(p.at[2]) });
+    });
     (P.secrets || []).forEach(sc => {
       const sg = group(g, vis(lvOf(sc.at[2])));
       el("polyline", { points: sc.path.map(p => p[0] + "," + p[1]).join(" "), style: "fill:none;stroke:var(--secret);stroke-width:1.5px;stroke-dasharray:1 3;stroke-linecap:round" }, sg);
@@ -385,13 +392,24 @@
       }
       reg(eg, { name: ev.kind === "fall" ? "Escape: debris falls" : "Escape: steam burst", kind: ev.trigger ? "When the player comes within the dashed circle" : `${ev.delay} s after the machine goes critical`, lv: lvOf(ev.at[2]), note: ev.where });
     });
+    if (sp && sp.outside) {
+      const [ox, oz, oy] = sp.outside.at, [ow, , od] = sp.outside.size;
+      const og = group(g, vis(lvOf(oy)));
+      el("rect", { x: ox - ow / 2, y: oz - od / 2, width: ow, height: od, style: "fill:none;stroke:#2FB35A;stroke-width:1.5px;stroke-dasharray:6 4" }, og);
+      reg(og, { name: "Out of the building", kind: "Step in here and the escape countdown stops; the factory blows up behind you", lv: lvOf(oy) });
+    }
+    if (sp && sp.finale) sp.finale.forEach(f => {
+      const fg = group(g, "");
+      el("circle", { cx: f.at[0], cy: f.at[1], r: f.kind === "boom" ? Math.max(1.5, f.size / 3) : 1.4, style: f.kind === "boom" ? "fill:rgba(255,140,40,.55);stroke:#E0702A;stroke-width:1.5px" : "fill:rgba(80,80,80,.45);stroke:var(--ink-2);stroke-width:1.2px" }, fg);
+      reg(fg, { name: f.kind === "boom" ? "Finale: boom" : "Finale: smoke column", kind: `${f.delay} s after getting out`, lv: lvOf(f.at[2]), note: f.where });
+    });
     (P.ambushes || []).forEach(a => {
       const [tx, tz, ty] = a.trigger.at, [w, , d] = a.trigger.size;
       const ag = group(g, vis(lvOf(ty)));
       el("rect", { x: tx - w / 2, y: tz - d / 2, width: w, height: d, style: "fill:rgba(216,52,42,.12);stroke:#D8342A;stroke-width:1.5px;stroke-dasharray:4 3" }, ag);
       el("line", { x1: tx, y1: tz, x2: a.spawn[0], y2: a.spawn[1], style: "stroke:#D8342A;stroke-width:1px;stroke-dasharray:2 3" }, ag);
       badge(a.spawn[0], a.spawn[1], "×" + a.count, "#D8342A", "#FFF", ag, 3);
-      reg(ag, { name: "Ambush: " + a.name, kind: `Step in the dashed box and ${a.count} ${a.kind === "rammer" ? (a.count === 1 ? "Rammer climbs" : "Rammers climb") : a.kind === "hunter" ? "Hunters climb" : "fodder climb"} out`, lv: lvOf(ty) });
+      reg(ag, { name: "Ambush: " + a.name, kind: `Step in the dashed box and ${a.count} ${a.kind === "rammer" ? (a.count === 1 ? "Rammer climbs" : "Rammers climb") : a.kind === "hunter" ? "Hunters climb" : a.kind === "brute" ? (a.count === 1 ? "brute climbs" : "brutes climb") : "fodder climb"} out`, lv: lvOf(ty) });
     });
     (P.johns || []).forEach(p => {
       const jg = group(g, vis(lvOf(p.at[2])));

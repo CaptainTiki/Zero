@@ -2,10 +2,10 @@
 // Storeys: B -4 basement, G 0 ground, C1 +4 catwalk, C2 +8 catwalk.
 // Rects are [x0, z0, x1, z1]. Polys are [[x, z], ...].
 window.PLAN = {
-  bounds: [-106, -128, 196, 228],
+  bounds: [-106, -165, 196, 265],
   rate: 5.85, // units per second walking, from 1,200 units in 3:25
   target: 1200,
-  par: 555, // 3x the route test's walk, 3:05 on September 17, 2026 with the cauldron. Re-measure when the route changes.
+  par: 620, // 3x the route test's walk, 3:27 on September 17, 2026 with the mixing station and compressor hall. Re-measure when the route changes.
 
   // Solid building mass: walls and the space between rooms.
   // h is the roof height; wall and floor are greybox materials for the bake.
@@ -15,6 +15,10 @@ window.PLAN = {
     { name: "Tank house", rect: [-40, -118, 0, -86], h: 16 },
     { name: "Plant room", rect: [22, -122, 72, -72], h: 13 },
     { name: "Warehouse", rect: [20, -62, 84, -6], h: 13 },
+    // North of the tank house and plant room (after factory playtest 5): two rooms on the tunnel
+    // circuit, their floors at -4 like the plant pit.
+    { name: "Mixing station", rect: [-30, -158, 6, -130], h: 8 },
+    { name: "Compressor hall", rect: [16, -160, 62, -130], h: 10 },
   ],
 
   // Floors. kind: outdoor | backdrop (seen, not reachable) | indoor | pit | room (basement) | deck
@@ -44,6 +48,10 @@ window.PLAN = {
 
     { id: "hallpit", name: "Machine pit", lv: "B", kind: "pit", rect: [-52, -60, -24, -42], label: [-44, -58], note: "Sunken floor at -4 with hazard edges. You fight down here with Hunters above you." },
     { id: "plantpit", name: "Plant pit", lv: "B", kind: "pit", rect: [30, -114, 64, -80], label: [47, -111.6], note: "Pit floor at -4 round the machine." },
+    { id: "mixing", name: "Mixing station", lv: "G", kind: "indoor", rect: [-30, -158, 6, -130], label: [-28, -156.4], note: "36 x 28, floor at -4, roof at +8. Mixing vats at 1.55, so you can just see over them but can't pick enemies off across the room standing still. The mixer drive in the middle blocks the view from the door." },
+    { id: "mixingfloor", name: "Mixing floor", lv: "B", kind: "pit", rect: [-30, -158, 6, -130], label: [-28, -131.6] },
+    { id: "compressor", name: "Compressor hall", lv: "G", kind: "indoor", rect: [16, -160, 62, -130], label: [18, -131.6], note: "46 x 30, floor at -4, roof at +10. Five compressor pumps along the north wall drive down, hiss steam and creep back up. Intercoolers and receiver tanks break up the floor." },
+    { id: "compressorfloor", name: "Compressor floor", lv: "B", kind: "pit", rect: [16, -160, 62, -130], label: [60, -131.6] },
     { id: "pump", name: "Pump room", lv: "B", kind: "room", rect: [0, -84, 14, -72], label: [7, -73.8], note: "Where the short way joins the main tunnel. Health on the pumps." },
     { id: "machinetop", name: "Machine roof", lv: "C2", kind: "deck", round: [47, -97, 7], poly: [[47, -104], [49.7, -103.5], [51.9, -101.9], [53.5, -99.7], [54, -97], [53.5, -94.3], [51.9, -92.1], [49.7, -90.5], [47, -90], [44.3, -90.5], [42.1, -92.1], [40.5, -94.3], [40, -97], [40.5, -99.7], [42.1, -101.9], [44.3, -103.5]], label: [47, -103], note: "A 3-wide walkway round the coolant stack, with the arms' shoulders on its edge. The ACTIVATE button is on the stack's north side." },
   ],
@@ -54,8 +62,10 @@ window.PLAN = {
     { id: "adminB", name: "Admin corridor", lv: "G", w: 3, pts: [[-85, 39.5], [-85, 27], [-95.5, 27], [-95.5, 10]], note: "Turns for no reason but to break sight lines." },
     { id: "adminC", name: "Admin corridor", lv: "G", w: 3, pts: [[-95.5, 18], [-86, 18], [-86, 8], [-76, 8]] },
     { id: "skybridge", name: "Skybridge", lv: "C2", w: 3, pts: [[-18.5, -70], [-18.5, -86]], note: "Enclosed, windows both sides, over the service lane." },
-    { id: "tunMain", name: "Service tunnel", lv: "B", w: 3, pts: [[-3, -104], [-3, -108], [8, -108], [8, -96], [18, -96], [18, -106], [30, -106]], note: "3 wide, 3.5 clear. Pipes on one wall." },
-    { id: "tunSpur", name: "Tunnel spur", lv: "B", w: 3, pts: [[8, -96], [8, -84]] },
+    { id: "tunMain", name: "Service tunnel", lv: "B", w: 3, pts: [[-3, -104], [-3, -108], [8, -108], [8, -84]], note: "3 wide, 3.5 clear. Pipes on one wall. Right at the foot of the tank house stair, all the way to the pump room. One corridor, not two: corridors that only meet end to end get a wall built on the seam." },
+    { id: "tunNorth", name: "North tunnel", lv: "B", w: 3, pts: [[-3, -108], [-9, -108], [-9, -121], [-13, -121], [-13, -130]], note: "Left at the foot of the tank house stair, then north to the mixing station." },
+    { id: "tunMix", name: "Mixer passage", lv: "B", w: 3, pts: [[6, -146], [11, -146], [11, -140], [16, -140]], note: "Jogs so the two rooms' doors don't line up." },
+    { id: "tunPlant", name: "Plant tunnel", lv: "B", w: 3, pts: [[47, -130], [47, -114]], note: "Straight at the cauldron: the plant room reveal." },
     { id: "tunHall", name: "Pit tunnel", lv: "B", w: 3, pts: [[-52, -58], [-56, -58], [-56, -74], [-30, -74], [-30, -80], [-10, -80], [-10, -76], [0, -76]], note: "The short way. Hall pit to the pump room, skipping the hall catwalks, skybridge and tank house. Quicker, and you miss what is up there." },
   ],
 
@@ -127,7 +137,11 @@ window.PLAN = {
     { name: "Skybridge, tank end", at: [-18.5, -86], axis: "h", w: 3, lv: "C2", type: "open" },
     { name: "Pump room", at: [8, -84], axis: "h", w: 3, lv: "B", type: "open" },
     { name: "Pit tunnel to pump room", at: [0, -76], axis: "v", w: 3, lv: "B", type: "open" },
-    { name: "Tunnel into the pit", at: [30, -106], axis: "v", w: 3, lv: "B", type: "open" },
+    { name: "Mixing station", at: [-13, -130], axis: "h", w: 3, lv: "B", type: "open" },
+    { name: "Mixing station to passage", at: [6, -146], axis: "v", w: 3, lv: "B", type: "open" },
+    { name: "Passage to compressor hall", at: [16, -140], axis: "v", w: 3, lv: "B", type: "open" },
+    { name: "Compressor hall to plant tunnel", at: [47, -130], axis: "h", w: 3, lv: "B", type: "open" },
+    { name: "Tunnel into the pit", at: [47, -114], axis: "h", w: 3, lv: "B", type: "open", note: "In the pit's north wall. The seal pipe drops across it." },
     { name: "High exit", at: [47.25, -72], axis: "h", w: 2.5, lv: "C2", type: "timed" },
     { name: "Warehouse high door", at: [47.25, -62], axis: "h", w: 2.5, lv: "C2", type: "open" },
     { name: "Dock roller door", at: [36, -6], axis: "h", w: 5, lv: "G", type: "open" },

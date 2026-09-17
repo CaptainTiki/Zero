@@ -1,10 +1,12 @@
+@tool
 extends Node3D
 class_name EnemyBody
 ## Procedural chunky-PS1 enemy bodies with walk cycles, hit flash, weak-point
 ## glow and a gib burst on death. Built from boxes so silhouettes stay readable
-## at ten metres. Faces point down -Z, matching CharacterBody3D.look_at.
+## at ten metres. Faces point down -Z, matching CharacterBody3D.look_at. A tool script, so the
+## editor builds the body too and placed enemies can be seen there.
 
-@export_enum("fodder", "rammer", "hunter") var kind := "fodder"
+@export_enum("fodder", "rammer", "hunter", "brute") var kind := "fodder"
 
 var _mats: Array[StandardMaterial3D] = []
 var _bases: Array[Color] = []
@@ -23,6 +25,10 @@ var _gib_color := Color(0.3, 0.6, 0.2)
 var _leg_amp := 0.6
 var _stride := 4.0
 var _weak_color := Color(0.95, 0.8, 0.2)
+## An arm pose that overrides the walk swing, for the brute's slam: angle about the shoulder
+## (0 hanging, PI straight up) and how much of it to take.
+var _arm_pose := 0.0
+var _arm_weight := 0.0
 
 func _ready() -> void:
 	match kind:
@@ -32,6 +38,8 @@ func _ready() -> void:
 			_build_rammer()
 		"hunter":
 			_build_hunter()
+		"brute":
+			_build_brute()
 
 # --- construction -----------------------------------------------------------
 
@@ -181,6 +189,40 @@ func _build_hunter() -> void:
 	_weak.append(crest)
 	_box(Vector3(0.06, 0.55, 0.45), Vector3(0, 0.6, 0.05), crest, _head, Vector3(-0.2, 0, 0))
 
+## A fodder grown huge: a hunched chest, a head sunk between the shoulders, and long arms whose
+## fists hang at the floor.
+func _build_brute() -> void:
+	_gib_color = Color(0.28, 0.5, 0.18)
+	_leg_amp = 0.35
+	_stride = 2.6
+	var skin := _material(Color(0.36, 0.6, 0.24))
+	var dark := _material(Color(0.22, 0.4, 0.16))
+	var belly := _material(Color(0.66, 0.74, 0.44))
+	var mouth := _material(Color(0.12, 0.08, 0.1))
+	var tooth := _material(Color(0.95, 0.93, 0.8))
+	_torso = _pivot(Vector3(0, 1.55, 0))
+	_box(Vector3(1.7, 1.2, 1.25), Vector3.ZERO, skin, _torso)
+	_box(Vector3(1.2, 0.8, 0.12), Vector3(0, -0.15, -0.64), belly, _torso)
+	_box(Vector3(1.9, 0.45, 1.1), Vector3(0, 0.62, 0.1), dark, _torso)
+	for i in 4:
+		_box(Vector3(0.16, 0.34, 0.16), Vector3(-0.45 + i * 0.3, 0.95, 0.35), dark, _torso, Vector3(0.5, 0, 0))
+	_head = _pivot(Vector3(0, 0.85, -0.45), _torso)
+	_box(Vector3(1.0, 0.7, 0.8), Vector3.ZERO, skin, _head)
+	_eyes(_head, 0.24, 0.12, -0.41, 0.2, Color(0.08, 0.06, 0.08))
+	_box(Vector3(0.84, 0.12, 0.12), Vector3(0, 0.3, -0.41), dark, _head)
+	_box(Vector3(0.7, 0.16, 0.06), Vector3(0, -0.2, -0.42), mouth, _head)
+	for i in 4:
+		_box(Vector3(0.09, 0.12, 0.05), Vector3(-0.24 + i * 0.16, -0.16, -0.44), tooth, _head)
+	for side in [-1.0, 1.0]:
+		var arm := _pivot(Vector3(side * 1.05, 0.35, -0.05), _torso)
+		_box(Vector3(0.5, 0.95, 0.55), Vector3(0, -0.45, 0), skin, arm)
+		_box(Vector3(0.45, 0.6, 0.5), Vector3(0, -1.15, 0), dark, arm)
+		_box(Vector3(0.75, 0.55, 0.75), Vector3(0, -1.6, -0.05), dark, arm)
+		_arms.append(arm)
+		var leg := _pivot(Vector3(side * 0.45, 0.8, 0))
+		_box(Vector3(0.55, 0.8, 0.6), Vector3(0, -0.4, 0), dark, leg)
+		_legs.append(leg)
+
 # --- runtime ----------------------------------------------------------------
 
 ## Call every physics frame. `speed` is planar speed; `lean` pitches the torso
@@ -198,18 +240,24 @@ func animate(delta: float, speed: float, lean: float = 0.0) -> void:
 		var phase := 1.0 if (i % 2 == 0) == (i < 2) else -1.0
 		_legs[i].rotation.x = swing * phase
 	for i in _arms.size():
-		_arms[i].rotation.x = -swing * (1.0 if i == 0 else -1.0) * 0.8
+		_arms[i].rotation.x = lerpf(-swing * (1.0 if i == 0 else -1.0) * 0.8, _arm_pose, _arm_weight)
 	_lean = lerpf(_lean, lean, clampf(delta * 8.0, 0.0, 1.0))
 	_flinch = maxf(0.0, _flinch - delta * 5.0)
 	var recoil := sin(_flinch * PI) * 0.35
 	if _torso:
-		var base_y: float = {"fodder": 0.75, "rammer": 1.05, "hunter": 1.4}[kind]
+		var base_y: float = {"fodder": 0.75, "rammer": 1.05, "hunter": 1.4, "brute": 1.55}[kind]
 		_torso.position.y = base_y + absf(sin(_walk)) * 0.05 * moving + sin(_idle * 2.2) * 0.012 - recoil * 0.08
 		_torso.rotation.x = -_lean * 0.35 + recoil
 		_torso.rotation.z = sin(_walk) * 0.04 * moving + sin(_flinch * 9.0) * 0.12 * _flinch
 		_torso.scale = Vector3(1.0 + recoil * 0.12, 1.0 - recoil * 0.18, 1.0 + recoil * 0.12)
 	if _head:
 		_head.rotation.x = _lean * 0.25 + sin(_idle * 1.7) * 0.03 + recoil * 0.8
+
+## Holds the arms at angle (0 hanging, PI straight up) with weight 1, or leaves them to the
+## walk with weight 0.
+func pose_arms(angle: float, weight: float) -> void:
+	_arm_pose = angle
+	_arm_weight = clampf(weight, 0.0, 1.0)
 
 ## Whole-body recoil; 1.0 is a weak-point hit, smaller values a glancing one.
 func flinch(strength: float) -> void:
@@ -240,7 +288,7 @@ func burst(world: Node, away: Vector3) -> void:
 	var gib_mat := StandardMaterial3D.new()
 	gib_mat.albedo_color = _gib_color
 	gib_mat.roughness = 1.0
-	var count: int = {"fodder": 7, "rammer": 12, "hunter": 9}[kind]
+	var count: int = {"fodder": 7, "rammer": 12, "hunter": 9, "brute": 16}[kind]
 	for i in count:
 		var chunk := RigidBody3D.new()
 		chunk.collision_layer = 0
@@ -267,7 +315,7 @@ func burst(world: Node, away: Vector3) -> void:
 		tween.tween_callback(chunk.queue_free)
 	var splat := MeshInstance3D.new()
 	var disc := CylinderMesh.new()
-	var splat_radius: float = {"fodder": 0.8, "rammer": 1.4, "hunter": 1.0}[kind]
+	var splat_radius: float = {"fodder": 0.8, "rammer": 1.4, "hunter": 1.0, "brute": 1.8}[kind]
 	disc.top_radius = splat_radius
 	disc.bottom_radius = disc.top_radius
 	disc.height = 0.02

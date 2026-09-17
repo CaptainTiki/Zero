@@ -39,6 +39,12 @@ var _was_on_floor := true
 @export var respawn_point := Vector3(0, 0.5, 4)
 @export var kick_force := 11.0
 @export var kick_cooldown := 0.55
+## The boot's size: width, height and depth. The kick sweeps this box along its reach.
+@export var kick_box_size := Vector3(0.26, 0.4, 0.1)
+
+## Shots, punches and kicks look on the world layer and the props layer, where the
+## cardboard Johns stand.
+const HIT_MASK := 5
 
 var _kick_timer := 0.0
 var _kick_elapsed := -1.0
@@ -88,6 +94,7 @@ func _ready() -> void:
 	_sound = get_tree().root.get_node_or_null("Sound")
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	melee_ray.enabled = true
+	melee_ray.collision_mask = HIT_MASK
 	gun_ray.enabled = true
 	_sfx_melee = _load_sfx("res://audio/sfx/player/melee_punch_01.wav")
 	_sfx_impact = _load_sfx("res://audio/sfx/player/melee_impact_01.wav")
@@ -260,11 +267,8 @@ func _update_kick(delta: float) -> void:
 	_boot.rotation.x = lerpf(-0.45, 0.0, extension)
 	if _kick_elapsed >= 0.12 and not _kick_connected:
 		_kick_connected = true
-		var origin := camera.global_position - camera.global_basis.y * 0.25
-		var query := PhysicsRayQueryParameters3D.create(origin, origin - camera.global_basis.z * kick_range, 1, [get_rid()])
-		var hit := get_world_3d().direct_space_state.intersect_ray(query)
-		if not hit.is_empty():
-			var target: Object = hit.collider
+		var target := _kick_target(camera.global_position - camera.global_basis.y * 0.25)
+		if target:
 			if target.has_method("apply_kick"):
 				target.apply_kick(kick_damage, global_position, kick_force)
 				_sfx_event("kick_hit" if target.is_in_group("enemies") else "kick_prop", _sfx_impact)
@@ -273,6 +277,30 @@ func _update_kick(delta: float) -> void:
 	if _kick_elapsed >= 0.40:
 		_kick_elapsed = -1.0
 		_boot.visible = false
+
+## Sweeps a box the size of the boot along the kick's reach, so whatever the boot
+## visibly touches gets kicked. The first thing the box meets stops it; if that
+## contact also touches something kickable, the kickable one wins.
+func _kick_target(origin: Vector3) -> Object:
+	var box := BoxShape3D.new()
+	box.size = kick_box_size
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = box
+	query.collision_mask = HIT_MASK
+	query.exclude = [get_rid()]
+	query.transform = Transform3D(camera.global_basis, origin)
+	query.motion = -camera.global_basis.z * kick_range
+	var space := get_world_3d().direct_space_state
+	var travel := space.cast_motion(query)
+	if travel[1] >= 1.0:
+		return null
+	query.transform.origin = origin + query.motion * travel[1]
+	query.motion = Vector3.ZERO
+	var touching := space.intersect_shape(query, 8)
+	for contact in touching:
+		if contact.collider and contact.collider.has_method("apply_kick"):
+			return contact.collider
+	return touching[0].collider if not touching.is_empty() else null
 
 func grant_gun() -> void:
 	_has_gun = true
@@ -430,14 +458,18 @@ func _try_fire() -> void:
 	var direction := Vector3(cos(angle) * radius, sin(angle) * radius, -1.0).normalized()
 	var aim_basis := global_transform.basis * Basis(Vector3.RIGHT, _pitch)
 	direction = aim_basis * direction
-	var query := PhysicsRayQueryParameters3D.create(camera.global_position, camera.global_position + direction * gun_ray.target_position.length(), gun_ray.collision_mask, [get_rid()])
+	var query := PhysicsRayQueryParameters3D.create(camera.global_position, camera.global_position + direction * gun_ray.target_position.length(), HIT_MASK, [get_rid()])
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	_shot_bloom = minf(pistol_max_bloom_degrees, _shot_bloom + pistol_bloom_per_shot)
 	_recoil += Vector2(deg_to_rad(randf_range(-0.45, 0.45)), deg_to_rad(randf_range(0.9, 1.4))) * (0.65 if _ads else 1.0)
 	_recoil = _recoil.limit_length(deg_to_rad(1.8))
 	_apply_aim()
 	var col = hit.get("collider")
-	if col and col.has_method("take_damage"):
+	if col and col.has_method("apply_bullet"):
+		# Cardboard reacts to where the shot landed; no splash or hit marker.
+		col.apply_bullet(pistol_damage, hit.position, direction)
+		get_tree().call_group("run_stats", "record_hit", "pistol")
+	elif col and col.has_method("take_damage"):
 		var weak: bool = col.has_method("is_weak_hit") and col.is_weak_hit(hit.position)
 		col.take_damage(pistol_damage, weak)
 		get_tree().call_group("run_stats", "record_hit", "pistol")
@@ -472,7 +504,7 @@ func _try_shotgun() -> void:
 		var radius := sqrt(randf()) * tan(spread)
 		var angle := randf() * TAU
 		var direction := aim_basis * Vector3(cos(angle) * radius, sin(angle) * radius, -1.0).normalized()
-		var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * shotgun_range, gun_ray.collision_mask, [get_rid()])
+		var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * shotgun_range, HIT_MASK, [get_rid()])
 		var hit := get_world_3d().direct_space_state.intersect_ray(query)
 		if hit.is_empty():
 			continue
@@ -485,7 +517,7 @@ func _try_shotgun() -> void:
 		var distance: float = origin.distance_to(hit.position)
 		var falloff := 1.0 if distance < 10.0 else clampf(1.0 - (distance - 10.0) / (shotgun_range - 10.0), 0.15, 1.0)
 		var weak: bool = col.has_method("is_weak_hit") and col.is_weak_hit(hit.position)
-		var entry: Dictionary = hits.get(col, {"amount": 0.0, "weak": 0, "point": hit.position})
+		var entry: Dictionary = hits.get(col, {"amount": 0.0, "weak": 0, "point": hit.position, "direction": direction})
 		entry["amount"] += shotgun_damage * falloff
 		entry["weak"] += 1 if weak else 0
 		hits[col] = entry
@@ -496,6 +528,9 @@ func _try_shotgun() -> void:
 		var amount: float = entry["amount"]
 		# Half the pellets on a weak spot counts as a weak hit.
 		var weak: bool = entry["weak"] * 2 >= shotgun_pellets / 2
+		if col.has_method("apply_bullet"):
+			col.apply_bullet(amount, entry["point"], entry["direction"])
+			continue
 		if col.has_method("apply_shot"):
 			col.apply_shot(amount, global_position, shotgun_push * clampf(amount / (shotgun_damage * shotgun_pellets), 0.3, 1.0), weak)
 		else:

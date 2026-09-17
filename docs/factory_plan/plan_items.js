@@ -67,6 +67,23 @@
     b("Valve wall", "machine", "G", [-40, -110, -37, -100], 3),
     b("Pumps", "machine", "B", [2, -82, 6, -79], 2),
 
+    // Mixing station (after factory playtest 5): vats at 1.55, just under eye height, so you can
+    // see over them and enemies crouch out of a standing shot. Round, so a chase slides round them.
+    round("Mixing vat", "tank", "B", [-25, -137], 2, 1.55), round("Mixing vat", "tank", "B", [-17, -137], 2, 1.55),
+    round("Mixing vat", "tank", "B", [-9, -137], 2, 1.55), round("Mixing vat", "tank", "B", [-1, -137], 2, 1.55),
+    round("Mixing vat", "tank", "B", [-25, -145], 2, 1.55), round("Mixing vat", "tank", "B", [-1, -145], 2, 1.55, "Stands in front of the east door."),
+    round("Mixing vat", "tank", "B", [-25, -153], 2, 1.55), round("Mixing vat", "tank", "B", [-17, -153], 2, 1.55),
+    round("Mixing vat", "tank", "B", [-9, -153], 2, 1.55), round("Mixing vat", "tank", "B", [-1, -153], 2, 1.55),
+    round("Mixer drive", "machine", "B", [-13, -145], 3, 12, "Floor to roof, in line with the door, so the room isn't one view."),
+
+    // Compressor hall: five pump housings on the north wall, each under a frame whose ram drives
+    // down and creeps back up (P.pumps). Waist-high intercoolers and two tall receivers on the floor.
+    b("Pump housing", "machine", "B", [19, -160, 24, -156], 2), b("Pump housing", "machine", "B", [28, -160, 33, -156], 2),
+    b("Pump housing", "machine", "B", [37, -160, 42, -156], 2), b("Pump housing", "machine", "B", [46, -160, 51, -156], 2),
+    b("Pump housing", "machine", "B", [55, -160, 60, -156], 2),
+    b("Intercooler", "machine", "B", [30, -146, 40, -143], 2.2), b("Intercooler", "machine", "B", [42, -140, 50, -137], 2.2, "Between the west door and the way out."),
+    round("Receiver tank", "tank", "B", [22, -134], 2.5, 7), round("Receiver tank", "tank", "B", [58, -136], 2.5, 7),
+
     // The smog machine (after factory playtest 4): a potbelly cauldron on one central column,
     // so from the pit you can see under it to every arm. A cylinder stands in for the belly
     // until polish.
@@ -93,6 +110,10 @@
     b("Container stack", "container", "G", [26, 48, 38, 51], 5.2),
   ];
 
+  // Compressor pumps over the housings above. Each ram drives down in half a second, hisses
+  // steam as it bottoms out, then creeps back up over the rest of its period. Visual only.
+  P.pumps = [21.5, 30.5, 39.5, 48.5, 57.5].map((x, i) => ({ at: [x, -158, -2], width: 5, depth: 4, period: 5, phase: i * 0.8 }));
+
   // Dead ends and what they pay. type: ammo | health | secret | enemy
   P.payoffs = [
     { at: [-54, 39], lv: "G", types: ["ammo"], where: "Waiting room" },
@@ -101,7 +122,8 @@
     { at: [-52, 5.5], lv: "G", types: ["enemy", "ammo"], where: "Manager's office" },
     { at: [-12, -35], lv: "C1", types: ["ammo", "health"], where: "Foreman's office, after the hall fight" },
     { at: [-49, -77], lv: "G", types: ["enemy", "ammo"], where: "Service lane crate cache" },
-    { at: [10.5, -78], lv: "B", types: ["health"], where: "Pump room" },
+    { at: [10.5, -78], lv: "B", types: ["health", "ammo"], where: "Pump room, the end of the leg that used to carry on to the plant room" },
+    { at: [26, -158.5], lv: "B", types: ["ammo"], where: "Compressor hall, the nook between the first two pumps" },
     { at: [26, -110], lv: "G", types: ["ammo"], where: "Plant ring, behind the tanks" },
     { at: [75, 37], lv: "G", types: ["ammo"], where: "Beside the open trailer, a step off the escape" },
   ];
@@ -115,8 +137,10 @@
     { name: "Hall catwalks", pts: [[-60.75, -29, 0], [-60.75, -42, 4], [-61, -69, 4], [-34, -69, 4], [-34, -54, 4], [-31, -53, 4], [-31, -49.5, 4], [-30, -50, 4], [-20, -50, 8], [-18.5, -52, 8], [-18.5, -69, 8], [-18.5, -70, 8]] },
     { name: "Skybridge", pts: [[-18.5, -70, 8], [-18.5, -86, 8]] },
     { name: "Tank house", pts: [[-18.5, -86, 8], [-18.5, -114, 8], [-21, -115, 8], [-33, -115, 4], [-38, -112, 4], [-38, -92, 4], [-33, -91, 4], [-21, -91, 0], [-12, -92.5, 0], [-3, -92, 0], [-3, -104, -4]] },
-    { name: "Service tunnels", pts: [[-3, -104, -4], [-3, -108, -4], [8, -108, -4], [8, -96, -4], [18, -96, -4], [18, -106, -4], [30, -106, -4]] },
-    { name: "Plant room", pts: [[30, -106, -4], [35, -102, -4], [42, -107.5, -4], [52, -107.5, -4], [57.5, -102, -4], [57.5, -92, -4], [52, -86, -4], [50, -83.5, -4], [52, -81.5, -4], [64, -81.5, 0], [68, -80, 0], [68, -92, 4], [68, -97, 4], [55, -97, 4], [55, -107, 4], [39, -107, 4], [39, -92, 4], [39, -80, 8], [39, -78.75, 8], [47.25, -78.75, 8], [47.25, -91.5, 8], [43.1, -93.1, 8], [41.5, -97, 8], [43.1, -100.9, 8], [47, -102.8, 8], [50.9, -100.9, 8], [52.5, -97, 8], [50.9, -93.1, 8], [47.25, -91.5, 8]] },
+    { name: "North tunnel", pts: [[-3, -104, -4], [-3, -108, -4], [-9, -108, -4], [-9, -121, -4], [-13, -121, -4], [-13, -130, -4]] },
+    { name: "Mixing station", pts: [[-13, -130, -4], [-13, -140.5, -4], [-21, -140.5, -4], [-21, -149, -4], [-13, -149.5, -4], [-5, -149, -4], [-5, -141, -4], [3, -141, -4], [3, -146, -4], [6, -146, -4]] },
+    { name: "Compressor hall", pts: [[6, -146, -4], [11, -146, -4], [11, -140, -4], [16, -140, -4], [24, -140, -4], [28, -151, -4], [54, -151, -4], [58, -143, -4], [52, -135, -4], [47, -132, -4], [47, -130, -4]] },
+    { name: "Plant room", pts: [[47, -130, -4], [47, -114, -4], [44, -110, -4], [40, -102, -4], [38, -95, -4], [42, -87, -4], [52, -86, -4], [50, -83.5, -4], [52, -81.5, -4], [64, -81.5, 0], [68, -80, 0], [68, -92, 4], [68, -97, 4], [55, -97, 4], [55, -107, 4], [39, -107, 4], [39, -92, 4], [39, -80, 8], [39, -78.75, 8], [47.25, -78.75, 8], [47.25, -91.5, 8], [43.1, -93.1, 8], [41.5, -97, 8], [43.1, -100.9, 8], [47, -102.8, 8], [50.9, -100.9, 8], [52.5, -97, 8], [50.9, -93.1, 8], [47.25, -91.5, 8]] },
     { name: "Escape: warehouse", escape: true, beat: [47.25, -66, 8], pts: [[47.25, -91.5, 8], [47.25, -62, 8], [48, -61, 8], [50, -61, 8], [62, -61, 4], [83, -61, 4], [83, -40, 4], [83, -28, 0], [76, -18, 0], [66, -18, 0], [60, -36, 0], [48, -40, 0], [40, -24, 0], [36, -10, 0], [36, -6, 0]] },
     { name: "Escape: dock and trucks", escape: true, pts: [[36, -6, 0], [36, -2.5, 1.2], [36, 2, 1.2], [38, 5, 1.2], [38, 10, 0], [38, 30, 0], [54, 40, 0], [62, 47, 0]] },
   ];
@@ -127,16 +151,16 @@
     { kind: "gun", at: [-68, 42, 0], where: "Lobby, by the reception desk" },
     { kind: "shotgun", at: [-38, -29, 0], where: "Hall, inside the doors" },
     { kind: "health", at: [-14, -89, 0], where: "Tank house floor, after the ambush" },
-    { kind: "health", at: [22, -106, -4], where: "Service tunnel, last leg before the plant room" },
-    { kind: "ammo", at: [25.5, -106, -4], where: "Service tunnel, last leg before the plant room" },
-    { kind: "health", at: [47, -112.5, -4], where: "Plant pit floor, north wall" },
+    { kind: "health", at: [47, -125, -4], where: "Plant tunnel, before the pit" },
+    { kind: "ammo", at: [47, -119.5, -4], where: "Plant tunnel, before the pit" },
+    { kind: "health", at: [41, -113, -4], where: "Plant pit floor, north wall, west of the door" },
     { kind: "ammo", at: [48, -82, -4], where: "Plant pit floor, south wall under the exit bridge" },
   ];
 
   // The plant room climax, pressure arms (user's design, September 16, 2026). Points are [x, z, y].
   // Six arms reach out from shoulders on the machine's roof edge, bend at an elbow, and plug
   // their coolant pipe into a socket in the pit floor. Numbered clockwise from north.
-  //   1. Walk into the pit: a pipe crashes across the tunnel door and the machine hisses.
+  //   1. Walk into the pit: a pipe crashes across the tunnel door behind you and the machine hisses.
   //   2. Pressure builds (hiss, steam leaks). The next arm's beacon spins and the alarm sounds,
   //      then it comes down and plugs in. The beacon sits on the elbow, well above head height.
   //   3. Break its pipe, kicks or shots. The arm lifts, steam from both broken ends.
@@ -147,8 +171,9 @@
   // keeps moving round the machine.
   P.setpiece = {
     name: "Pressure arms",
-    start: { at: [50, -97, -2], size: [28, 4, 34], note: "The whole pit floor east of x 36, so the seal never lands on the player." },
-    seal: { at: [31.8, -106, -2.4], radius: 1.6, length: 6 },
+    start: { at: [47, -95.5, -2], size: [34, 4, 31], note: "The pit floor from 3 in from the north wall, so the seal in the tunnel never lands on the player." },
+    // Lies across the plant tunnel, along x, just inside its door.
+    seal: { at: [47, -115.8, -2.4], radius: 1.6, length: 3.2, along: "x" },
     respawn: [38, -110, -3.5],
     // Evenly round the cauldron's rim every 60 degrees, turned 15 off north so none drops
     // through the exit bridge (south) or the bridge from the east landing (east).
@@ -176,9 +201,10 @@
     pressure_seconds: 45,
     // How long the next arm's beacon spins and the alarm sounds before it drops.
     warning_seconds: 3,
-    // One wave per pipe for the first five, [fodder, hunters, rammers]. The sixth sends none.
+    // One wave per pipe for the first five, [fodder, hunters, rammers, brutes]. The sixth sends none.
     // Everything fights on the pit floor, so every Rammer is a real one: one a wave, two in the last.
-    waves: [[5, 0, 1], [5, 0, 1], [5, 0, 1], [5, 0, 1], [5, 0, 2]],
+    // A brute climbs out with the third wave and the last.
+    waves: [[5, 0, 1, 0], [5, 0, 1, 0], [5, 0, 1, 1], [5, 0, 1, 0], [5, 0, 2, 1]],
     line_last_pipe: "COMMANDER: Now find the button to lock it in.",
     button: { at: [47, -101.6, 8], face: "n", sign: "ACTIVATE", where: "Roof, on the coolant stack's north side" },
     // Melee hatches are used by level. Six round the pit floor, between the sockets; the ring,
@@ -192,6 +218,25 @@
     exit: { at: [47.25, -72, 9.6], size: [2.6, 3.3, 0.5] },
     vents: [[50.9, -100.9, 8.2], [50.9, -93.1, 8.2], [43.1, -93.1, 8.2], [43.1, -100.9, 8.2], [47, -97, 12.8], [40, -97, -4], [54, -97, -4]],
     escape_seconds: 90,
+    // Out of the building (after factory playtest 5): dropping off the dock into the truck yard
+    // stops the countdown. Then the factory goes up behind you, and the truck yard is yours to
+    // fight and search until you walk onto the pad. outside is the truck yard box, [x, z, y]
+    // centre and [x, y, z] size, starting just past the dock edge.
+    outside: { at: [52, 29.25, 1.8], size: [64, 3.6, 45.5] },
+    line_out: "COMMANDER: You're clear. Pickup's at the gate when you want it.",
+    // What the player sees and hears from the truck yard: booms (a fireball, a flash, a shake)
+    // and smoke columns that rise above the roofline, delay seconds after getting out. After
+    // the last one, a distant boom from one of the boom spots every few seconds.
+    finale: [
+      { kind: "boom", at: [30, -20, 13.4], delay: 0.4, size: 6, where: "Warehouse roof, west" },
+      { kind: "boom", at: [74, -44, 13.4], delay: 1.4, size: 7, where: "Warehouse roof, east" },
+      { kind: "boom", at: [36, -7.5, 2], delay: 2.3, size: 4, where: "The roller door you came out of" },
+      { kind: "smoke", at: [47, -97, 13.4], delay: 2.5, where: "Plant room roof" },
+      { kind: "boom", at: [52, -30, 13.4], delay: 3.6, size: 9, where: "Warehouse roof, centre" },
+      { kind: "smoke", at: [40, -30, 13.4], delay: 3.8, where: "Warehouse roof" },
+      { kind: "boom", at: [47, -97, 14], delay: 5.0, size: 12, where: "Plant room, the cauldron going" },
+      { kind: "smoke", at: [-20, -102, 16.4], delay: 6.0, where: "Tank house roof" },
+    ],
     // Once the machine is critical the place falls apart round the escape. A fall drops a pipe,
     // beam or crate to rest at [x, z, y] with size [x, y, z]; steam jets up for a few seconds.
     // With no trigger they happen on a delay after critical; with one, when the player comes
@@ -214,8 +259,8 @@
 
   // Short ways leave the golden path at split and rejoin it at join; both points are on the route.
   P.alt = [
-    { name: "Short way: pit tunnel", split: [-40, -55, -4], join: [8, -96, -4],
-      pts: [[-40, -55, -4], [-43, -53, -4], [-51, -53, -4], [-51, -58, -4], [-56, -58, -4], [-56, -74, -4], [-30, -74, -4], [-30, -80, -4], [-10, -80, -4], [-10, -76, -4], [0, -76, -4], [8, -78, -4], [8, -84, -4], [8, -96, -4]] },
+    { name: "Short way: pit tunnel", split: [-40, -55, -4], join: [-3, -108, -4],
+      pts: [[-40, -55, -4], [-43, -53, -4], [-51, -53, -4], [-51, -58, -4], [-56, -58, -4], [-56, -74, -4], [-30, -74, -4], [-30, -80, -4], [-10, -80, -4], [-10, -76, -4], [0, -76, -4], [8, -78, -4], [8, -84, -4], [8, -96, -4], [8, -108, -4], [-3, -108, -4]] },
   ];
 
   P.spaces = [
@@ -225,7 +270,9 @@
     { name: "Production hall", size: "54 x 44, roof 13", scale: "medium", text: "Presses and a container office on the floor, a machine pit in the middle. Fight across the floor, down through the pit under catwalk Hunters, then climb back and cross over it." },
     { name: "Skybridge", size: "16 long at +8", scale: "tight", text: "Enclosed, windows both sides. A breather over the service lane." },
     { name: "Tank house", size: "40 x 32, roof 16", scale: "vertical", text: "Enter at the top and spiral down past two vats: +8 between them, +4 round the west wall, the floor, then stairs to the basement." },
-    { name: "Service tunnels", size: "3 wide, 3.5 clear", scale: "tight", text: "Winding, with a T to the pump room. The pit tunnel from the hall arrives there too: the short way, which skips the catwalks, skybridge and tank house." },
+    { name: "Service tunnels", size: "3 wide, 3.5 clear", scale: "tight", text: "A T at the foot of the tank house stair: right to the pump room, left and north to the mixing station. The pit tunnel from the hall arrives at the pump room: the short way, which skips the catwalks, skybridge and tank house, and still has to come back to the T." },
+    { name: "Mixing station", size: "36 x 28, floor at -4", scale: "maze", text: "A grid of mixing vats at 1.55, just under eye height, round a floor-to-roof mixer drive. You see heads over the vats but not a clean shot, so you weave the aisles to the east door. A Rammer at the back." },
+    { name: "Compressor hall", size: "46 x 30, floor at -4, roof 10", scale: "medium", text: "Five compressor pumps along the north wall drive down, hiss steam and creep back up. Intercoolers and two receiver tanks on the floor, a Rammer among them, ammo in a nook between the pumps. The south door is a straight tunnel to the plant room." },
     { name: "Plant room", size: "50 x 50, pit at -4", scale: "arena", text: "The climax. A potbelly cauldron on one column, open underneath, so every arm can be seen from the pit. Six arms reach from its rim into the pit floor. One at a time an arm plugs its coolant pipe in; break it and a wave climbs out. After the sixth, up through the ring and walkways to the roof to kick the button." },
     { name: "Warehouse", size: "64 x 56, roof 13", scale: "maze", text: "Escape part one. In high, down the east catwalks, through a container maze to the dock. A secret sits in plain view with no time to take it." },
     { name: "Truck yard", size: "64 x 46, outdoor", scale: "open", text: "Escape part two. Drop off the dock, weave the trailers, past the open trailer to the gate in the south wall." },
@@ -244,6 +291,9 @@
     "Outdoor spaces cut down after playtest 2 (user's markup): the lot is only the front of the admin block, the yard stops at z 30, the truck yard stops past the container stack, and the bin alley is gone. The start no longer sits by the exit gate; the level ends at the gate either way.",
     "The machine is a potbelly cauldron on a single column (user, after playtest 4), since playtest 4 spent up to 24 s finding an arm behind the old square machine. Arms sit evenly round its rim, with iron struts from the cauldron to the ceiling.",
     "Level 1's enemy mix (user): about 75% fodder, 20% Rammers, 5% Hunters. No Rammer before halfway; the first is a lone ambush on the tank house floor. Hunters only on the escape, so the hall catwalks and the machine's waves have none.",
+    "Two rooms north of the tank house and plant room (user, after playtest 5): left at the foot of the tank house stair to a mixing station, then a compressor hall, then a straight tunnel into the plant pit from the north. The pit's west tunnel door is gone. The short way still comes through the pump room and back to the T, skipping the hall catwalks, skybridge and tank house.",
+    "Brutes are area denial, not duels (user, playtest 6). This is the first mission and a player who knows to avoid them should get to; they come into their own later, twelve to an arena with a rocket launcher. Left as they are, only sped up to half the player's walk (3.0).",
+    "The tunnel leg that used to carry on to the plant room ends at the pump room. Trimming it left a wall baked across the join, which read as a dead end in playtest 6; it is one corridor now. It also pays (user): health and ammo, and a brute walks into the tunnel behind you. The leg stays because the pit tunnel shortcut joins there.",
     "Machine climax after playtest 3 (user's design): six pressure arms plug their coolant pipes into the pit floor one at a time, in the order 1, 3, 5, 2, 4, 6 so the fight keeps moving round the machine. Break a pipe, its arm lifts and a wave climbs out; the next arm comes down when the wave is dead or after 45 seconds of pressure, warned by a spinning beacon on its elbow and an alarm. Waves are five fodder and a Rammer, two Rammers in the last. After the sixth pipe, the Commander sends you up to kick the ACTIVATE button, which starts a 90 second escape.",
   ];
 

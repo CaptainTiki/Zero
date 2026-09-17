@@ -97,12 +97,25 @@ Decided September 16, 2026, after several factory layouts that all felt like one
   or on the golden path. Fix every line it prints before baking.
 - **Everything we build should be visible in the editor.** The user inspects levels with the
   editor's fly camera, so geometry a script creates at runtime is invisible to them. Not a hard
-  rule, but the direction (September 17, 2026): bake set piece geometry (arms, buttons, hatches,
-  shutters, rails) into the scene and have scripts drive the baked nodes. Anything that only
-  appears during a scripted event, like falling debris, a seal or an end zone, gets a
-  placeholder where it will end up, hidden in `_ready()`.
+  rule, but the direction (September 17, 2026).
+  - **How:** a script that builds geometry is a `@tool` script. In the editor it runs only its
+    build step, guarded by `Engine.is_editor_hint()`; gameplay, sounds and `_process` stay
+    off. Done for enemy bodies, John cutouts, kick doors, the pressure arms, coolant pipes, the
+    kick button and the machine set piece.
+  - **Mid-run things** (the seal pipe, falling debris) get see-through orange stand-ins where
+    they land, built only in the editor. Nothing built in the editor has an owner, so none of it
+    saves into the scene.
+  - **Check it:** open a scene in a headless editor, `--headless --editor --path . <scene>
+    --quit-after 600`, and read the output for errors.
 - **Build in passes, outlines first:** floors, walls, rails, roofs, stairs, lights and beat
   lines, then blockers, then doors, enemies, secrets and dressing, playtesting between passes.
+- **Corridors that only meet end to end get a wall on the seam.** The bake merges two corridor
+  spaces only where their cells actually overlap, so a corridor trimmed back to another's start
+  point bakes a wall across the join. Overlap them, or make it one corridor. Trimming the service
+  tunnel did exactly this and walled off the pump room leg; only a playtest found it, because the
+  golden path had stopped using that leg (September 17, 2026).
+- **The short ways are walked by `factory_shortcut_test`.** The route test only walks the golden
+  path, so a way the route no longer uses needs its own walk.
 - **Both ends of a stair meet a platform's edge.** A slab over the top of a ramp is a lip the
   player can't get past, and a foot laid on top of a platform leaves a lip along the stair's
   sides. A stair that is wider than, or offset from, the catwalk it joins walks you into the end
@@ -127,6 +140,12 @@ Decided September 16, 2026, after several factory layouts that all felt like one
 - **First level enemy mix** (user, September 16, 2026): about 75% fodder, 20% Rammers, 5%
   Hunters. No Rammer before about halfway, and the first one comes alone. Hunters only on the
   escape run.
+- **Brutes are area denial, not duels** (user, playtest 6). They go where there's no way round:
+  tunnels, passages, doorways, and a few in an arena's waves. A player who knows to keep away
+  should get to; the fantasy is twelve of them in a later arena with a rocket launcher. They walk
+  at half the player's walk speed. Like a Rammer they are too wide for 2.0 catwalks, so wave logic
+  sends fodder instead up there; `check.js` wants 1.1 of room round a placed one, and 1.2 round a
+  lone brute ambush spawn.
 - **An enemy that starts on a different level from the fight must be ranged.** With no navmesh,
   melee enemies walk straight at the player and strand against walls and pit edges. Fodder and
   Rammers start on the player's level with a clear line to them; a Hunter can start anywhere it
@@ -143,15 +162,26 @@ Decided September 16, 2026, after several factory layouts that all felt like one
   a renderer, so run it without `--headless`; a window opens for a few seconds.
 - Tests are `SceneTree` scripts run headless:
   `"<godot>" --headless --path . -s res://tests/<name>.gd`. Exit code 0 means pass.
+- **Send test runs' logs somewhere else:** add `--log-file <scratch path>`. Godot keeps only five
+  rotated logs in `user://logs`, and a handful of headless runs pushed the user's own playtest log
+  out of the rotation (September 17, 2026). The run report in
+  `%APPDATA%/Godot/app_userdata/SUPER ZERO/superzero_run_*.txt` survives either way, and the real
+  playtest is the one with shots and kills in it.
 - Full suite: `l01_route_test`, `l01_secrets_test`, `l01_arena_test`, `l01_interiors_test`,
   `city_dress_test`, `door_dialogue_test`, `opening_art_test`, `supply_crate_test`,
-  `hunter_movement_test`, `hunter_shot_test`, `kick_box_test`, `recoil_test`, `shotgun_test`.
+  `hunter_movement_test`, `hunter_shot_test`, `kick_box_test`, `recoil_test`, `shotgun_test`,
+  `john_cutout_test`, `kick_reach_test`.
   The route test takes a few minutes, so run it in the background. The factory has its own
   `factory_route_test`, which walks the route from `docs/factory_plan/plan.json`, and
   `machine_set_piece_test`, which plays the plant room climax without the walk, and
   `factory_population_test`, which settles every placed enemy and flags any that fall or get
   pushed out of geometry, `factory_secrets_test`, which walks the way in to every secret, and
-  `factory_stairs_test`, which walks the player's body at the sides of every stair above ground.
+  `factory_stairs_test`, which walks the player's body at the sides of every stair above ground,
+  and `factory_shortcut_test`, which walks every short way in the plan.
+  `brute_test` covers the brute: slow walk, wind-up, slam hits and dodges, damage and kicks.
+- Physics layers: 1 is the world and enemies, 2 the player, 3 (value 4) props that shots and
+  kicks look for but nothing walks into, such as a standing cardboard John. The player's shots,
+  punches and kicks use `HIT_MASK` (5). The kick sweeps a boot-sized box, not a ray.
 - Headless quirks: `class_name` types don't resolve, so type as `Node` or `preload`.
   Use `add_to_group(name, true)` for groups that must persist in baked scenes. Lambdas capture
   primitives by value, so write through a dictionary.

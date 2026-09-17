@@ -21,7 +21,7 @@ const lines = [
   `"spawn": ${tidy(out.spawn)}, "exit": ${tidy(out.exit)},`,
   `"route": ${tidy(out.route)},`,
   `"setpiece": ${tidy(out.setpiece)},`,
-  ["round_decks", "beats", "ramps", "blockers", "kick_doors", "pickups", "enemies", "johns", "ambushes", "signs", "floor_text", "windows", "secrets", "lights", "boxes"].map(list).join(",\n"),
+  ["round_decks", "pumps", "alts", "beats", "ramps", "blockers", "kick_doors", "pickups", "enemies", "johns", "ambushes", "signs", "floor_text", "windows", "secrets", "lights", "boxes"].map(list).join(",\n"),
   "}",
 ];
 const file = path.join(__dirname, "plan.json");

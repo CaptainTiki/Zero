@@ -2,6 +2,7 @@
 // signs, painted bay labels and window bands. Points are [x, z, y]. face is the way a thing
 // looks: s is +z, n is -z, e is +x, w is -x.
 //
+// Kinds: fodder, rammer (the bull), hunter (ranged), brute (big, slow, slams the ground).
 // Rules: melee enemies start on the level they fight on with a straight line to the
 // player; anything that starts off that level is a Hunter. Johns and enemies stay clear of
 // blockers, and Johns stay off the golden path. check.js checks all of it.
@@ -28,12 +29,13 @@
 
     j(-23, -33.6, 0, "s", "Hall, press A"), j(-17.5, -43.5, 0, "s", "Hall, press B"),
     j(-44, -61.8, 0, "n", "Hall, conveyor"), j(-36, -61.8, 0, "n", "Hall, conveyor"), j(-30, -61.8, 0, "n", "Hall, conveyor"),
-    j(-53, -62, 0, "e", "Hall, hoppers"), j(-39, -31, 0, "s", "Hall, container office"), j(-45, -29.5, 0, "s", "Hall, crates"),
+    j(-53, -62, 0, "e", "Hall, hoppers"), j(-35.5, -31, 0, "s", "Hall, container office, clear of the shotgun"), j(-45, -29.5, 0, "s", "Hall, crates"),
     j(-43, -57, -4, "w", "Pit, drum washer"), j(-28, -45, -4, "n", "Pit, drum washer"),
     j(-37, -53, 4, "e", "Tower ring"), j(-14, -33, 4, "n", "Foreman's office"),
 
     j(-35, -90, 4, "n", "Tank house, SW landing"), j(-38.5, -98.5, 0, "n", "Tank house, valve wall"), j(-8, -94.3, 0, "n", "Tank house, pump skid"),
     j(11, -80.5, -4, "w", "Pump room"),
+    j(-28.5, -131.5, -4, "e", "Mixing station, by the door"), j(61, -133, -4, "w", "Compressor hall, gauge reader"),
     j(68, -115, 0, "n", "Plant ring, control desk"), j(24, -96, 0, "e", "Plant ring, west"),
     j(47, -120, 0, "s", "Plant ring, north"), j(24, -84, 0, "e", "Plant ring, south-west"),
 
@@ -63,8 +65,23 @@
     e("fodder", -18.5, -83, 8, "Skybridge"),
     e("fodder", -19, -115, 8, "Tank house, north landing"), e("fodder", -17, -115.5, 8, "Tank house, north landing"),
 
-    e("fodder", 7, -108, -4, "Service tunnel"), e("fodder", 8, -97, -4, "Service tunnel"), e("fodder", 17, -96, -4, "Service tunnel"),
-    e("fodder", 18, -104.5, -4, "Service tunnel, last corner"), e("fodder", 4, -75, -4, "Pump room"),
+    e("fodder", 7, -108, -4, "Service tunnel"), e("fodder", 8, -97, -4, "Service tunnel"), e("fodder", 4, -75, -4, "Pump room"),
+    // Brutes stand in the way where there's no way round: the north tunnel and the mixer passage.
+    e("brute", -9, -114, -4, "North tunnel, blocking it"), e("fodder", -13, -126, -4, "North tunnel, last leg"),
+
+    // Mixing station: heads over the vats, a Rammer at the back.
+    e("fodder", -21, -141, -4, "Mixing station, between the vats"), e("fodder", -5, -141, -4, "Mixing station, between the vats"),
+    e("fodder", -21, -149, -4, "Mixing station, back aisle"), e("fodder", -5, -149, -4, "Mixing station, back aisle"),
+    e("fodder", 3, -133, -4, "Mixing station, east strip"),
+    e("rammer", -21, -155.5, -4, "Mixing station, north wall"),
+
+    e("brute", 11, -143, -4, "Mixer passage, in the jog"),
+
+    // Compressor hall.
+    e("fodder", 35, -139, -4, "Compressor hall, behind the intercooler"), e("fodder", 44, -149, -4, "Compressor hall, under the pumps"),
+    e("fodder", 57, -150, -4, "Compressor hall, east end"), e("fodder", 38, -133, -4, "Compressor hall, south wall"),
+    e("fodder", 27, -137, -4, "Compressor hall, by the receiver"),
+    e("rammer", 50, -145, -4, "Compressor hall, middle"),
     e("fodder", -56, -72, -4, "Pit tunnel"), e("fodder", -11, -80, -4, "Pit tunnel"),
 
     // The escape run and gun (after factory playtest 4): every enemy waits at the far end of
@@ -97,6 +114,9 @@
     // every run stranded; as ambushes they only appear when you're there.
     { name: "Service lane", trigger: { at: [-48, -77, 1.5], size: [8, 3, 10] }, spawn: [-16, -78, 0], count: 2 },
     { name: "Foreman office", trigger: { at: [-12, -34, 5.5], size: [7, 3, 4] }, spawn: [-12, -38, 4], count: 1 },
+    // The tunnel leg that used to carry on to the plant room now ends at the pump room, so it
+    // pays: health and ammo, and a brute walks into the tunnel behind you (user, playtest 6).
+    { name: "Pump room", kind: "brute", trigger: { at: [10, -78, -2.5], size: [6, 3, 8] }, spawn: [8, -90, -4], count: 1 },
   ];
 
   // Secrets: never signposted. reward is ammo, health or boost; path is the walk in from an
@@ -138,6 +158,9 @@
     s("VAT A: SMOG (ORGANIC)", -28, -95.9, 6, 6, "s", "wrong", 1.0),
     s("VAT B: SMOG (DECAF)", -10, -99.4, 6, 5.5, "s", "wrong", 1.0),
     s("SERVICE TUNNEL (FOR SERVICING)", 3, -109.35, -1.8, 5, "s", "hazard", 0.7),
+    s("SMOG MIXING (GENTLE)", -21, -157.65, 1.0, 6, "s", "wrong", 1.0),
+    s("COMPRESSORS: DO NOT COMPRESS", 61.65, -145, 1.5, 8, "w", "hazard", 0.9),
+    s("TO THE MACHINE (PLEASE DON'T)", 47, -130.35, 0.2, 7, "n", "wrong", 0.8),
     s("AIR IMPROVEMENT MACHINE", 47, -89.9, 5, 5, "s", "corporate", 1.2),
     s("COOLANT PIPES: PLEASE DO NOT KICK", 50.1, -97, -1.2, 2.5, "e", "hazard", 0.8),
     s("ACTIVATE", 47, -101.15, 10.2, 3, "n", "hazard", 0.8),

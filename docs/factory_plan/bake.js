@@ -455,6 +455,7 @@
     const setpiece = sp && {
       start_at: godot(sp.start.at), start_size: sp.start.size,
       seal_at: godot(sp.seal.at), seal_radius: sp.seal.radius, seal_length: sp.seal.length,
+      seal_yaw: sp.seal.along === "x" ? Math.PI / 2 : 0,
       respawn_at: godot(sp.respawn),
       arms: (sp.arms || []).map(a => ({ n: a.n, shoulder: godot(a.shoulder), elbow: godot(a.elbow), socket: godot(a.socket) })),
       irons: (sp.irons || []).map(i => ({ from: godot(i.from), to: godot(i.to) })),
@@ -472,6 +473,9 @@
       exit_at: godot(sp.exit.at), exit_size: sp.exit.size,
       vents: sp.vents.map(godot),
       escape_seconds: sp.escape_seconds,
+      outside_at: sp.outside ? godot(sp.outside.at) : null, outside_size: sp.outside ? sp.outside.size : null,
+      line_out: sp.line_out || "",
+      finale: (sp.finale || []).map(f => ({ kind: f.kind, at: godot(f.at), delay: f.delay || 0, size: f.size || 6 })),
       escape_events: (sp.escape_events || []).map(ev => ({
         kind: ev.kind, at: godot(ev.at), size: ev.size || [1, 1, 1],
         trigger: ev.trigger ? godot(ev.trigger) : null, radius: ev.radius || 0,
@@ -481,6 +485,10 @@
     };
 
     const enemies = (P.enemies || []).map(e => ({ kind: e.kind, at: godot(e.at) }));
+    // The short ways, so a test can walk them too: the golden path alone would not have caught
+    // a wall baked across one.
+    const alts = (P.alt || []).map(a => ({ name: a.name, pts: a.pts.map(godot) }));
+    const pumps = (P.pumps || []).map(p => ({ at: godot(p.at), width: p.width, depth: p.depth, period: p.period, phase: p.phase || 0 }));
 
     // Dressing: cutouts, ambushes, signs, painted bays and window bands. face -> yaw, where a
     // yaw of 0 looks down +z.
@@ -526,7 +534,7 @@
       return { centre: [cx, top, cz], r, rail_h: RAIL_H, gaps };
     });
 
-    return { round_decks: roundDecks, boxes, ramps, blockers, kick_doors: kickDoors, pickups, setpiece, enemies, johns, ambushes, signs, floor_text: floorText, windows, secrets, lights, beats, spawn, exit, route, golden_units: Math.round(units), par_seconds: par };
+    return { round_decks: roundDecks, pumps, alts, boxes, ramps, blockers, kick_doors: kickDoors, pickups, setpiece, enemies, johns, ambushes, signs, floor_text: floorText, windows, secrets, lights, beats, spawn, exit, route, golden_units: Math.round(units), par_seconds: par };
   }
 
   function ptsOf(o) { return o.poly || [[o.rect[0], o.rect[1]], [o.rect[2], o.rect[1]], [o.rect[2], o.rect[3]], [o.rect[0], o.rect[3]]]; }

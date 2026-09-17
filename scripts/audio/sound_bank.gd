@@ -26,6 +26,7 @@ const EVENTS := {
 	"arm_move": [[KENNEY_SCIFI + "spaceEngineLow_000.ogg", KENNEY_SCIFI + "spaceEngineLow_001.ogg"], -6.0, 0.8, 0.9],
 	"arm_clunk": [[KENNEY_SCIFI + "impactMetal_000.ogg", KENNEY_SCIFI + "impactMetal_001.ogg", KENNEY_SCIFI + "impactMetal_002.ogg"], -2.0, 0.6, 0.7],
 	"button_press": [[KENNEY_SCIFI + "computerNoise_000.ogg"], -2.0, 0.95, 1.05],
+	"factory_boom": [[KENNEY_SCIFI + "lowFrequency_explosion_000.ogg", KENNEY_SCIFI + "lowFrequency_explosion_001.ogg", KENNEY_SCIFI + "explosionCrunch_000.ogg", KENNEY_SCIFI + "explosionCrunch_002.ogg"], 0.0, 0.7, 0.9],
 	# hit_confirm: cut after playtest (read as a generated thump). The crosshair tick and the enemy hurt voice carry it.
 	"weak_hit": [[KENNEY_IMPACT + "impactPlate_light_000.ogg", KENNEY_IMPACT + "impactPlate_light_001.ogg", KENNEY_IMPACT + "impactPlate_light_002.ogg"], -5.0, 1.1, 1.3],
 	# Ricochet-style scenery hits were cut after playtest; dust puffs carry the miss.
@@ -54,6 +55,13 @@ const EVENTS := {
 	"hunter_burst": [[OGA + "monster_ogrebane/Monster-Sounds-Volume-2/monster-10.wav", OGA + "monster_ogrebane/Monster-Sounds-Volume-2/monster-14.wav"], -5.0, 0.95, 1.1],
 	"hunter_hurt": [[OGA + "monster_starninjas/monster.13.ogg", OGA + "monster_ogrebane/Monster-Sounds-Volume-2/Monster-5.wav"], -6.0, 0.9, 1.05],
 	"hunter_death": [[OGA + "monster_ogrebane/Monster-Sounds-Volume-2/monster-17.wav", OGA + "monster_ogrebane/Monster-Sounds-Volume-2/monster-15.wav"], -3.0, 0.85, 0.95],
+	# The brute is a fodder grown huge, so it has fodder's voice pitched well down.
+	"brute_idle": [[OGA + "monster_starninjas/monster.3.ogg", OGA + "monster_starninjas/monster.5.ogg", OGA + "monster_starninjas/monster.9.ogg"], -5.0, 0.55, 0.65],
+	"brute_alert": [[OGA + "monster_starninjas/monster.1.ogg", OGA + "monster_starninjas/monster.2.ogg"], -3.0, 0.55, 0.62],
+	"brute_windup": [[OGA + "monster_starninjas/monster.7.ogg", OGA + "monster_starninjas/monster.12.ogg"], -2.0, 0.5, 0.58],
+	"brute_hurt": [[OGA + "monster_starninjas/monster.4.ogg", OGA + "monster_starninjas/monster.8.ogg", OGA + "monster_starninjas/monster.14.ogg"], -5.0, 0.8, 0.95],
+	"brute_death": [[OGA + "monster_starninjas/monster.10.ogg", OGA + "monster_starninjas/monster.15.ogg", OGA + "monster_starninjas/monster.16.ogg"], -1.0, 0.5, 0.6],
+	"brute_slam": [[KENNEY_IMPACT + "impactPunch_heavy_000.ogg", KENNEY_IMPACT + "impactPunch_heavy_001.ogg", KENNEY_IMPACT + "impactPunch_heavy_002.ogg"], 2.0, 0.45, 0.55],
 	# Beds.
 	"ambience_wind": [[OGA + "wind_whoosh_loop.ogg"], -18.0, 0.9, 0.9],
 }

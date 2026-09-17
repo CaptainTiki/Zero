@@ -33,6 +33,7 @@ const FODDER := preload("res://scenes/enemies/fodder.tscn")
 const AMBUSH_KINDS := {
 	"fodder": FODDER,
 	"rammer": preload("res://scenes/enemies/rammer.tscn"),
+	"brute": preload("res://scenes/enemies/brute.tscn"),
 	"hunter": preload("res://scenes/enemies/hunter.tscn"),
 }
 
@@ -218,10 +219,13 @@ func _on_ambush(body: Node, area: Area3D) -> void:
 	var spawn: Vector3 = area.get_meta("spawn")
 	var count: int = int(area.get_meta("count"))
 	var kind := String(area.get_meta("kind", "fodder"))
+	# A group needs spreading out; one enemy lands exactly where the plan put it, which is what
+	# lets a single brute be spawned into a 3-wide tunnel.
+	var spread := 1.5 if count > 1 else 0.0
 	for i in count:
 		var e: Node3D = (AMBUSH_KINDS.get(kind, FODDER) as PackedScene).instantiate()
 		add_child(e)
-		e.global_position = spawn + Vector3(randf_range(-1.5, 1.5), 0.5, randf_range(-1.5, 1.5))
+		e.global_position = spawn + Vector3(randf_range(-spread, spread), 0.5, randf_range(-spread, spread))
 		e.set("_alerted", true)
 	print("%s " % level_tag + "ambush %s: %d %s at %s" % [area.name, count, kind, _stamp(_elapsed)])
 	area.queue_free()
