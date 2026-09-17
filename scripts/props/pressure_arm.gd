@@ -167,7 +167,7 @@ func warn(on: bool) -> void:
 ## Steam from both broken ends: the pipe's foot and the socket it came out of.
 func vent(seconds: float) -> void:
 	_socket_steam.emitting = true
-	get_tree().create_timer(seconds).timeout.connect(func() -> void:
+	get_tree().create_timer(seconds, false).timeout.connect(func() -> void:
 		_socket_steam.emitting = false
 		if pipe.get("is_broken"):
 			pipe.call("stop_venting"))

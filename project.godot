@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="SUPER ZERO"
-config/version="alpha 0.0.002"
-run/main_scene="res://scenes/levels/factory.tscn"
+config/version="alpha 0.0.003"
+run/main_scene="res://scenes/ui/main_menu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 

@@ -34,9 +34,13 @@ var _was_on_floor := true
 @export var max_hp := 100.0
 @export var kick_range := 2.2
 @export var kick_damage := 10.0
-## Where a death puts the player back. Level 01 keeps its old spot by the start; a level
-## or set piece can move it. A placeholder until losing restarts the level.
+## Where a death used to put the player. Losing restarts the level now, so this is only the
+## fallback for a level with no run to end.
 @export var respawn_point := Vector3(0, 0.5, 4)
+## Set once the level has ended the run, so nothing hurts a body that is already down.
+var dead := false
+## A menu selection must be released before it can fire or kick in the new level.
+var _combat_input_ready := false
 @export var kick_force := 11.0
 @export var kick_cooldown := 0.55
 ## The boot's size: width, height and depth. The kick sweeps this box along its reach.
@@ -137,6 +141,9 @@ func _update_footsteps(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		var inputs := get_node_or_null("/root/InputBootstrap")
+		if inputs:
+			inputs.note_input(event)
 		_apply_mouse_look(event.relative)
 		get_viewport().set_input_as_handled()
 
@@ -148,7 +155,7 @@ func _apply_mouse_look(relative: Vector2) -> void:
 	_apply_aim()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"):
+	if event.is_action_pressed("pause"):
 		Input.mouse_mode = (
 			Input.MOUSE_MODE_VISIBLE
 			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
@@ -156,6 +163,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		)
 	if event.is_action_pressed("interact"):
 		_try_interact()
+	if event.is_action_pressed("weapon_next"):
+		_cycle_weapon(1)
+	if event.is_action_pressed("weapon_previous"):
+		_cycle_weapon(-1)
 	if event.is_action_pressed("weapon_fists"):
 		_set_weapon(Weapon.FISTS)
 	if event.is_action_pressed("weapon_pistol") and _has_gun:
@@ -165,10 +176,40 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("hud_toggle", false, true) and hud:
 		hud.visible = not hud.visible
 
+func _cycle_weapon(step: int) -> void:
+	var available: Array[int] = [Weapon.FISTS]
+	if _has_gun:
+		available.append(Weapon.PISTOL)
+	if _has_shotgun:
+		available.append(Weapon.SHOTGUN)
+	_set_weapon(available[posmod(available.find(_weapon) + step, available.size())])
+
+func _update_controller_look(delta: float) -> void:
+	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		return
+	var inputs := get_node_or_null("/root/InputBootstrap")
+	if inputs == null:
+		return
+	var stick := Input.get_vector("look_left", "look_right", "look_up", "look_down", inputs.look_deadzone)
+	if stick.is_zero_approx():
+		return
+	# Radial response gives fine control near centre and full turn speed at the edge.
+	stick = stick.normalized() * pow(stick.length(), 1.6)
+	var speed := deg_to_rad(float(inputs.look_sensitivity)) * (0.65 if _ads else 1.0)
+	_yaw -= stick.x * speed * delta
+	_pitch = clampf(_pitch - stick.y * speed * 0.75 * delta * (-1.0 if inputs.invert_y else 1.0), deg_to_rad(-85.0), deg_to_rad(85.0))
+	rotation.y = _yaw
+	_apply_aim()
+
+func release_menu_input() -> void:
+	_combat_input_ready = false
+
 func _physics_process(delta: float) -> void:
+	if not _combat_input_ready:
+		_combat_input_ready = not Input.is_action_pressed("primary") and not Input.is_action_pressed("kick") and not Input.is_action_pressed("ui_accept")
 	_update_recoil(delta)
 	_kick_timer = maxf(0.0, _kick_timer - delta)
-	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_action_just_pressed("kick") and _kick_timer <= 0.0:
+	if _combat_input_ready and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_action_just_pressed("kick") and _kick_timer <= 0.0:
 		_kick_timer = kick_cooldown
 		_kick_elapsed = 0.0
 		_kick_connected = false
@@ -185,6 +226,7 @@ func _physics_process(delta: float) -> void:
 	_update_pump(delta)
 	_hurt_cd = maxf(0.0, _hurt_cd - delta)
 	_ads = _weapon == Weapon.PISTOL and Input.is_action_pressed("ads")
+	_update_controller_look(delta)
 	if muzzle and muzzle.light_energy > 0.0:
 		muzzle.light_energy = maxf(0.0, muzzle.light_energy - delta * 30.0)
 
@@ -192,7 +234,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y -= _gravity * delta
 
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-	var direction := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
+	var direction := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y))
 	var speed := sprint_speed if Input.is_action_pressed("sprint") else walk_speed
 	if _ads:
 		speed *= 0.7
@@ -205,13 +247,13 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0.0, speed)
 		velocity.z = move_toward(velocity.z, 0.0, speed)
 
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if _combat_input_ready and Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity * (boost_jump_scale if _boost_left > 0.0 else 1.0)
 
 	move_and_slide()
 	_update_footsteps(delta)
 
-	if Input.is_action_just_pressed("primary"):
+	if _combat_input_ready and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_action_just_pressed("primary"):
 		if _weapon == Weapon.FISTS:
 			_try_melee()
 		elif _weapon == Weapon.PISTOL:
@@ -385,6 +427,11 @@ func restore_health(amount: float) -> bool:
 	return true
 
 func take_damage(amount: float) -> void:
+	if dead:
+		return
+	for run in get_tree().get_nodes_in_group("run_stats"):
+		if run.has_method("run_ended") and run.run_ended():
+			return
 	if _hurt_cd > 0.0:
 		return
 	_hurt_cd = 0.35
@@ -400,10 +447,24 @@ func take_damage(amount: float) -> void:
 	tw.tween_property(camera, "position", start + Vector3(0.05, -0.04, 0.05), 0.04)
 	tw.tween_property(camera, "position", start, 0.1)
 	if _hp <= 0.0:
-		get_tree().call_group("run_stats", "record_death", global_position)
-		_hp = max_hp
-		global_position = respawn_point
-		_update_hud()
+		_die()
+
+## Out of health. The level ends the run and offers a restart, which is what losing means
+## here. respawn_point is only the fallback for a level that has no run to end.
+func _die() -> void:
+	if dead:
+		return
+	get_tree().call_group("run_stats", "record_death", global_position)
+	for node in get_tree().get_nodes_in_group("run_stats"):
+		if node.has_method("player_died"):
+			dead = true
+			_hp = 0.0
+			_update_hud()
+			node.player_died(global_position)
+			return
+	_hp = max_hp
+	_update_hud()
+	global_position = respawn_point
 
 func _update_hud() -> void:
 	if hud and hud.has_method("set_status"):

@@ -31,7 +31,7 @@ into the half of the level cleared before the drains. See playtest 13 in `LEVEL0
 
 ## Game-wide
 
-### Pause menu with an unstuck button
+### ~~Pause menu with an unstuck button~~
 
 From playtest 12, and playtest 13 made the case again. An escape menu with an unstuck button for
 when a player wedges themselves in geometry. Log every use with the player's position, because an
@@ -39,7 +39,13 @@ unstuck press is a bug report. Escape currently drops the end-of-run tally, so t
 to be reconciled when the menu arrives. Full note under "Still to build: pause menu" in
 `LEVEL01_PLAN.md`.
 
-### Death respawns at a fixed point
+Paid September 17, 2026. Escape pauses the game and all gameplay clocks, with Resume,
+Unstuck and Exit to Menu. Unstuck returns to the latest beat entry (level start before the
+first beat), logs both positions and the beat, and resumes without resetting progress.
+The factory seal updates the destination into the machine pit. Completion still supports
+Escape to inspect and reopen the tally.
+
+### ~~Death respawns at a fixed point~~
 
 Found building the factory's machine set piece, September 16, 2026. `take_damage` used to put
 the player at (0, 0.5, 4), Level 01's start, in every level. It is now
@@ -54,6 +60,11 @@ Eased September 16, 2026, still owed: the factory sets `level_base.gd`'s `respaw
 a death puts the player back at the furthest beat line crossed. Factory playtest 2's first death
 cost 2:02 of walking back from the lot. Level 01 leaves it off, because its arena seals a beat
 line's far side and doesn't move the respawn itself.
+
+Paid September 17, 2026. Death ends the run and offers a full level restart or return to the
+menu. The factory escape timeout uses the same failure flow. The world and clock stop while
+the failure screen is visible. `respawn_point` remains only as a fallback in standalone scenes
+without a level runtime; checkpoint values in baked levels no longer control death.
 
 ## Factory
 

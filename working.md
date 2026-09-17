@@ -1,8 +1,83 @@
 # SUPER ZERO — working notes
 
-Last updated: September 16, 2026
+Last updated: September 17, 2026
 
 ## Resume here
+
+**Latest, September 17, 2026: controller/input pass.** Both levels and all menus support
+keyboard/mouse and a standard mapped gamepad through the shared InputBootstrap actions.
+Controller movement is analog; right-stick aim has a radial deadzone/response curve,
+sensitivity, ADS scaling and invert Y. Shoulders cycle owned weapons; triggers fire/aim,
+south face button jumps/confirms, right-stick click kicks, west face button interacts,
+left-stick click holds sprint, and Start pauses. Menu Back is separate from Pause.
+
+Controls in the main and pause menus saves controller tuning to `user://controls.cfg`.
+HUD, menu, end-screen and teaching-door prompts follow the input device. Losing the active
+controller pauses the run. Full mapping and tuning details are in `docs/CONTROLS.md`.
+No physical controller was connected here; rendered synthetic event checks cover the input
+paths, but the user must judge actual stick feel. No fidelity work has started. The user
+plans to commit this baseline themselves after testing; do not commit on their behalf.
+Validation: all 28 automated checks pass, including both full routes. Rendered controller
+checks also passed actual firing, kicking, jumping, aiming, menu/settings navigation,
+completion/failure controls and disconnect pausing. HUD/settings screenshots were reviewed.
+Final Pause/Unstuck checks pass with the separate pause action. Ready for pad playtesting.
+
+**Latest, September 17, 2026: save reports on menu quit.** The user's full factory-to-city
+run completed, then they deliberately tested Unstuck once in each level and quit. Those two
+Unstuck positions were system tests, NOT reports of stuck geometry. Their quit runs appeared
+only in the rolling engine log, because menu exit had not saved a run report.
+
+Exit to Menu now logs `QUIT TO MENU` with elapsed time/position and writes a run report before
+removing the level, including retained Unstuck entries, partial stats, health, and segments
+ending with `to quit`. Completion and death retain their own outcomes. Same-second filenames
+get a suffix instead of replacing a previous report. A failed save keeps the game paused,
+shows the error, and permits retry or resume without losing the event buffer. Pause duration
+is not tracked, per the user. Direct process termination/window-close reporting is unchanged.
+
+Validation: `quit_report_test` reads saved files and checks both quit runs, retained Unstuck
+entries, filename collisions, duplicate activation, save failure/retry, completion and death.
+It passes, along with `pause_menu_test` and `game_flow_test`. Changes remain uncommitted.
+
+**Latest, September 17, 2026: pause and Unstuck.** During a run, Escape now pauses the
+SceneTree, stopping gameplay, animations, the run timer and the factory escape countdown.
+The overlay offers Resume, Unstuck and Exit to Menu. Resume (or Escape again) captures the
+mouse; selecting Resume cannot also fire, kick or jump. Exit to Menu clears pause before a
+new run starts. Gameplay effect timers now honor pause too.
+
+Unstuck moves the player back to their latest beat's entry position, or the level start
+before any beat. It clears velocity, preserves health/ammo/progress/time, excludes the
+teleport from walked distance, updates fall recovery, and logs the old/new positions and
+beat to the console and run report. Older beats cannot roll the checkpoint back. When the
+machine room seals, its checkpoint moves inside the pit. Unstuck resumes automatically.
+The developer tally keeps its existing Escape-to-inspect behavior after completion.
+
+New tests: `pause_menu_test` and `unstuck_test`. Changes remain uncommitted.
+Validation: all eight focused/regression checks pass (pause, Unstuck, menu, game flow,
+machine set piece, city arena, kick reach and shotgun). Pause and Unstuck also passed with
+the renderer, including mouse recapture; the final pause menu was visually checked.
+Ready for playtesting.
+
+**Latest, September 17, 2026: menu and game flow.** F5 now opens the main menu: Start,
+Choose Level, Quit. Start loads the factory; level selection also offers District 04. Arrows,
+Enter, F and mouse all work. Finishing the factory offers District 04, and finishing District
+04 returns to the menu. Fire/F/Enter continues from a tally. Escape after success toggles
+inspection and the tally, so looking around no longer loses the continue control.
+
+Lethal damage and a failed factory escape now end the run, freeze the world and timer, and
+offer Fire/F/Enter to restart the entire current level, or Escape for the menu. Death keeps HP
+at zero until restart. Input held while selecting a level must be released before attacking.
+The menu stops level ambience. Tallies fit the viewport with a dark backdrop; full run-report
+paths remain in the console, with the filename on screen. The earlier checkpoint-respawn and
+main-scene notes below are historical. This work remains uncommitted, version alpha 0.0.002.
+
+New checks: `tests/main_menu_test.gd` exercises GUI input and both level loads;
+`tests/game_flow_test.gd` exercises progression, inspection, death/restart and escape failure.
+The mouse-capture assertion runs only with a renderer, since headless Godot cannot capture it.
+Validation: all 22 existing gameplay tests and both new tests pass. The flow test also passes
+with the Compatibility renderer; menu, level selection and tally layouts were checked in
+rendered captures. Both full routes passed after preserving collisions while the world is
+frozen. Test logs are under `.godot/`, separate from player logs. Ready for a user playtest.
+
 
 **Latest, September 17, 2026, after playtest 5.** A completionist run at 7:49: 88/93 kills and 7/10
 secrets. The timer ran out in the truck yard about 10 units short of the pad, just after the open

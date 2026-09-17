@@ -13,7 +13,11 @@ func _ready() -> void:
 	if hurt:
 		hurt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		hurt.color = Color(0.8, 0.05, 0.05, 0.0)
-	hint.text = "1 fists · 2 pistol · 3 shotgun · LMB use · RMB ADS · F kick · E throw · Esc · ` debug · ~ hud"
+	hint.text = "1 fists · 2 pistol · 3 shotgun · LMB use · RMB ADS · F kick · E throw · Esc pause · ` debug · ~ hud"
+	var inputs := get_node_or_null("/root/InputBootstrap")
+	if inputs:
+		inputs.device_changed.connect(_refresh_controls)
+		_refresh_controls()
 	# Game HUD lives bottom-left; the level's debug readout takes the top.
 	for pair in [[hint, -44.0, 16], [weapon, -100.0, 20], [hp_label, -72.0, 20]]:
 		var label: Label = pair[0]
@@ -33,6 +37,19 @@ func _ready() -> void:
 	secrets.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
 	secrets.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$Root.add_child(secrets)
+	if inputs:
+		_refresh_controls()
+
+func _refresh_controls() -> void:
+	hint.text = get_node("/root/InputBootstrap").gameplay_hint()
+	var controller: bool = get_node("/root/InputBootstrap").using_controller
+	hint.offset_top = -56.0 if controller else -44.0
+	var lift := 24.0 if controller else 0.0
+	for pair in [[hp_label, -72.0], [weapon, -100.0], [secrets, -128.0]]:
+		var label: Label = pair[0]
+		if label:
+			label.offset_top = float(pair[1]) - lift
+			label.offset_bottom = float(pair[1]) + 28.0 - lift
 
 func set_progress(found: int, total: int, kills: int, total_kills: int, johns := 0, johns_total := 0) -> void:
 	if secrets:

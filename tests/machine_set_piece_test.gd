@@ -252,7 +252,7 @@ func run() -> void:
 	piece2.escape_left = 0.05
 	await frames(10)
 	check(piece2.state == piece2.State.DONE, "the countdown runs out")
-	check(again._finished, "running out of time ends the run")
+	check(again._dead and not again._finished, "running out of time fails the run instead of completing the level")
 
 	print("machine set piece failures: ", failures)
 	again.queue_free()

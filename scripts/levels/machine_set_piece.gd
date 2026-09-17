@@ -314,8 +314,8 @@ func _process(delta: float) -> void:
 	if escape_left <= 0.0:
 		state = State.DONE
 		_log("escape timer ran out")
-		if _level and _level.has_method("finish"):
-			_level.finish()
+		if _level and _level.has_method("fail_run"):
+			_level.fail_run("ESCAPE FAILED", _player.global_position if is_instance_valid(_player) else Vector3.ZERO)
 
 func _on_enter(body: Node) -> void:
 	if state == State.WAITING and body.is_in_group("player"):
@@ -326,6 +326,8 @@ func _start(body: Node) -> void:
 	_player = body as Node3D
 	if body and "respawn_point" in body:
 		body.set("respawn_point", respawn_at)
+	if _level and _level.has_method("set_unstuck_checkpoint"):
+		_level.set_unstuck_checkpoint(respawn_at)
 	_drop_seal()
 	_log("machine fight started, way back sealed")
 	_enter_pressure()
@@ -714,7 +716,7 @@ func _explode(at: Vector3, size: float) -> void:
 	var fade := create_tween()
 	fade.tween_property(flash, "light_energy", 0.0, 0.7)
 	fade.tween_callback(flash.queue_free)
-	get_tree().create_timer(3.0).timeout.connect(fire.queue_free)
+	get_tree().create_timer(3.0, false).timeout.connect(fire.queue_free)
 	var bank := get_tree().root.get_node_or_null("Sound")
 	if bank:
 		bank.play("factory_boom", -12.0 + size)
@@ -784,7 +786,7 @@ func _steam_burst(at: Vector3, duration: float) -> void:
 	var jet := _steam_jet(at)
 	jet.emitting = true
 	_sound("steam_hiss", at, 2.0)
-	get_tree().create_timer(duration).timeout.connect(func() -> void:
+	get_tree().create_timer(duration, false).timeout.connect(func() -> void:
 		if is_instance_valid(jet):
 			jet.emitting = false)
 

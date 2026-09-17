@@ -126,6 +126,10 @@ func play_at(event: String, position: Vector3, volume_offset := 0.0) -> void:
 	p.pitch_scale = randf_range(spec[2], spec[3])
 	p.play()
 
+func stop_ambience() -> void:
+	if _ambience:
+		_ambience.stop()
+
 func start_ambience(event: String) -> void:
 	var stream := _stream_for(event)
 	if stream == null:

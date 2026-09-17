@@ -49,6 +49,10 @@ var extra_expected_kills := 0
 
 ## Beat lines sit 1.5 above the floor they cross; a respawn goes 0.5 above it.
 const BEAT_RESPAWN_DROP := 1.0
+## Where a finished level hands off to, and the list it reads the order from.
+const MENU := "res://scenes/ui/main_menu.tscn"
+const LEVEL_LIST := preload("res://scripts/levels/level_list.gd")
+const PAUSE_MENU := preload("res://scripts/ui/pause_menu.gd")
 
 var _elapsed := 0.0
 var _label: Label
@@ -57,6 +61,11 @@ var _stats_label: Label
 var _reached := {}
 var _respawn_beat := 0
 var _finished := false
+var _dead := false
+var _transitioning := false
+var _end_input_armed := false
+var _world_modes := {}
+var _collision_modes := {}
 var _lift_open := false
 var _kills := 0
 var _shots := {"pistol": 0, "shotgun": 0}
@@ -89,6 +98,9 @@ var _johns_total := 0
 var _beacons: Array[Node3D] = []
 var _debug: CanvasLayer
 var _tally: Label
+var _pause_menu: CanvasLayer
+var _unstuck_at := Vector3.ZERO
+var _unstuck_beat := 0
 
 ## Set pieces use these rather than reaching into private state.
 func clock() -> float:
@@ -103,6 +115,13 @@ func set_hint(text: String) -> void:
 
 func _ready() -> void:
 	add_to_group("run_stats")
+	var starting_player := get_tree().get_first_node_in_group("player") as Node3D
+	if starting_player:
+		_unstuck_at = starting_player.global_position
+	_pause_menu = PAUSE_MENU.new()
+	add_child(_pause_menu)
+	get_node("/root/InputBootstrap").controller_lost.connect(_on_controller_lost)
+	get_node("/root/InputBootstrap").device_changed.connect(_refresh_end_controls)
 	var overlay := CanvasLayer.new()
 	overlay.layer = 6
 	add_child(overlay)
@@ -129,14 +148,23 @@ func _ready() -> void:
 	_stats_label.add_theme_font_size_override("font_size", 14)
 	_stats_label.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
 	_debug.add_child(_stats_label)
+	var tally_back := ColorRect.new()
+	tally_back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	tally_back.color = Color(0.02, 0.025, 0.03, 0.88)
+	tally_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tally_back.visible = false
+	overlay.add_child(tally_back)
 	_tally = Label.new()
-	_tally.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	_tally.offset_left = -300.0
-	_tally.offset_right = 300.0
-	_tally.offset_top = -120.0
-	_tally.offset_bottom = 120.0
+	_tally.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_tally.offset_left = 32.0
+	_tally.offset_right = -32.0
+	_tally.offset_top = 80.0
+	_tally.offset_bottom = -32.0
 	_tally.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_tally.add_theme_font_size_override("font_size", 28)
+	_tally.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_tally.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_tally.add_theme_font_size_override("font_size", 24)
+	_tally.visibility_changed.connect(func() -> void: tally_back.visible = _tally.visible)
 	_tally.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
 	_tally.visible = false
 	overlay.add_child(_tally)
@@ -168,19 +196,90 @@ func _ready() -> void:
 			bank.start_ambience(ambience)
 	print("%s: timer started" % level_tag)
 
+func _on_controller_lost() -> void:
+	if not run_ended() and not _transitioning:
+		_pause_menu.open()
+
+func _refresh_end_controls() -> void:
+	if not run_ended() or _tally == null:
+		return
+	var text := _tally.text
+	var split := text.rfind("\n\n")
+	if split < 0:
+		return
+	var inputs := get_node("/root/InputBootstrap")
+	var confirm: String = inputs.button_label("ui_accept") if inputs.using_controller else "Fire, F or Enter"
+	var back: String = inputs.button_label("ui_cancel")
+	var destination := "restart" if _dead else "continue"
+	_tally.text = text.substr(0, split) + "\n\n%s to %s   ·   %s %s" % [confirm, destination, back, "for menu" if _dead else "to inspect / return"]
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("debug_toggle", false, true):
 		_debug_visible = not _debug_visible
 		_debug.visible = _debug_visible
 	if event.is_action_pressed("hud_toggle", false, true):
 		_hint.visible = not _hint.visible
-	if _finished and _tally.visible and event.is_action_pressed("ui_cancel"):
-		# Esc drops the end screen and hands the mouse back to the game.
-		_tally.visible = false
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+## Own end-screen input before a player's Escape handler can toggle the mouse again.
+func _input(event: InputEvent) -> void:
+	if not run_ended():
+		if event.is_action_pressed("pause") and not _transitioning:
+			get_viewport().set_input_as_handled()
+			_pause_menu.open()
+		return
+	if event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		if _transitioning:
+			return
+		if _dead:
+			_change_level(MENU)
+		else:
+			_tally.visible = not _tally.visible
+			_set_world_active(not _tally.visible)
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if _tally.visible else Input.MOUSE_MODE_CAPTURED
+			_end_input_armed = false
+	elif _tally.visible and (event.is_action_pressed("primary") or event.is_action_pressed("kick") or event.is_action_pressed("ui_accept")):
+		get_viewport().set_input_as_handled()
+		if _end_input_armed:
+			_go_on()
+
+func run_ended() -> bool:
+	return _finished or _dead
+
+## Stop the world while a tally is up, without pausing the app or its input.
+## Restore each child's original mode when inspecting a completed level. Defer changes
+## because exits and damage can end a run inside a physics callback.
+func _set_world_active(active: bool) -> void:
+	if active:
+		for child in _world_modes:
+			if is_instance_valid(child):
+				child.set_deferred("process_mode", _world_modes[child])
+		_world_modes.clear()
+		for body in _collision_modes:
+			if is_instance_valid(body):
+				body.set_deferred("disable_mode", _collision_modes[body])
+		_collision_modes.clear()
+	else:
+		# Disabled bodies normally leave physics entirely. Keep the frozen world's
+		# collisions in place, and make rigid bodies static until inspection resumes.
+		var pending: Array[Node] = []
+		pending.assign(get_children())
+		while not pending.is_empty():
+			var node: Node = pending.pop_back()
+			pending.append_array(node.get_children())
+			if node is CollisionObject3D and not _collision_modes.has(node):
+				_collision_modes[node] = node.disable_mode
+				node.set_deferred("disable_mode", CollisionObject3D.DISABLE_MODE_MAKE_STATIC)
+		for child in get_children():
+			if child is CanvasLayer or _world_modes.has(child):
+				continue
+			_world_modes[child] = child.process_mode
+			child.set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
 
 func _process(delta: float) -> void:
-	if _finished:
+	if run_ended():
+		if not Input.is_action_pressed("primary") and not Input.is_action_pressed("kick") and not Input.is_action_pressed("ui_accept"):
+			_end_input_armed = true
 		return
 	_elapsed += delta
 	_track_player(delta)
@@ -279,9 +378,7 @@ func _track_player(delta: float) -> void:
 
 func record_death(at: Vector3) -> void:
 	_deaths += 1
-	var player := get_tree().get_first_node_in_group("player")
-	var back: String = ", respawning at %s" % player.get("respawn_point") if player and "respawn_point" in player else ""
-	print("%s " % level_tag + "DEATH %d at %s  at %s%s" % [_deaths, _stamp(_elapsed), at, back])
+	print("%s " % level_tag + "DEATH %d at %s  at %s" % [_deaths, _stamp(_elapsed), at])
 
 func record_door_kick(door_name: String) -> void:
 	_doors_kicked += 1
@@ -345,7 +442,35 @@ func _on_beat_line(body: Node, area: Area3D) -> void:
 	if respawn_at_beats and beat > _respawn_beat and "respawn_point" in body:
 		_respawn_beat = beat
 		body.set("respawn_point", area.global_position - Vector3(0, BEAT_RESPAWN_DROP, 0))
+	if beat > _unstuck_beat:
+		_unstuck_beat = beat
+		# Use where the player crossed, not the centre of a wide trigger that may
+		# span a ramp or obstacles. A little clearance avoids a floor overlap.
+		_unstuck_at = body.global_position + Vector3(0, 0.1, 0)
 	beat_reached.emit(beat, _elapsed)
+
+## Set pieces move the checkpoint inside a seal that closes behind the player.
+func set_unstuck_checkpoint(at: Vector3) -> void:
+	_unstuck_at = at
+
+func unstuck_player() -> bool:
+	if run_ended():
+		return false
+	var player := get_tree().get_first_node_in_group("player") as Node3D
+	if player == null:
+		return false
+	var from := player.global_position
+	player.global_position = _unstuck_at
+	if player is CharacterBody3D:
+		player.velocity = Vector3.ZERO
+	player.reset_physics_interpolation()
+	# Teleport distance is not walking, and fall recovery must not return to the trap.
+	_last_pos = _unstuck_at
+	_safe_pos = _unstuck_at
+	_safe_timer = 0.5
+	_specials["unstuck"] = int(_specials.get("unstuck", 0)) + 1
+	_say("%s UNSTUCK at %s: from %s to %s (beat %d)" % [level_tag, _stamp(_elapsed), from, _unstuck_at, _unstuck_beat])
+	return true
 
 ## Lets the level exit finish the run. Level 01 opens it when the museum lift arrives,
 ## the factory when the machine goes critical.
@@ -371,12 +496,76 @@ func _on_exit(body: Node) -> void:
 	if body.is_in_group("player"):
 		finish()
 
-## Ends the run and shows the tally. Called by reaching the exit, or by a set piece
-## whose failure ends the run for now, like the factory's escape timer.
+## Losing costs the whole run. Both lethal damage and set-piece failure use this screen.
+func player_died(at: Vector3) -> void:
+	fail_run("YOU DIED", at)
+
+func fail_run(reason: String, at := Vector3.ZERO) -> void:
+	if run_ended():
+		return
+	_dead = true
+	_set_world_active(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_hint.text = ""
+	_label.text = "RUN FAILED  %s" % _stamp(_elapsed)
+	_say("%s " % level_tag + "run failed: %s at %s, at %s" % [reason, _stamp(_elapsed), at])
+	_tally.text = tally_title + "\n\n%s at %s\n\nKILLS  %d / %d\nSECRETS  %d / %d\n\nFire, F or Enter to restart   ·   Esc for menu" % [reason, _stamp(_elapsed), _kills, _kills_total, _secrets_found, _secrets_total]
+	_tally.visible = true
+	_refresh_end_controls()
+	_print_kills_per_beat()
+	_say("%s " % level_tag + "health: %d hits for %d damage, %d pickups for %d healed" % [_hits, int(round(_damage_taken)), _heals, int(round(_healed_total))])
+	_print_run_summary()
+	var report := _write_report()
+	if report != "":
+		print("%s " % level_tag + "run report written to: %s" % report)
+
+## Fire or kick on the end screen: a finished level hands off to the next one, the last level
+## hands back to the menu, and a death starts this level again.
+func _go_on() -> void:
+	if not run_ended():
+		return
+	var next := scene_file_path if _dead else LEVEL_LIST.next_path(scene_file_path)
+	_change_level(next if next != "" else MENU)
+
+func _change_level(path: String) -> void:
+	if _transitioning:
+		return
+	_transitioning = true
+	_load_level.call_deferred(path)
+
+func _load_level(path: String) -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var error := get_tree().change_scene_to_file(path)
+	if error != OK:
+		_transitioning = false
+		_hint.text = "Could not open the level. Try again."
+		push_error("Could not open %s: %s" % [path, error_string(error)])
+
+## Save an abandoned run before its nodes are removed. Keep the live event buffer intact
+## if saving or the subsequent scene change fails and the player resumes instead.
+func save_quit_report() -> bool:
+	if run_ended():
+		return true
+	var previous_size := _report.size()
+	var player := get_tree().get_first_node_in_group("player") as Node3D
+	var at := player.global_position if player else Vector3.ZERO
+	_say("%s QUIT TO MENU at %s from %s  [%s]  secrets %d/%d kills %d/%d johns %d/%d" % [level_tag, _stamp(_elapsed), at, _stats_summary(), _secrets_found, _secrets_total, _kills, _kills_total, _johns, _johns_total])
+	_print_kills_per_beat("quit")
+	_say("%s health: %d hits for %d damage, %d pickups for %d healed" % [level_tag, _hits, int(round(_damage_taken)), _heals, int(round(_healed_total))])
+	_print_run_summary()
+	var report := _write_report()
+	_report.resize(previous_size)
+	if report == "":
+		return false
+	print("%s run report written to: %s" % [level_tag, report])
+	return true
+
 func finish() -> void:
-	if _finished or not _lift_open:
+	if run_ended() or not _lift_open:
 		return
 	_finished = true
+	_set_world_active(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_say("%s " % level_tag + "finished at %s  [%s]  secrets %d/%d kills %d/%d johns %d/%d" % [_stamp(_elapsed), _stats_summary(), _secrets_found, _secrets_total, _kills, _kills_total, _johns, _johns_total])
 	_print_kills_per_beat()
 	_hint.text = ""
@@ -394,8 +583,11 @@ func finish() -> void:
 	var john_line := ""
 	if _johns_total > 0:
 		john_line = "\nJOHNS  %d / %d   (+%d%%)\n\nTOTAL  %d%%" % [_johns, _johns_total, int(round(john_bonus)), int(round(complete + john_bonus))]
-	_tally.text = tally_title + "\n\nTIME  %s   (par %s, %s)\nKILLS  %d / %d\nSECRETS  %d / %d\n\nMAP COMPLETE  %d%%%s\n\nEsc to continue and look around" % [_stamp(_elapsed), _stamp(par_time), par_note, _kills, _kills_total, _secrets_found, _secrets_total, int(round(complete)), john_line]
+	var onward := LEVEL_LIST.name_for(LEVEL_LIST.next_path(scene_file_path))
+	var go_on := "Fire, F or Enter for %s" % onward if onward != "" else "Fire, F or Enter for the menu"
+	_tally.text = tally_title + "\n\nTIME  %s   (par %s, %s)\nKILLS  %d / %d\nSECRETS  %d / %d\n\nMAP COMPLETE  %d%%%s\n\n%s   ·   Esc to inspect / return" % [_stamp(_elapsed), _stamp(par_time), par_note, _kills, _kills_total, _secrets_found, _secrets_total, int(round(complete)), john_line, go_on]
 	_tally.visible = true
+	_refresh_end_controls()
 	_say("%s " % level_tag + "health: %d hits for %d damage, %d pickups for %d healed" % [_hits, int(round(_damage_taken)), _heals, int(round(_healed_total))])
 	_print_run_summary()
 	_mark_survivors()
@@ -403,7 +595,12 @@ func finish() -> void:
 	var report := _write_report()
 	if report != "":
 		print("%s " % level_tag + "run report written to: %s" % report)
-		_hint.text = "run report saved to %s" % report
+		_hint.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+		_hint.offset_left = 24.0
+		_hint.offset_right = -24.0
+		_hint.offset_top = 48.0
+		_hint.add_theme_font_size_override("font_size", 16)
+		_hint.text = "Run report saved: %s" % report.get_file()
 		_hint.visible = true
 
 ## Everything a playtest wants that would be noise as it happened.
@@ -424,6 +621,15 @@ func _report_path() -> String:
 	var stamp := Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 	return dir.path_join("superzero_run_%s.txt" % stamp)
 
+## Quick menu tests can end several runs in the same second. Never replace an older report.
+func _unused_report_path(path: String) -> String:
+	var candidate := path
+	var suffix := 2
+	while FileAccess.file_exists(candidate):
+		candidate = "%s_%d.%s" % [path.get_basename(), suffix, path.get_extension()]
+		suffix += 1
+	return candidate
+
 func _write_report() -> String:
 	# Header first, so a report always says which build and machine produced it.
 	var header: Array[String] = [
@@ -435,18 +641,22 @@ func _write_report() -> String:
 		"system   %s, %s" % [OS.get_name(), RenderingServer.get_video_adapter_name()],
 		"",
 	]
-	_report = header + _report
-	var path := _report_path()
+	var path := _unused_report_path(_report_path())
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		# Read-only install folder: fall back somewhere always writable.
-		path = OS.get_user_data_dir().path_join(path.get_file())
+		path = _unused_report_path(OS.get_user_data_dir().path_join(path.get_file()))
 		file = FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		push_warning("Could not write a run report")
 		return ""
-	file.store_string("\n".join(_report) + "\n")
+	file.store_string("\n".join(header + _report) + "\n")
+	file.flush()
+	var error := file.get_error()
 	file.close()
+	if error != OK:
+		push_warning("Could not finish writing a run report: %s" % error_string(error))
+		return ""
 	return path
 
 func _print_run_summary() -> void:
@@ -476,7 +686,7 @@ func _print_run_summary() -> void:
 ## distance with kills is combat movement; with secrets it is hunting; with
 ## neither it is being lost.
 
-func _print_kills_per_beat() -> void:
+func _print_kills_per_beat(end_label := "finish") -> void:
 	var beats := _kills_at_beat.keys()
 	beats.sort_custom(func(a, b): return float(_reached[a]) < float(_reached[b]))
 	var last_time := 0.0
@@ -494,7 +704,7 @@ func _print_kills_per_beat() -> void:
 		last_kills = k
 		last_walk = w
 		last_secrets = s
-	lines.append("  to finish: %s, %d kills, %d units, %d secrets" % [_stamp(_elapsed - last_time), _kills - last_kills, int(round(_walked - last_walk)), _secrets_found - last_secrets])
+	lines.append("  to %s: %s, %d kills, %d units, %d secrets" % [end_label, _stamp(_elapsed - last_time), _kills - last_kills, int(round(_walked - last_walk)), _secrets_found - last_secrets])
 	_report.append("%s " % level_tag + "per segment:")
 	for line in lines:
 		_report.append(String(line))

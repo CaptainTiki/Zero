@@ -58,6 +58,12 @@ func _ready() -> void:
 		label.pixel_size = 0.003
 		label.position = Vector3(1, 1.95, 0.09)
 		_hinge.add_child(label)
+		if not Engine.is_editor_hint():
+			var inputs := get_node_or_null("/root/InputBootstrap")
+			if inputs:
+				var refresh := func() -> void: label.text = prompt.replace("[F]", "[%s]" % inputs.button_label("kick"))
+				inputs.device_changed.connect(refresh)
+				refresh.call()
 
 func _mesh(parent: Node3D, size: Vector3, offset: Vector3, material: Material) -> void:
 	var visual := MeshInstance3D.new()

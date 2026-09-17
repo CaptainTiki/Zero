@@ -1,4 +1,4 @@
-# SUPER ZERO — notes for Claude
+# SUPER ZERO — notes
 
 Solo project by CptTiki. A comedic horde FPS in Godot 4.7, Compatibility renderer, Jolt physics.
 This file carries working knowledge between machines. Session-by-session state lives in
