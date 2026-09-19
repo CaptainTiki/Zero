@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y1jig"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.95, 0.95, 0.95, 0.5)
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_kq7mu"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_y1jig")
+size = Vector2(0.8, 0.8)
+
+[node name="CPUParticles3D39" type="CPUParticles3D" unique_id=1831334752]
+emitting = false
+amount = 40
+lifetime = 1.2
+mesh = SubResource("QuadMesh_kq7mu")
+direction = Vector3(0, 1, 0)
+spread = 15.0
+initial_velocity_min = 6.0
+initial_velocity_max = 9.0
+damping_min = 2.0
+damping_max = 4.0
+scale_amount_min = 0.8
+scale_amount_max = 2.0

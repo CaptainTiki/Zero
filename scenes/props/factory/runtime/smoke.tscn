@@ -1,0 +1,41 @@
+[gd_scene format=3]
+
+[sub_resource type="Gradient" id="Gradient_q2aiw"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_tahj2"]
+gradient = SubResource("Gradient_q2aiw")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m3w2e"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("GradientTexture2D_tahj2")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_v1u7v"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_m3w2e")
+size = Vector2(9, 9)
+
+[sub_resource type="Gradient" id="Gradient_23nh6"]
+offsets = PackedFloat32Array(0, 1, 0.4)
+colors = PackedColorArray(0.25, 0.23, 0.22, 0.75, 0.2, 0.2, 0.2, 0, 0.2, 0.2, 0.2, 0.5)
+
+[node name="CPUParticles3D39" type="CPUParticles3D" unique_id=860599598]
+emitting = false
+amount = 40
+lifetime = 9.0
+one_shot = true
+explosiveness = 0.9
+mesh = SubResource("QuadMesh_v1u7v")
+direction = Vector3(0, 1, 0)
+scale_amount_min = 0.5
+color_ramp = SubResource("Gradient_23nh6")

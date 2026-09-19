@@ -1,0 +1,38 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/props/editable_sign.gd" id="sign_script"]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_y2mtl"]
+[ext_resource type="Texture2D" path="res://textures/plaster.png" id="2_m6vu6"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rfojy"]
+render_priority = 0
+shader = ExtResource("1_y2mtl")
+shader_parameter/surface_texture = ExtResource("2_m6vu6")
+shader_parameter/tint = Color(0.76862746, 0.6431373, 0.47058824, 1)
+shader_parameter/texels_per_metre = 24.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_fb1jl"]
+resource_local_to_scene = true
+material = SubResource("ShaderMaterial_rfojy")
+size = Vector3(6, 1, 0.14)
+
+[sub_resource type="SystemFont" id="SystemFont_chdvr"]
+font_names = PackedStringArray("Comic Sans MS", "Arial")
+font_weight = 700
+
+[node name="Sign" type="Node3D" unique_id=688302942]
+script = ExtResource("sign_script")
+
+[node name="Board" type="MeshInstance3D" parent="." unique_id=1214922217]
+mesh = SubResource("BoxMesh_fb1jl")
+
+[node name="Text" type="Label3D" parent="." unique_id=96714990]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.08999634)
+pixel_size = 0.006113744
+modulate = Color(0.6901961, 0.1882353, 0.16470589, 1)
+text = "VAT A: SMOG (ORGANIC)"
+font = SubResource("SystemFont_chdvr")
+font_size = 64
+outline_size = 0
+metadata/measured_board_fit = true

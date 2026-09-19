@@ -1,0 +1,232 @@
+[gd_scene format=4]
+
+[ext_resource type="Shader" path="res://materials/fidelity/factory_surface.gdshader" id="1_gemnw"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/normal_128.png" id="2_gfn6g"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/roughness_128.png" id="3_11wmx"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/albedo_128.png" id="4_yu70s"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Concrete034/albedo_128.png" id="5_6nq37"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_048kn"]
+render_priority = 0
+shader = ExtResource("1_gemnw")
+shader_parameter/normal_texture = ExtResource("2_gfn6g")
+shader_parameter/roughness_texture = ExtResource("3_11wmx")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_yu70s")
+shader_parameter/tint = Color(0.15, 0.18, 0.19, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = 13.0
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_d45is"]
+_surfaces = [{
+"aabb": AABB(-1.4, -0.1, -0.375, 2.8, 0.2, 0.75),
+"format": 34359738375,
+"material": SubResource("ShaderMaterial_048kn"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 132,
+"vertex_data": PackedByteArray("MzOzv7kehb17FK6+MzOzv7kehT17FK6+MzOzv7kehT17FK4+MzOzv7kehb17FK6+MzOzv7kehT17FK4+MzOzv7kehb17FK4+MzOzP7kehb17FK4+MzOzP7kehT17FK4+MzOzP7kehT17FK6+MzOzP7kehb17FK4+MzOzP7kehT17FK6+MzOzP7kehb17FK6+Uriuv83MzL17FK6+Uriuv83MzL17FK4+UriuP83MzL17FK4+Uriuv83MzL17FK6+UriuP83MzL17FK4+UriuP83MzL17FK6+UriuP83MzD17FK6+UriuP83MzD17FK4+Uriuv83MzD17FK4+UriuP83MzD17FK6+Uriuv83MzD17FK4+Uriuv83MzD17FK6+Uriuv7kehb0AAMC+UriuP7kehb0AAMC+UriuP7kehT0AAMC+Uriuv7kehb0AAMC+UriuP7kehT0AAMC+Uriuv7kehT0AAMC+Uriuv7kehT0AAMA+UriuP7kehT0AAMA+UriuP7kehb0AAMA+Uriuv7kehT0AAMA+UriuP7kehb0AAMA+Uriuv7kehb0AAMA+Uriuv83MzL17FK6+UriuP83MzL17FK6+UriuP7kehb0AAMC+Uriuv83MzL17FK6+UriuP7kehb0AAMC+Uriuv7kehb0AAMC+Uriuv7kehb0AAMA+UriuP7kehb0AAMA+UriuP83MzL17FK4+Uriuv7kehb0AAMA+UriuP83MzL17FK4+Uriuv83MzL17FK4+Uriuv7kehT0AAMC+UriuP7kehT0AAMC+UriuP83MzD17FK6+Uriuv7kehT0AAMC+UriuP83MzD17FK6+Uriuv83MzD17FK6+Uriuv83MzD17FK4+UriuP83MzD17FK4+UriuP7kehT0AAMA+Uriuv83MzD17FK4+UriuP7kehT0AAMA+Uriuv7kehT0AAMA+Uriuv7kehb0AAMC+Uriuv7kehT0AAMC+MzOzv7kehT17FK6+Uriuv7kehb0AAMC+MzOzv7kehT17FK6+MzOzv7kehb17FK6+MzOzP7kehb17FK6+MzOzP7kehT17FK6+UriuP7kehT0AAMC+MzOzP7kehb17FK6+UriuP7kehT0AAMC+UriuP7kehb0AAMC+MzOzv7kehb17FK4+MzOzv7kehT17FK4+Uriuv7kehT0AAMA+MzOzv7kehb17FK4+Uriuv7kehT0AAMA+Uriuv7kehb0AAMA+UriuP7kehb0AAMA+UriuP7kehT0AAMA+MzOzP7kehT17FK4+UriuP7kehb0AAMA+MzOzP7kehT17FK4+MzOzP7kehb17FK4+MzOzv7kehb17FK6+MzOzv7kehb17FK4+Uriuv83MzL17FK4+MzOzv7kehb17FK6+Uriuv83MzL17FK4+Uriuv83MzL17FK6+Uriuv83MzD17FK6+Uriuv83MzD17FK4+MzOzv7kehT17FK4+Uriuv83MzD17FK6+MzOzv7kehT17FK4+MzOzv7kehT17FK6+UriuP83MzL17FK6+UriuP83MzL17FK4+MzOzP7kehb17FK4+UriuP83MzL17FK6+MzOzP7kehb17FK4+MzOzP7kehb17FK6+MzOzP7kehT17FK6+MzOzP7kehT17FK4+UriuP83MzD17FK4+MzOzP7kehT17FK6+UriuP83MzD17FK4+UriuP83MzD17FK6+MzOzv7kehb17FK6+Uriuv83MzL17FK6+Uriuv7kehb0AAMC+Uriuv7kehb0AAMA+Uriuv83MzL17FK4+MzOzv7kehb17FK4+Uriuv7kehT0AAMC+Uriuv83MzD17FK6+MzOzv7kehT17FK6+MzOzv7kehT17FK4+Uriuv83MzD17FK4+Uriuv7kehT0AAMA+UriuP7kehb0AAMC+UriuP83MzL17FK6+MzOzP7kehb17FK6+MzOzP7kehb17FK4+UriuP83MzL17FK4+UriuP7kehb0AAMA+MzOzP7kehT17FK6+UriuP83MzD17FK6+UriuP7kehT0AAMC+UriuP7kehT0AAMA+UriuP83MzD17FK4+MzOzP7kehT17FK4+AAD/f/9//78AAP9//3//vwAA/3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/////f/9//7////9//3//v////3//f/+/////f/9//7////9//3//v////3//f/+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//3///wAA/7//f///AAD/v/9///8AAP+//3///wAA/7//f///AAD/v/9///8AAP+///////9/AID//////38AgP//////fwCA//////9/AID//////38AgP//////fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA/78AAFRVqar/vwAAVFWpqv+/AABUVamq/78AAFRVqar/vwAAVFWpqv+/AABUVamq/3//P6oqVJX/f/8/qipUlf9//z+qKlSV/3//P6oqVJX/f/8/qipUlf9//z+qKlSV/7///6oqVJX/v///qipUlf+///+qKlSV/7///6oqVJX/v///qipUlf+///+qKlSV/3//v1RVqar/f/+/VFWpqv9//79UVamq/3//v1RVqar/f/+/VFWpqv9//79UVamqAAD/v1RVqqoAAP+/VFWqqgAA/79UVaqqAAD/v1RVqqoAAP+/VFWqqgAA/79UVaqq////v6qqqqr///+/qqqqqv///7+qqqqq////v6qqqqr///+/qqqqqv///7+qqqqq/z//f6qqqqr/P/9/qqqqqv8//3+qqqqq/z//f6qqqqr/P/9/qqqqqv8//3+qqqqq/7//f1RVqqr/v/9/VFWqqv+//39UVaqq/7//f1RVqqr/v/9/VFWqqv+//39UVaqq/z//P1VVVNX/P/8/VVVU1f8//z9VVVTV/z//P1VVVNX/P/8/VVVU1f8//z9VVVTV/z//v1VVqar/P/+/VVWpqv8//79VVamq/z//v1VVqar/P/+/VVWpqv8//79VVamq/7//P1VVqar/v/8/VVWpqv+//z9VVamq/7//P1VVqar/v/8/VVWpqv+//z9VVamq/7//v1VVVNX/v/+/VVVU1f+//79VVVTV/7//v1VVVNX/v/+/VVVU1f+//79VVVTVqiqqKv8//7+qKqoq/z//v6oqqir/P/+/VFVVVdGgaNBUVVVV0aBo0FRVVVXRoGjQqipU1f8//5+qKlTV/z//n6oqVNX/P/+fVFWpqv9//59UVamq/3//n1RVqar/f/+fVNWqKv9//59U1aoq/3//n1TVqir/f/+fqqpVVf8//5+qqlVV/z//n6qqVVX/P/+fVNVU1dGgaNBU1VTV0aBo0FTVVNXRoGjQqqqpqv8//7+qqqmq/z//v6qqqar/P/+/")
+}]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_m8thx"]
+render_priority = 0
+shader = ExtResource("1_gemnw")
+shader_parameter/surface_maps = null
+shader_parameter/bump_strength = null
+shader_parameter/roughness_range = null
+shader_parameter/soft_texture = ExtResource("5_6nq37")
+shader_parameter/tint = Color(0.95, 0.98, 1, 1)
+shader_parameter/repeat_metres = 0.5
+shader_parameter/rectangular_texture = true
+shader_parameter/painted_finish = false
+shader_parameter/emission_strength = 1.0
+shader_parameter/diffuser_ribs = true
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = 13.0
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_pm82u"]
+material = SubResource("ShaderMaterial_m8thx")
+size = Vector3(2.55, 0.055, 0.55)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aoq7o"]
+render_priority = 0
+shader = ExtResource("1_gemnw")
+shader_parameter/normal_texture = ExtResource("2_gfn6g")
+shader_parameter/roughness_texture = ExtResource("3_11wmx")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_yu70s")
+shader_parameter/tint = Color(0.32, 0.47, 0.43, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = 13.0
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_xl6fs"]
+_surfaces = [{
+"aabb": AABB(-0.07, -0.07, -0.375, 0.14, 0.14, 0.75),
+"format": 34359738375,
+"material": SubResource("ShaderMaterial_aoq7o"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 132,
+"vertex_data": PackedByteArray("KVyPvc3MTL2PwrW+KVyPvc3MTD2PwrW+KVyPvc3MTD2PwrU+KVyPvc3MTL2PwrW+KVyPvc3MTD2PwrU+KVyPvc3MTL2PwrU+KVyPPc3MTL2PwrU+KVyPPc3MTD2PwrU+KVyPPc3MTD2PwrW+KVyPPc3MTL2PwrU+KVyPPc3MTD2PwrW+KVyPPc3MTL2PwrW+zcxMvSlcj72PwrW+zcxMvSlcj72PwrU+zcxMPSlcj72PwrU+zcxMvSlcj72PwrW+zcxMPSlcj72PwrU+zcxMPSlcj72PwrW+zcxMPSlcjz2PwrW+zcxMPSlcjz2PwrU+zcxMvSlcjz2PwrU+zcxMPSlcjz2PwrW+zcxMvSlcjz2PwrU+zcxMvSlcjz2PwrW+zcxMvc3MTL0AAMC+zcxMPc3MTL0AAMC+zcxMPc3MTD0AAMC+zcxMvc3MTL0AAMC+zcxMPc3MTD0AAMC+zcxMvc3MTD0AAMC+zcxMvc3MTD0AAMA+zcxMPc3MTD0AAMA+zcxMPc3MTL0AAMA+zcxMvc3MTD0AAMA+zcxMPc3MTL0AAMA+zcxMvc3MTL0AAMA+zcxMvSlcj72PwrW+zcxMPSlcj72PwrW+zcxMPc3MTL0AAMC+zcxMvSlcj72PwrW+zcxMPc3MTL0AAMC+zcxMvc3MTL0AAMC+zcxMvc3MTL0AAMA+zcxMPc3MTL0AAMA+zcxMPSlcj72PwrU+zcxMvc3MTL0AAMA+zcxMPSlcj72PwrU+zcxMvSlcj72PwrU+zcxMvc3MTD0AAMC+zcxMPc3MTD0AAMC+zcxMPSlcjz2PwrW+zcxMvc3MTD0AAMC+zcxMPSlcjz2PwrW+zcxMvSlcjz2PwrW+zcxMvSlcjz2PwrU+zcxMPSlcjz2PwrU+zcxMPc3MTD0AAMA+zcxMvSlcjz2PwrU+zcxMPc3MTD0AAMA+zcxMvc3MTD0AAMA+zcxMvc3MTL0AAMC+zcxMvc3MTD0AAMC+KVyPvc3MTD2PwrW+zcxMvc3MTL0AAMC+KVyPvc3MTD2PwrW+KVyPvc3MTL2PwrW+KVyPPc3MTL2PwrW+KVyPPc3MTD2PwrW+zcxMPc3MTD0AAMC+KVyPPc3MTL2PwrW+zcxMPc3MTD0AAMC+zcxMPc3MTL0AAMC+KVyPvc3MTL2PwrU+KVyPvc3MTD2PwrU+zcxMvc3MTD0AAMA+KVyPvc3MTL2PwrU+zcxMvc3MTD0AAMA+zcxMvc3MTL0AAMA+zcxMPc3MTL0AAMA+zcxMPc3MTD0AAMA+KVyPPc3MTD2PwrU+zcxMPc3MTL0AAMA+KVyPPc3MTD2PwrU+KVyPPc3MTL2PwrU+KVyPvc3MTL2PwrW+KVyPvc3MTL2PwrU+zcxMvSlcj72PwrU+KVyPvc3MTL2PwrW+zcxMvSlcj72PwrU+zcxMvSlcj72PwrW+zcxMvSlcjz2PwrW+zcxMvSlcjz2PwrU+KVyPvc3MTD2PwrU+zcxMvSlcjz2PwrW+KVyPvc3MTD2PwrU+KVyPvc3MTD2PwrW+zcxMPSlcj72PwrW+zcxMPSlcj72PwrU+KVyPPc3MTL2PwrU+zcxMPSlcj72PwrW+KVyPPc3MTL2PwrU+KVyPPc3MTL2PwrW+KVyPPc3MTD2PwrW+KVyPPc3MTD2PwrU+zcxMPSlcjz2PwrU+KVyPPc3MTD2PwrW+zcxMPSlcjz2PwrU+zcxMPSlcjz2PwrW+KVyPvc3MTL2PwrW+zcxMvSlcj72PwrW+zcxMvc3MTL0AAMC+zcxMvc3MTL0AAMA+zcxMvSlcj72PwrU+KVyPvc3MTL2PwrU+zcxMvc3MTD0AAMC+zcxMvSlcjz2PwrW+KVyPvc3MTD2PwrW+KVyPvc3MTD2PwrU+zcxMvSlcjz2PwrU+zcxMvc3MTD0AAMA+zcxMPc3MTL0AAMC+zcxMPSlcj72PwrW+KVyPPc3MTL2PwrW+KVyPPc3MTL2PwrU+zcxMPSlcj72PwrU+zcxMPc3MTL0AAMA+KVyPPc3MTD2PwrW+zcxMPSlcjz2PwrW+zcxMPc3MTD0AAMC+zcxMPc3MTD0AAMA+zcxMPSlcjz2PwrU+KVyPPc3MTD2PwrU+AAD/f/9//78AAP9//3//vwAA/3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/////f/9//7////9//3//v////3//f/+/////f/9//7////9//3//v////3//f/+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//3///wAA/7//f///AAD/v/9///8AAP+//3///wAA/7//f///AAD/v/9///8AAP+///////9/AID//////38AgP//////fwCA//////9/AID//////38AgP//////fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA/78AAFRVqqr/vwAAVFWqqv+/AABUVaqq/78AAFRVqqr/vwAAVFWqqv+/AABUVaqq/3//P6oqVJX/f/8/qipUlf9//z+qKlSV/3//P6oqVJX/f/8/qipUlf9//z+qKlSV/7///6oqVJX/v///qipUlf+///+qKlSV/7///6oqVJX/v///qipUlf+///+qKlSV/3//v1RVqqr/f/+/VFWqqv9//79UVaqq/3//v1RVqqr/f/+/VFWqqv9//79UVaqqAAD/v1RVqqoAAP+/VFWqqgAA/79UVaqqAAD/v1RVqqoAAP+/VFWqqgAA/79UVaqq////v6qqqqr///+/qqqqqv///7+qqqqq////v6qqqqr///+/qqqqqv///7+qqqqq/z//f6qqqqr/P/9/qqqqqv8//3+qqqqq/z//f6qqqqr/P/9/qqqqqv8//3+qqqqq/7//f1RVqqr/v/9/VFWqqv+//39UVaqq/7//f1RVqqr/v/9/VFWqqv+//39UVaqq/z//P1RVVNX/P/8/VFVU1f8//z9UVVTV/z//P1RVVNX/P/8/VFVU1f8//z9UVVTV/z//v1RVqar/P/+/VFWpqv8//79UVamq/z//v1RVqar/P/+/VFWpqv8//79UVamq/7//P1RVqar/v/8/VFWpqv+//z9UVamq/7//P1RVqar/v/8/VFWpqv+//z9UVamq/7//v1RVVNX/v/+/VFVU1f+//79UVVTV/7//v1RVVNX/v/+/VFVU1f+//79UVVTVqiqqKv8//7+qKqoq/z//v6oqqir/P/+/VFVUVf9f/99UVVRV/1//31RVVFX/X//fqipU1f8//5+qKlTV/z//n6oqVNX/P/+fVFWqqv9//59UVaqq/3//n1RVqqr/f/+fVNWqKv9//59U1aoq/3//n1TVqir/f/+fqqpUVf8//5+qqlRV/z//n6qqVFX/P/+fVNVU1f9f/99U1VTV/1//31TVVNX/X//fqqqqqv8//7+qqqqq/z//v6qqqqr/P/+/")
+}]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wu4vx"]
+render_priority = 0
+shader = ExtResource("1_gemnw")
+shader_parameter/normal_texture = ExtResource("2_gfn6g")
+shader_parameter/roughness_texture = ExtResource("3_11wmx")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_yu70s")
+shader_parameter/tint = Color(0.15, 0.18, 0.19, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = 13.0
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_uh53d"]
+material = SubResource("ShaderMaterial_wu4vx")
+size = Vector3(0.055, 1.55, 0.055)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8du6k"]
+render_priority = 0
+shader = ExtResource("1_gemnw")
+shader_parameter/normal_texture = ExtResource("2_gfn6g")
+shader_parameter/roughness_texture = ExtResource("3_11wmx")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_yu70s")
+shader_parameter/tint = Color(0.32, 0.47, 0.43, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = 13.0
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_mqn3j"]
+_surfaces = [{
+"aabb": AABB(-0.07, -0.07, -0.375, 0.14, 0.14, 0.75),
+"format": 34359738375,
+"material": SubResource("ShaderMaterial_8du6k"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 132,
+"vertex_data": PackedByteArray("KVyPvc3MTL2PwrW+KVyPvc3MTD2PwrW+KVyPvc3MTD2PwrU+KVyPvc3MTL2PwrW+KVyPvc3MTD2PwrU+KVyPvc3MTL2PwrU+KVyPPc3MTL2PwrU+KVyPPc3MTD2PwrU+KVyPPc3MTD2PwrW+KVyPPc3MTL2PwrU+KVyPPc3MTD2PwrW+KVyPPc3MTL2PwrW+zcxMvSlcj72PwrW+zcxMvSlcj72PwrU+zcxMPSlcj72PwrU+zcxMvSlcj72PwrW+zcxMPSlcj72PwrU+zcxMPSlcj72PwrW+zcxMPSlcjz2PwrW+zcxMPSlcjz2PwrU+zcxMvSlcjz2PwrU+zcxMPSlcjz2PwrW+zcxMvSlcjz2PwrU+zcxMvSlcjz2PwrW+zcxMvc3MTL0AAMC+zcxMPc3MTL0AAMC+zcxMPc3MTD0AAMC+zcxMvc3MTL0AAMC+zcxMPc3MTD0AAMC+zcxMvc3MTD0AAMC+zcxMvc3MTD0AAMA+zcxMPc3MTD0AAMA+zcxMPc3MTL0AAMA+zcxMvc3MTD0AAMA+zcxMPc3MTL0AAMA+zcxMvc3MTL0AAMA+zcxMvSlcj72PwrW+zcxMPSlcj72PwrW+zcxMPc3MTL0AAMC+zcxMvSlcj72PwrW+zcxMPc3MTL0AAMC+zcxMvc3MTL0AAMC+zcxMvc3MTL0AAMA+zcxMPc3MTL0AAMA+zcxMPSlcj72PwrU+zcxMvc3MTL0AAMA+zcxMPSlcj72PwrU+zcxMvSlcj72PwrU+zcxMvc3MTD0AAMC+zcxMPc3MTD0AAMC+zcxMPSlcjz2PwrW+zcxMvc3MTD0AAMC+zcxMPSlcjz2PwrW+zcxMvSlcjz2PwrW+zcxMvSlcjz2PwrU+zcxMPSlcjz2PwrU+zcxMPc3MTD0AAMA+zcxMvSlcjz2PwrU+zcxMPc3MTD0AAMA+zcxMvc3MTD0AAMA+zcxMvc3MTL0AAMC+zcxMvc3MTD0AAMC+KVyPvc3MTD2PwrW+zcxMvc3MTL0AAMC+KVyPvc3MTD2PwrW+KVyPvc3MTL2PwrW+KVyPPc3MTL2PwrW+KVyPPc3MTD2PwrW+zcxMPc3MTD0AAMC+KVyPPc3MTL2PwrW+zcxMPc3MTD0AAMC+zcxMPc3MTL0AAMC+KVyPvc3MTL2PwrU+KVyPvc3MTD2PwrU+zcxMvc3MTD0AAMA+KVyPvc3MTL2PwrU+zcxMvc3MTD0AAMA+zcxMvc3MTL0AAMA+zcxMPc3MTL0AAMA+zcxMPc3MTD0AAMA+KVyPPc3MTD2PwrU+zcxMPc3MTL0AAMA+KVyPPc3MTD2PwrU+KVyPPc3MTL2PwrU+KVyPvc3MTL2PwrW+KVyPvc3MTL2PwrU+zcxMvSlcj72PwrU+KVyPvc3MTL2PwrW+zcxMvSlcj72PwrU+zcxMvSlcj72PwrW+zcxMvSlcjz2PwrW+zcxMvSlcjz2PwrU+KVyPvc3MTD2PwrU+zcxMvSlcjz2PwrW+KVyPvc3MTD2PwrU+KVyPvc3MTD2PwrW+zcxMPSlcj72PwrW+zcxMPSlcj72PwrU+KVyPPc3MTL2PwrU+zcxMPSlcj72PwrW+KVyPPc3MTL2PwrU+KVyPPc3MTL2PwrW+KVyPPc3MTD2PwrW+KVyPPc3MTD2PwrU+zcxMPSlcjz2PwrU+KVyPPc3MTD2PwrW+zcxMPSlcjz2PwrU+zcxMPSlcjz2PwrW+KVyPvc3MTL2PwrW+zcxMvSlcj72PwrW+zcxMvc3MTL0AAMC+zcxMvc3MTL0AAMA+zcxMvSlcj72PwrU+KVyPvc3MTL2PwrU+zcxMvc3MTD0AAMC+zcxMvSlcjz2PwrW+KVyPvc3MTD2PwrW+KVyPvc3MTD2PwrU+zcxMvSlcjz2PwrU+zcxMvc3MTD0AAMA+zcxMPc3MTL0AAMC+zcxMPSlcj72PwrW+KVyPPc3MTL2PwrW+KVyPPc3MTL2PwrU+zcxMPSlcj72PwrU+zcxMPc3MTL0AAMA+KVyPPc3MTD2PwrW+zcxMPSlcjz2PwrW+zcxMPc3MTD0AAMC+zcxMPc3MTD0AAMA+zcxMPSlcjz2PwrU+KVyPPc3MTD2PwrU+AAD/f/9//78AAP9//3//vwAA/3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/////f/9//7////9//3//v////3//f/+/////f/9//7////9//3//v////3//f/+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//3///wAA/7//f///AAD/v/9///8AAP+//3///wAA/7//f///AAD/v/9///8AAP+///////9/AID//////38AgP//////fwCA//////9/AID//////38AgP//////fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA/78AAFRVqqr/vwAAVFWqqv+/AABUVaqq/78AAFRVqqr/vwAAVFWqqv+/AABUVaqq/3//P6oqVJX/f/8/qipUlf9//z+qKlSV/3//P6oqVJX/f/8/qipUlf9//z+qKlSV/7///6oqVJX/v///qipUlf+///+qKlSV/7///6oqVJX/v///qipUlf+///+qKlSV/3//v1RVqqr/f/+/VFWqqv9//79UVaqq/3//v1RVqqr/f/+/VFWqqv9//79UVaqqAAD/v1RVqqoAAP+/VFWqqgAA/79UVaqqAAD/v1RVqqoAAP+/VFWqqgAA/79UVaqq////v6qqqqr///+/qqqqqv///7+qqqqq////v6qqqqr///+/qqqqqv///7+qqqqq/z//f6qqqqr/P/9/qqqqqv8//3+qqqqq/z//f6qqqqr/P/9/qqqqqv8//3+qqqqq/7//f1RVqqr/v/9/VFWqqv+//39UVaqq/7//f1RVqqr/v/9/VFWqqv+//39UVaqq/z//P1RVVNX/P/8/VFVU1f8//z9UVVTV/z//P1RVVNX/P/8/VFVU1f8//z9UVVTV/z//v1RVqar/P/+/VFWpqv8//79UVamq/z//v1RVqar/P/+/VFWpqv8//79UVamq/7//P1RVqar/v/8/VFWpqv+//z9UVamq/7//P1RVqar/v/8/VFWpqv+//z9UVamq/7//v1RVVNX/v/+/VFVU1f+//79UVVTV/7//v1RVVNX/v/+/VFVU1f+//79UVVTVqiqqKv8//7+qKqoq/z//v6oqqir/P/+/VFVUVf9f/99UVVRV/1//31RVVFX/X//fqipU1f8//5+qKlTV/z//n6oqVNX/P/+fVFWqqv9//59UVaqq/3//n1RVqqr/f/+fVNWqKv9//59U1aoq/3//n1TVqir/f/+fqqpUVf8//5+qqlRV/z//n6qqVFX/P/+fVNVU1f9f/99U1VTV/1//31TVVNX/X//fqqqqqv8//7+qqqqq/z//v6qqqqr/P/+/")
+}]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bepob"]
+render_priority = 0
+shader = ExtResource("1_gemnw")
+shader_parameter/normal_texture = ExtResource("2_gfn6g")
+shader_parameter/roughness_texture = ExtResource("3_11wmx")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_yu70s")
+shader_parameter/tint = Color(0.15, 0.18, 0.19, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = 13.0
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_3452q"]
+material = SubResource("ShaderMaterial_bepob")
+size = Vector3(0.055, 1.55, 0.055)
+
+[node name="Fixture" type="Node3D" unique_id=986122180]
+
+[node name="Housing" type="MeshInstance3D" parent="." unique_id=1789469627]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42000008, 0)
+cast_shadow = 0
+mesh = SubResource("ArrayMesh_d45is")
+
+[node name="Diffuser" type="MeshInstance3D" parent="." unique_id=505950513]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3000002, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_pm82u")
+
+[node name="Cap-1_0" type="MeshInstance3D" parent="." unique_id=1880310809]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3199997, 0.32999992, 0)
+cast_shadow = 0
+mesh = SubResource("ArrayMesh_xl6fs")
+
+[node name="Hanger-1_0" type="MeshInstance3D" parent="." unique_id=1511187178]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.95000076, 1.2200003, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_uh53d")
+
+[node name="Cap1_0" type="MeshInstance3D" parent="." unique_id=2002470502]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3199997, 0.32999992, 0)
+cast_shadow = 0
+mesh = SubResource("ArrayMesh_mqn3j")
+
+[node name="Hanger1_0" type="MeshInstance3D" parent="." unique_id=1406701151]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.95000076, 1.2200003, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_3452q")

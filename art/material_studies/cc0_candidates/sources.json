@@ -1,0 +1,211 @@
+[
+  {
+    "id": "plastered_wall_04",
+    "author": "Rob Tuytel",
+    "source": "https://polyhaven.com/a/plastered_wall_04",
+    "download": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/plastered_wall_04/plastered_wall_04_diff_2k.jpg",
+    "license": "CC0-1.0",
+    "license_url": "https://polyhaven.com/license",
+    "verified": "2026-09-17",
+    "source_sha256": "aaf0e693291d51d13531480625a942f950fed23f6b1d1008ee0e91f2a23a7b1e",
+    "source_size": [
+      2048,
+      2048
+    ],
+    "output_size": [
+      128,
+      128
+    ],
+    "conversion": "Pillow RGB Lanczos resize; no baked lighting/normal maps; shader softness 0.5",
+    "provider_width_metres": 3.2
+  },
+  {
+    "id": "concrete_wall_007",
+    "author": "Charlotte Baglioni, Dario Barresi, Rico Cilliers",
+    "source": "https://polyhaven.com/a/concrete_wall_007",
+    "download": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/concrete_wall_007/concrete_wall_007_diff_2k.jpg",
+    "license": "CC0-1.0",
+    "license_url": "https://polyhaven.com/license",
+    "verified": "2026-09-17",
+    "source_sha256": "6399f39d4937d07b41a10f592eef5b4c955810545b889c0ba808fae77e394de4",
+    "source_size": [
+      2048,
+      2048
+    ],
+    "output_size": [
+      128,
+      128
+    ],
+    "conversion": "Pillow RGB Lanczos resize; no baked lighting/normal maps; shader softness 0.5",
+    "provider_width_metres": 2.2
+  },
+  {
+    "id": "painted_metal_shutter",
+    "author": "Charlotte Baglioni, Dario Barresi, Rico Cilliers",
+    "source": "https://polyhaven.com/a/painted_metal_shutter",
+    "download": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/painted_metal_shutter/painted_metal_shutter_diff_2k.jpg",
+    "license": "CC0-1.0",
+    "license_url": "https://polyhaven.com/license",
+    "verified": "2026-09-17",
+    "source_sha256": "0aa6835b7da52960dd371897f1777166210ca07386a2872eb162ab8398595997",
+    "source_size": [
+      2048,
+      2048
+    ],
+    "output_size": [
+      128,
+      128
+    ],
+    "conversion": "Pillow RGB Lanczos resize; no baked lighting/normal maps; shader softness 0.5",
+    "provider_width_metres": 2.0
+  },
+  {
+    "id": "red_brick",
+    "author": "Rob Tuytel",
+    "source": "https://polyhaven.com/a/red_brick",
+    "download": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/red_brick/red_brick_diff_2k.jpg",
+    "license": "CC0-1.0",
+    "license_url": "https://polyhaven.com/license",
+    "verified": "2026-09-17",
+    "source_sha256": "a1ae5ba7e63026971ceaf68ebbcf8982d9c2dadde1c99996c49b8ac1160af995",
+    "source_size": [
+      2048,
+      2048
+    ],
+    "output_size": [
+      128,
+      128
+    ],
+    "conversion": "Pillow RGB Lanczos resize; no baked lighting/normal maps; shader softness 0.5",
+    "provider_width_metres": 1.4,
+    "companion_maps": [
+      {
+        "kind": "normal",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/red_brick/red_brick_nor_gl_2k.jpg",
+        "sha256": "dd2ce5b5c42f04f02fce555d53eae42503733a0a42e76ae9a18bfb9d0680da5b"
+      },
+      {
+        "kind": "roughness",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/red_brick/red_brick_rough_2k.jpg",
+        "sha256": "b8b6b882b467647162433914b3e4db16e91852a0bdf866e6bcea4a76683ea00d"
+      }
+    ]
+  },
+  {
+    "id": "floor_tiles_06",
+    "author": "Rob Tuytel",
+    "source": "https://polyhaven.com/a/floor_tiles_06",
+    "download": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/floor_tiles_06/floor_tiles_06_diff_2k.jpg",
+    "license": "CC0-1.0",
+    "license_url": "https://polyhaven.com/license",
+    "verified": "2026-09-17",
+    "source_sha256": "fe326c219d096e8f5d31c9be6da5a617f34c58b3042d0733f7d4450a38906b37",
+    "source_size": [
+      2048,
+      2048
+    ],
+    "output_size": [
+      128,
+      128
+    ],
+    "conversion": "Pillow RGB Lanczos resize; no baked lighting/normal maps; shader softness 0.5",
+    "provider_width_metres": 3.0
+  },
+  {
+    "id": "Metal038",
+    "author": "ambientCG",
+    "source": "https://ambientcg.com/view?id=Metal038",
+    "download": "https://ambientcg.com/get?file=Metal038_2K-JPG.zip",
+    "license": "CC0-1.0",
+    "license_url": "https://docs.ambientcg.com/license/",
+    "verified": "2026-09-17",
+    "source_sha256": "e1e0deda1119497fa419de496019e04a94d281ad470c6595da0100f063aa1f3c",
+    "source_size": [
+      2048,
+      2048
+    ],
+    "output_size": [
+      128,
+      128
+    ],
+    "conversion": "RGB Lanczos resize preserving aspect ratio; shader tints and 50% filtering",
+    "companion_maps": [
+      {
+        "kind": "normal",
+        "url": "https://ambientcg.com/get?file=Metal038_2K-JPG.zip",
+        "archive_member": "Metal038_2K-JPG_NormalGL.jpg",
+        "sha256": "a3fbbd22b384bbe94baafa21a01e60f0c27a859a9654637eff18eec5a100127f"
+      },
+      {
+        "kind": "roughness",
+        "url": "https://ambientcg.com/get?file=Metal038_2K-JPG.zip",
+        "archive_member": "Metal038_2K-JPG_Roughness.jpg",
+        "sha256": "05b1b86df140c3bace260190af8d64593f95e6f139ed79605c647ea7a6ac0185"
+      }
+    ]
+  },
+  {
+    "id": "Concrete034",
+    "author": "ambientCG",
+    "source": "https://ambientcg.com/view?id=Concrete034",
+    "download": "https://ambientcg.com/get?file=Concrete034_2K-JPG.zip",
+    "license": "CC0-1.0",
+    "license_url": "https://docs.ambientcg.com/license/",
+    "verified": "2026-09-17",
+    "source_sha256": "fa27982687596d7aa080db1e9b88c30f48a3c32eb3e50b27a2ea27c431e4cde9",
+    "source_size": [
+      2048,
+      1024
+    ],
+    "output_size": [
+      128,
+      64
+    ],
+    "conversion": "RGB Lanczos resize preserving aspect ratio; shader tints and 50% filtering"
+  },
+  {
+    "id": "Bricks005",
+    "author": "Lennart Demes / ambientCG",
+    "source": "https://ambientcg.com/view?id=Bricks005",
+    "download": "https://ambientcg.com/get?file=Bricks005_2K-JPG.zip",
+    "license": "CC0-1.0",
+    "license_url": "https://docs.ambientcg.com/license/",
+    "verified": "2026-09-17",
+    "archive_sha256": "5325b55f004e04f58ae015d637f80ed562187484f0ff6620722297fbe601470e",
+    "companion_maps": [
+      {
+        "kind": "Color",
+        "file": "source_2k.jpg",
+        "sha256": "8a00aea17e5f79481b3fc81915b6fdf6850857a80065d1f9d09c7e2e4a93deb2",
+        "source_size": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "kind": "NormalGL",
+        "file": "normal_2k.jpg",
+        "sha256": "fe866780653a64dd68171f6ccb2cb7692f9c285f6686998babff5e4953458e02",
+        "source_size": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "kind": "Roughness",
+        "file": "roughness_2k.jpg",
+        "sha256": "3bfa0602b4f65ee3611daf320e44bd8cc4590b532e1d6ab2abf9c51979a59853",
+        "source_size": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "output_size": [
+      128,
+      128
+    ],
+    "conversion": "RGB Lanczos reduction; shader softness 0.5; NormalGL sampled as linear data",
+    "status": "Approved and applied to production hall, 2.8m repeat; 128px colour, 50% filtering, 0.1 normal strength"
+  }
+]

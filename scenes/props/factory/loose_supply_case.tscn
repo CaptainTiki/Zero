@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/props/factory/shipping_case.tscn" id="1_vi15r"]
+
+[node name="LooseSupplyCase" type="Node3D" unique_id=1532561167]
+
+[node name="LooseCase" type="Node3D" parent="." unique_id=1291138963 instance=ExtResource("1_vi15r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)

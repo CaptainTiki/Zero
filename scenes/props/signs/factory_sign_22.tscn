@@ -1,0 +1,38 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/props/editable_sign.gd" id="sign_script"]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_gny8i"]
+[ext_resource type="Texture2D" path="res://textures/plaster.png" id="2_irny2"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rfojy"]
+render_priority = 0
+shader = ExtResource("1_gny8i")
+shader_parameter/surface_texture = ExtResource("2_irny2")
+shader_parameter/tint = Color(0.76862746, 0.6431373, 0.47058824, 1)
+shader_parameter/texels_per_metre = 24.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_e0wx2"]
+resource_local_to_scene = true
+material = SubResource("ShaderMaterial_rfojy")
+size = Vector3(6, 1, 0.14)
+
+[sub_resource type="SystemFont" id="SystemFont_w823c"]
+font_names = PackedStringArray("Comic Sans MS", "Arial")
+font_weight = 700
+
+[node name="Sign" type="Node3D" unique_id=301767132]
+script = ExtResource("sign_script")
+
+[node name="Board" type="MeshInstance3D" parent="." unique_id=186149732]
+mesh = SubResource("BoxMesh_e0wx2")
+
+[node name="Text" type="Label3D" parent="." unique_id=1915725236]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.08999634)
+pixel_size = 0.0062850183
+modulate = Color(0.6901961, 0.1882353, 0.16470589, 1)
+text = "SMOG MIXING (GENTLE)"
+font = SubResource("SystemFont_w823c")
+font_size = 64
+outline_size = 0
+metadata/measured_board_fit = true

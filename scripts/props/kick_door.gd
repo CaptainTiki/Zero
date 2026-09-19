@@ -1,16 +1,10 @@
 @tool
 extends StaticBody3D
-## A latched door that swings away from the kicker and stays open. A tool script, so the
-## editor builds the panel and frame too.
+## A saved door assembly. Runtime only swings the hinge and updates input prompts.
 
 signal kicked_open
 signal opening_finished
 
-## The wall opening this door fills. The panel is always 2 by 2.8; the frame fills the rest.
-@export var opening_width := 6.0
-@export var opening_height := 6.0
-## Floating text on the panel. Only the door that teaches kicking should show it.
-@export var prompt := "MAINTENANCE\n[F] KICK"
 
 var is_open := false
 var _hinge: Node3D
@@ -18,72 +12,17 @@ var _panel_collision: CollisionShape3D
 var _impact_audio: AudioStreamPlayer3D
 
 func _ready() -> void:
-	if not Engine.is_editor_hint():
-		_impact_audio = AudioStreamPlayer3D.new()
-		_impact_audio.stream = AudioStreamWAV.load_from_file("res://audio/sfx/props/door_kick.wav")
-		_impact_audio.volume_db = -5.0
-		_impact_audio.position.y = 1.3
-		add_child(_impact_audio)
-	var paint := StandardMaterial3D.new()
-	paint.albedo_color = Color(0.28, 0.37, 0.32)
-	paint.roughness = 0.75
-	var metal := StandardMaterial3D.new()
-	metal.albedo_color = Color(0.13, 0.15, 0.16)
-	metal.metallic = 0.5
-	var concrete := StandardMaterial3D.new()
-	concrete.albedo_color = Color(0.47, 0.45, 0.40)
-	# Fill the rest of the opening either side of and above the 2 by 2.8 panel.
-	var side := (opening_width - 2.0) / 2.0
-	if side > 0.01:
-		_frame_piece(Vector3(side, opening_height, 0.6), Vector3(-1.0 - side / 2.0, opening_height / 2.0, 0), concrete)
-		_frame_piece(Vector3(side, opening_height, 0.6), Vector3(1.0 + side / 2.0, opening_height / 2.0, 0), concrete)
-	if opening_height - 2.8 > 0.01:
-		_frame_piece(Vector3(2, opening_height - 2.8, 0.6), Vector3(0, (opening_height + 2.8) / 2.0, 0), concrete)
-	_hinge = Node3D.new()
-	_hinge.position = Vector3(-1, 0, 0)
-	add_child(_hinge)
-	_mesh(_hinge, Vector3(1.96, 2.76, 0.14), Vector3(1, 1.4, 0), paint)
-	_mesh(_hinge, Vector3(1.8, 0.35, 0.17), Vector3(1, 0.35, 0), metal)
-	_mesh(_hinge, Vector3(0.12, 0.28, 0.23), Vector3(1.78, 1.25, 0), metal)
-	_panel_collision = CollisionShape3D.new()
-	var shape := BoxShape3D.new()
-	shape.size = Vector3(2, 2.8, 0.18)
-	_panel_collision.shape = shape
-	_panel_collision.position = Vector3(0, 1.4, 0)
-	add_child(_panel_collision)
-	if prompt != "":
-		var label := Label3D.new()
-		label.text = prompt
-		label.font_size = 56
-		label.pixel_size = 0.003
-		label.position = Vector3(1, 1.95, 0.09)
-		_hinge.add_child(label)
-		if not Engine.is_editor_hint():
-			var inputs := get_node_or_null("/root/InputBootstrap")
-			if inputs:
-				var refresh := func() -> void: label.text = prompt.replace("[F]", "[%s]" % inputs.button_label("kick"))
-				inputs.device_changed.connect(refresh)
-				refresh.call()
-
-func _mesh(parent: Node3D, size: Vector3, offset: Vector3, material: Material) -> void:
-	var visual := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = size
-	visual.mesh = box
-	visual.material_override = material
-	visual.position = offset
-	parent.add_child(visual)
-
-func _frame_piece(size: Vector3, offset: Vector3, material: Material) -> void:
-	var wall := StaticBody3D.new()
-	wall.position = offset
-	add_child(wall)
-	_mesh(wall, size, Vector3.ZERO, material)
-	var collision := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = size
-	collision.shape = box
-	wall.add_child(collision)
+	_hinge = $Hinge
+	_panel_collision = $PanelCollision
+	_impact_audio = $ImpactAudio
+	if Engine.is_editor_hint(): return
+	var label: Label3D = $Hinge/Prompt
+	var source_text := label.text
+	var inputs := get_node_or_null("/root/InputBootstrap")
+	if inputs and "[F]" in source_text:
+		var refresh := func() -> void: label.text = source_text.replace("[F]", "[%s]" % inputs.button_label("kick"))
+		inputs.device_changed.connect(refresh)
+		refresh.call()
 
 func apply_kick(_damage: float, from: Vector3, _force: float) -> void:
 	if is_open:

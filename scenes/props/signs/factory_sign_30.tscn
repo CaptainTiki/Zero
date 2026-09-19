@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/props/editable_sign.gd" id="sign_script"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lsd27"]
+albedo_color = Color(0.74, 0.72, 0.65, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_20adp"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_lsd27")
+size = Vector3(8, 0.9, 0.14)
+
+[sub_resource type="SystemFont" id="SystemFont_gnc7f"]
+font_names = PackedStringArray("Arial", "Helvetica")
+font_weight = 700
+
+[node name="Sign" type="Node3D" unique_id=114986638]
+script = ExtResource("sign_script")
+
+[node name="Board" type="MeshInstance3D" parent="." unique_id=1852699546]
+mesh = SubResource("BoxMesh_20adp")
+
+[node name="Text" type="Label3D" parent="." unique_id=1450989871]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.6293945e-06, 0, 0.09000015)
+pixel_size = 0.0066345227
+modulate = Color(0.11372549, 0.20784314, 0.34117648, 1)
+text = "THANK YOU FOR VISITING, JOHN"
+font = SubResource("SystemFont_gnc7f")
+font_size = 64
+outline_size = 0
+metadata/measured_board_fit = true

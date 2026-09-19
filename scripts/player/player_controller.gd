@@ -5,6 +5,9 @@ enum Weapon { FISTS, PISTOL, SHOTGUN }
 const ViewKitScript = preload("res://scripts/player/view_kit.gd")
 const ImpactFx = preload("res://scripts/fx/impact_fx.gd")
 
+const DebugPointer = preload("res://scripts/debug/debug_pointer.gd")
+var _pointer_requested := false
+
 var _sound: Node
 var _step_distance := 0.0
 var _was_on_floor := true
@@ -155,6 +158,10 @@ func _apply_mouse_look(relative: Vector2) -> void:
 	_apply_aim()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("debug_pointer") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		_pointer_requested = true
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("pause"):
 		Input.mouse_mode = (
 			Input.MOUSE_MODE_VISIBLE
@@ -205,6 +212,17 @@ func release_menu_input() -> void:
 	_combat_input_ready = false
 
 func _physics_process(delta: float) -> void:
+	if _pointer_requested:
+		_pointer_requested = false
+		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+			var marker := DebugPointer.sample(self, camera)
+			var recipient: Node = get_parent()
+			while recipient != null and not recipient.has_method("record_debug_pointer"):
+				recipient = recipient.get_parent()
+			if recipient:
+				recipient.record_debug_pointer(marker)
+			else:
+				print("POINTER ", JSON.stringify(marker))
 	if not _combat_input_ready:
 		_combat_input_ready = not Input.is_action_pressed("primary") and not Input.is_action_pressed("kick") and not Input.is_action_pressed("ui_accept")
 	_update_recoil(delta)

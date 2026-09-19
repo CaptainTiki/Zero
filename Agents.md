@@ -95,18 +95,33 @@ Decided September 16, 2026, after several factory layouts that all felt like one
   file. The page's Built walls toggle shows what will be built. Never hand-edit `plan.json`.
   The export also runs `check.js`, which flags anything placed in a wall, a blocker, over a pit
   or on the golden path. Fix every line it prints before baking.
-- **Everything we build should be visible in the editor.** The user inspects levels with the
-  editor's fly camera, so geometry a script creates at runtime is invisible to them. Not a hard
-  rule, but the direction (September 17, 2026).
-  - **How:** a script that builds geometry is a `@tool` script. In the editor it runs only its
-    build step, guarded by `Engine.is_editor_hint()`; gameplay, sounds and `_process` stay
-    off. Done for enemy bodies, John cutouts, kick doors, the pressure arms, coolant pipes, the
-    kick button and the machine set piece.
-  - **Mid-run things** (the seal pipe, falling debris) get see-through orange stand-ins where
-    they land, built only in the editor. Nothing built in the editor has an owner, so none of it
-    saves into the scene.
-  - **Check it:** open a scene in a headless editor, `--headless --editor --path . <scene>
-    --quit-after 600`, and read the output for errors.
+- **No runtime geometry construction. Game-ready scenes are required** (user decision,
+  September 18, 2026). Geometry must be authored or baked before play and saved in an
+  editable `.tscn`, with its meshes, materials, collision and required child nodes/resources
+  already assigned. Opening the scene in the editor must show the actual game-ready asset.
+  This applies to levels, props, characters and effect geometry.
+  - **Baking is allowed:** use explicit editor/offline build tools and save their output.
+    An unsaved `@tool` preview is not a finished asset. Do not rebuild geometry on scene
+    open or in runtime `_ready()` to make a scene usable.
+  - **Runtime handles behavior:** it may instance saved scenes, animate existing parts,
+    toggle visibility/collision, swap authored states and run configured particles/shaders.
+    It must not construct or reconstruct meshes, collision shapes or visual assemblies.
+    Gameplay changes to existing parts are fine; startup must preserve authored edits.
+  - **Mid-run objects:** enemies, debris, seals and effects use saved source scenes.
+    Where needed, save editor-only placement/landing previews too; hide them during play.
+  - **Ownership:** level bakes write generated layout, never overwrite authored source
+    assets or public level overrides/ManualDressing. See `docs/PROP_LIBRARY.md` and
+    `docs/LEVEL_EDITING.md` for the current workflow.
+  - **Check it:** save/reload the `.tscn`, inspect it in the editor, verify startup preserves
+    its authored appearance and collision, and check edits survive the relevant bake.
+    Run the affected gameplay tests. Editor loading alone is not proof of saved geometry.
+  - **Retire replaced blockouts:** once replacement art and collision are complete,
+    remove superseded greybox meshes and disabled bodies from the saved scene instead of
+    leaving them hidden. Preserve any still-active walking/support collision until the
+    replacement owns it. Explicit editing sources (such as detailed rail batch inputs)
+    and saved event previews are intentional assets, not obsolete blockouts.
+  - **Remaining legacy constructors are migration debt**, not precedent for new work.
+    Convert them in scoped passes; do not claim the entire game already meets this rule.
 - **Build in passes, outlines first:** floors, walls, rails, roofs, stairs, lights and beat
   lines, then blockers, then doors, enemies, secrets and dressing, playtesting between passes.
 - **Corridors that only meet end to end get a wall on the seam.** The bake merges two corridor

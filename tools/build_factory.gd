@@ -1,5 +1,6 @@
 extends "res://tools/level_kit.gd"
-## Bakes the Level 1 factory: scenes/levels/factory.tscn.
+## Bakes scenes/generated/factory.tscn beneath the editable scenes/levels/factory.tscn.
+## Add editor dressing in the public inherited scene; see docs/LEVEL_EDITING.md.
 ## Everything here comes from the top-down plan in docs/factory_plan/. Change the
 ## plan there, export it, then rebake:
 ##   node docs/factory_plan/export.js
@@ -28,7 +29,22 @@ func build() -> void:
 	outline(plan)
 	skyline()
 	actors(plan)
-	save_scene("res://scenes/levels/factory.tscn")
+	preload("res://tools/factory_admin_art.gd").new().apply(self)
+	preload("res://tools/factory_hall_art.gd").new().apply(self)
+	preload("res://tools/factory_shared_art.gd").new().apply(self)
+	preload("res://tools/factory_polish.gd").new().apply(self)
+	# Bake visible rail meshes into local sections; retain editable source nodes and collision.
+	var rail_baker=preload("res://scripts/editor/rail_batches.gd")
+	for label in ["HallWalkways","FactoryWalkways"]:
+		var group: Node3D=art.get_node(label)
+		group.set_script(rail_baker)
+		rail_baker.bake(group,art)
+	if not preload("res://tools/factory_replacement_cleanup.gd").apply(art):
+		push_error("Factory replacement cleanup failed; refusing to save a partial bake")
+		art.free()
+		quit(1)
+		return
+	save_scene("res://scenes/generated/factory.tscn")
 
 func v3(a: Array) -> Vector3:
 	return Vector3(float(a[0]), float(a[1]), float(a[2]))
@@ -118,11 +134,9 @@ func blockers(plan: Dictionary) -> void:
 func kick_doors(plan: Dictionary) -> void:
 	var index := 0
 	for d in plan["kick_doors"]:
-		var door := scene("KickDoor%d%s" % [index, String(d["name"]).get_slice(",", 0).to_pascal_case()], "res://scenes/props/kick_door.tscn", v3(d["at"]), float(d["yaw"]))
-		door.set("opening_width", float(d["width"]))
-		door.set("opening_height", float(d["height"]))
-		if not bool(d["prompt"]):
-			door.set("prompt", "")
+		var door_path := "res://scenes/props/factory/runtime/kick_door_factory.tscn" if bool(d.prompt) else "res://scenes/props/factory/runtime/kick_door_factory_plain.tscn"
+		scene("KickDoor%d%s" % [index, String(d["name"]).get_slice(",", 0).to_pascal_case()], door_path, v3(d["at"]), float(d["yaw"]))
+		assert(is_equal_approx(float(d.width),3.0) and is_equal_approx(float(d.height),3.2),"Create an authored door variant for this opening")
 		index += 1
 
 const PICKUPS := {
@@ -144,57 +158,8 @@ func pickups(plan: Dictionary) -> void:
 
 ## The plant room climax: pressure arms, waves, the seal, the button and the escape countdown.
 ## See scripts/levels/machine_set_piece.gd.
-func machine(plan: Dictionary) -> void:
-	var sp: Dictionary = plan["setpiece"]
-	var node := Node3D.new()
-	node.set_script(load("res://scripts/levels/machine_set_piece.gd"))
-	for key in ["start_at", "start_size", "seal_at", "respawn_at", "exit_at", "exit_size", "end_zone_at", "end_zone_size"]:
-		node.set(key, v3(sp[key]))
-	for key in ["seal_radius", "seal_length", "seal_yaw", "escape_seconds", "first_arm_seconds", "warning_seconds", "pressure_seconds", "lift"]:
-		node.set(key, float(sp[key]))
-	var arms := []
-	for a in sp["arms"]:
-		arms.append({"n": int(a["n"]), "shoulder": v3(a["shoulder"]), "elbow": v3(a["elbow"]), "socket": v3(a["socket"])})
-	node.set("arms", arms)
-	var order := []
-	for n in sp["order"]:
-		order.append(int(n))
-	node.set("order", order)
-	if String(sp.get("line_last_pipe", "")) != "":
-		node.set("line_last_pipe", String(sp["line_last_pipe"]))
-	if sp.get("outside_at") != null:
-		node.set("outside_at", v3(sp["outside_at"]))
-		node.set("outside_size", v3(sp["outside_size"]))
-	if String(sp.get("line_out", "")) != "":
-		node.set("line_out", String(sp["line_out"]))
-	var finale := []
-	for f in sp.get("finale", []):
-		finale.append({"kind": String(f["kind"]), "at": v3(f["at"]), "delay": float(f["delay"]), "size": float(f["size"])})
-	node.set("finale", finale)
-	var button: Dictionary = sp["button"]
-	node.set("button_at", v3(button["at"]))
-	node.set("button_yaw", float(button["yaw"]))
-	var waves := []
-	for w in sp["waves"]:
-		var wave := []
-		for count in w:
-			wave.append(int(count))
-		waves.append(wave)
-	node.set("waves", waves)
-	for key in ["melee_hatches", "ranged_hatches", "vents", "alarms"]:
-		var points := []
-		for at in sp[key]:
-			points.append(v3(at))
-		node.set(key, points)
-	var events := []
-	for ev in sp["escape_events"]:
-		events.append({
-			"kind": String(ev["kind"]), "at": v3(ev["at"]), "size": v3(ev["size"]),
-			"trigger": v3(ev["trigger"]) if ev["trigger"] != null else null,
-			"radius": float(ev["radius"]), "delay": float(ev["delay"]), "duration": float(ev["duration"]),
-		})
-	node.set("escape_events", events)
-	add(node, "MachineSetPiece")
+func machine(_plan: Dictionary) -> void:
+	scene("MachineSetPiece","res://scenes/props/factory/runtime/plant_encounter.tscn",Vector3.ZERO)
 
 const ENEMIES := {
 	"fodder": "res://scenes/enemies/fodder.tscn",
@@ -203,7 +168,6 @@ const ENEMIES := {
 	"brute": "res://scenes/enemies/brute.tscn",
 }
 
-## Placed enemies. Anything that starts off the level it fights on is a Hunter.
 func enemies(plan: Dictionary) -> void:
 	var index := 0
 	for e in plan["enemies"]:
@@ -217,8 +181,9 @@ const SHIRTS := [Color("c8443a"), Color("3a6ec8"), Color("4a9a4a"), Color("d8b43
 func johns(plan: Dictionary) -> void:
 	var index := 0
 	for p in plan["johns"]:
-		var john := scene("John%d" % index, "res://scenes/props/john_cutout.tscn", v3(p["at"]), float(p["yaw"]))
-		john.set("shirt", SHIRTS[index % SHIRTS.size()])
+		var variant := index % 6
+		var path := "res://scenes/props/john_cutout.tscn" if variant==0 else "res://scenes/props/factory/runtime/john_%d.tscn" % variant
+		scene("John%d" % index,path,v3(p["at"]),float(p["yaw"]))
 		index += 1
 
 ## Dead ends that bite on the way back out.
@@ -238,11 +203,9 @@ const SIGN_STYLES := {
 ## on the fronts people see. Visual only: no collision.
 func dressing(plan: Dictionary) -> void:
 	var index := 0
-	for s in plan["signs"]:
-		var style: Dictionary = SIGN_STYLES[String(s["style"])].duplicate()
-		style["height"] = float(s["height"])
-		styled_sign("Sign%d" % index, String(s["text"]), v3(s["at"]), float(s["width"]), float(s["yaw"]), style)
-		index += 1
+	for spec in plan.signs:
+		scene("Sign%d" % index,spec.prop_scene,v3(spec.at),float(spec.yaw))
+		index+=1
 	index = 0
 	for t in plan["floor_text"]:
 		var paint := Label3D.new()
@@ -366,18 +329,13 @@ func irons(plan: Dictionary) -> void:
 ## The compressor hall's pumps, each over its housing blocker. See scripts/props/compressor_pump.gd.
 func pumps(plan: Dictionary) -> void:
 	var index := 0
-	for p in plan.get("pumps", []):
-		var pump := Node3D.new()
-		pump.set_script(load("res://scripts/props/compressor_pump.gd"))
-		pump.set("width", float(p["width"]))
-		pump.set("depth", float(p["depth"]))
-		pump.set("period", float(p["period"]))
-		pump.set("phase", float(p["phase"]))
-		pump.position = v3(p["at"])
-		add(pump, "CompressorPump%d" % index)
-		index += 1
+	for p in plan.get("pumps",[]):
+		assert(is_equal_approx(float(p.width),5.0) and is_equal_approx(float(p.depth),4.0),"Create an authored pump variant for this footprint")
+		var pump := scene("CompressorPump%d" % index,"res://scenes/props/factory/runtime/compressor_pump.tscn",v3(p.at))
+		pump.set("period",float(p.period))
+		pump.set("phase",float(p.phase))
+		index+=1
 
-## A square bar from one point to another, visual only.
 func strut(label: String, from: Vector3, to: Vector3, width: float, material: String) -> void:
 	var node := MeshInstance3D.new()
 	var bar := BoxMesh.new()

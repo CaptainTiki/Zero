@@ -1,8 +1,490 @@
 # SUPER ZERO — working notes
 
-Last updated: September 17, 2026
+Last updated: September 18, 2026
 
 ## Resume here
+
+**Latest, September 18, 2026: obsolete factory blockouts removed.** User asked to remove
+old hidden geometry once replacements exist. Added final offline cleanup after rail
+batching, with replacement-exists/hidden/disabled-collision guards and refusal to save if
+cleanup fails. Removes 451 nodes (353 root entries): 86 straight/sloped rail panels,
+one circular CSG rail plus cutters, 72 opaque deck meshes, 88 old fixtures, 10 machinery
+blockout meshes, and 96 disabled bodies with shapes. No arbitrary hidden-node deletion.
+Active grating floor/ramp/disc collision and detailed rail editing sources retained.
+Compact root retired_blockouts metadata records reasons and replacement paths for audits.
+
+Public factory had a user Rail4 visible=true override: removed only that obsolete entry.
+MachineSetPiece melee_hatches override and ManualDressing preserved. All source prop
+assets/settings/city wrapper untouched. AGENTS.md now requires retiring completed
+blockouts rather than hiding them. Docs PROP_LIBRARY/LEVEL_EDITING explain the distinction
+between obsolete greyboxes and intentional batch inputs/event previews.
+
+New factory_cleanup_test compares pre-cleanup generated scene: all 3642 active saved
+colliders (path/world transform/shape/layers), 4392 approved visible meshes and all lights
+identical. Historical collision tests filter only explicit retired paths; active parity
+provides replacement coverage. Source/prop/shared/admin/rail-batch tests pass, including
+source-edit/rebatch/save/reload. Press behavior, catwalk turns, all 48 stair probes and
+polish checks pass; saved editor load checked. 105 protected source/settings/city files
+unchanged; public factory differs only by the explicitly removed Rail4 override. Runtime/scene art unchanged except removing the re-shown
+obsolete Rail4. This is clutter/resource cleanup, no FPS improvement claimed. No commit.
+
+**Latest, September 18, 2026: remaining draw-call cause isolated.** User asked whether
+16,402 calls imply an atlas is needed. Current batched hall, same geometry/textures,
+fresh-scene 1440p/4x MSAA: baseline 26.39ms/16402 calls, local shadows off 12.42ms/8664,
+all shadows off 7.06ms/2452, baseline repeat 26.70ms/16402. Roughly 85% of reported calls
+are removed by shadow disabling (includes Compatibility lighting-pass changes, not pure
+shadow-map attribution). No saved light/scene changes. Atlas is not the first fix;
+shadow budget/overlap first, then static mesh/material consolidation and occlusion.
+Whole-level enabled MeshInstance3D surface inventory: 5703, including enemy1362/John768;
+813 material resource objects, shader materials reference12 texture files. 88 shadow-
+enabled point lights configured; six range spheres overlap hall point(-35,5,-55) before
+fade/culling/limits. These are inventory, not actual visible draw counts. Raw data saved
+in docs/performance/factory_batched_hall_shadows.json and report updated. No commit.
+
+**Latest, September 18, 2026: clean rail benchmark completed.** User closed Stationeers.
+Ran all four camera views twice per mode at 1440p/4x MSAA, fresh scenes, 90 warm-up/150
+sampled frames, uncapped, VSync off, gameplay frozen. Godot editor stayed open, no other
+game or concurrent test. Mean of two frame-time medians: hall 38.67->26.56ms (~26->38 FPS),
+tank 19.81->12.58ms (~50->80), plant 43.40->28.24ms (~23->35), warehouse 12.68->10.31ms
+(~79->97). Frame time reduced 18.7-36.5%. Repeats within 4.1%, identical draw counts per
+mode. Draws: hall 25327->16402, tank 15449->8805, plant 26834->16685, warehouse 6005->4657.
+Clean results supersede earlier noisy/contended measurements. Full raw data plus summary:
+docs/performance/factory_rail_batch_profile.json; report: RAIL_BATCH_PASS.md. No gameplay,
+scene or light changes during comparison. Hall/plant still need the separate shadow-light
+pass; live combat performance must be read from PERF/Q playtests. No commit.
+
+**Latest, September 18, 2026: rail batching and playtest frame telemetry.** Saved factory
+rails now render as 271 local batches from 2,259 retained editable source meshes (hall
+675->82; rest 1584->189). Explicit offline bake groups by material/render state on a
+5x4x5m grid. Original node paths, all collision and lights unchanged. Walkway @tool script
+has Edit Rail Sources / Bake Rail Batches buttons; no startup geometry. Reuses inherited
+output nodes so manual source edits and rebuilt output survive save/reload. Collision
+edits remain manual; public overrides win over future base rebuilds and may need rebaking.
+
+level_base now collects wall-clock process-frame intervals, prints/stores PERF every five
+active seconds, enriches Q with current-window timing and records PERF FINAL on report
+save. Mean FPS, mean/p95/max ms, frames/duration, position/facing/yaw/pitch, beat, viewport/
+window/render-target size, MSAA/render scale, VSync/cap and draw counters. Pause gaps and
+initial loading excluded; long frames retained. Location is endpoint of the sampled
+window. Works through existing quit/completion/failure reports; no screenshot capture.
+
+Validation: all 298,188 triangle vertices compared, max world rounding ~0.000011m,
+normal error <0.00013; geometry/material/render flags intact. Collision/light snapshot
+identical. Saved edits and explicit rebakes persist; no runtime rail nodes added. Hall
+movement/turns, 48 stair probes, polish, frame timing, rendered Q and quit-report checks
+pass. Four paired room views inspected; editor load checked. All 106 protected source
+assets/wrappers/settings remain byte-identical after final bake. Docs updated in
+PROP_LIBRARY.md, LEVEL_EDITING.md and performance/RAIL_BATCH_PASS.md.
+
+Short hall draw-count diagnostic: 25,327 original ->16,402 batched (~35% fewer), with
+original shadows; all-shadows-off diagnostic 3528->2452. No lighting change shipped.
+Clean FPS comparison still pending: Stationeers was concurrently running at ~94% GPU
+load. No reliable frame-time claim; initial full attempt was noisy with inconsistent
+batched draw count and was stopped (scratch .godot/rail_profile_contended.json). Re-run
+tools/profile_factory.gd with --rail-pass on a quiet GPU; it compares original saved
+sources vs batches with repeats at all four cameras. --rail-captures is visual-only,
+--rail-diagnostic short hall-only. Shadow-light tuning remains next, separately measured.
+No commit.
+
+**Standing rule, September 18, 2026: no runtime geometry construction.** User requires
+all geometry to be game-ready in editable `.tscn` scenes before play. Explicit baking is
+allowed, but output must be saved with art, materials, collision and required children.
+Runtime can instance saved assets and drive behavior; it cannot build their geometry.
+AGENTS.md now replaces the older optional visibility/unsaved `@tool` preview guidance
+with this requirement. Existing unconverted constructors remain scoped migration debt.
+
+**Latest, September 18, 2026: runtime scenery converted to authored scenes.** Completed
+user's next editable-scene batch: all 31 factory placards plus a generic sign, kick doors,
+Johns/shirt variants/fallen body, compressor pump, complete plant assembly/arms/coolant/
+button/hatches/shutter/beacon/event assets. Saved named children replace geometry builders
+in gameplay scripts. Text is ordinary Label3D; explicit editor Fit Text to Board button,
+no automatic refit. Plan owns sign prop_scene and root placement; source owns lettering.
+Plant source owns encounter geometry/configuration; builder only instances it at origin.
+Orange EditorPreview landings drive seal/debris event positions, FightCheckpoint drives
+respawn. Preserve rig node paths and edit connected geometry/collision together.
+
+Extracted warm/neutral/high fixtures, complete ceiling lights, wall pipe and electrical
+cabinet. Existing lamps retain settings; factory uses visual fixture instances only.
+Added 1m/5m straight rail modules plus end post, saved collision, 1.1m tall, +X run, no
+terminal post on straight pieces. Existing rails NOT replaced or batched; that and
+shadow-light tuning remain the next measured performance pass. No FPS claim.
+
+Sources: scenes/props/signs/, scenes/props/factory/runtime/, factory/fittings/, existing
+root door/John scenes. Normal bakes never rewrite them or public level wrappers.
+One-time extraction/finalization tools are guarded against overwriting authored assets.
+See docs/PROP_LIBRARY.md and docs/LEVEL_EDITING.md for current editing workflow.
+
+Validation: saved/startup parity and edited text/geometry/material save/reload checks;
+coolant instance isolation; all 546 fittings preserve geometry/material/shadows and lamps
+retain settings. Original 343 hall meshes and earlier saved collision remain unchanged;
+172 formerly runtime-only collision shapes are now serialized and covered separately.
+Full factory route 1,208u/206.7s and district route 933u/161.0s: zero failures. Full plant
+encounter, John, door, hall behavior, shared/admin art, sign fitting/mounting tests pass.
+Editor load clean apart from existing Compatibility AA warning. Source assets, wrappers
+and project settings verified unchanged across a real bake. No commit.
+
+**Latest, September 18, 2026: authored factory prop library.** User wants reusable
+saved assets whose editor appearance survives play and level bakes; explicitly chose
+finished factory props first, older scripted machinery next. Exported 11 source scenes
+under scenes/props/factory/: shipping case, floor-origin loose case, six-case stack,
+two delivery stacks, wide/compact presses, forklift, conveyor, feed hoppers and tower.
+Every stacked/loose case instances the same shipping_case.tscn. All asset geometry,
+materials, collision and particle setup are saved. No library prop builds meshes at
+runtime. The press script animates saved parts; it now derives its resting pose/ram scale
+from the scene instead of overwriting them with hard-coded values. Stroke is exported.
+
+Plan blockers have prop_scene references in plan_items.js -> bake.js -> plan.json.
+tools/factory_hall_machinery.gd is now placement only, with the level-specific press sign
+adjustment retained. Normal bakes never save authored assets. One-time extractor
+tools/export_factory_props.gd refuses any existing destination. Stable HallMachinery
+paths retained. Hoppers/conveyor/tower footprint collisions moved into their scenes,
+world-identical; former three greybox shapes disabled and marked prefab_collision_relocated.
+The other seven prop collision replacements remain as before. Reusable source scenes
+are independent of scenes/generated resources. Public wrappers/ManualDressing preserved.
+
+Validation: factory_prop_scenes_test compares all 343 hall meshes (arrays, transforms,
+materials) and 3,470 active saved collision shapes to pre-conversion snapshot; passes.
+Every library instance's saved appearance matches runtime startup. Edited geometry and
+material survive pack/save/reload/play. All 11 assets, both public wrappers and project
+settings byte-identical across actual factory bake. Hall feedback/press motion/steam/pause
+and shared-art tests pass. Full route 1,208 units / 206.7s / zero failures. Saved editor
+load clean apart from pre-existing Compatibility AA warning. No commit.
+
+See docs/PROP_LIBRARY.md and updated docs/LEVEL_EDITING.md. Next batch: older doors,
+John cutouts, compressor pumps, then plant set piece/pressure arms/coolant/button together.
+Other rooms' machinery remains unfinished. Rails/fixtures/structural boxes still generated;
+reusable rail modules and measured batching remain pending, as does shadow-light tuning.
+This pass establishes asset ownership/editor parity; it does not claim FPS improvement.
+
+**Latest, September 18, 2026: factory rendering profile.** User reports slowdown when
+facing new rails indoors, improving when looking away, at approximately 2K fullscreen.
+Added tools/profile_factory.gd and docs/performance/FACTORY_PROFILE.md plus raw JSON.
+24 fresh-scene render-only samples on RTX 2080 SUPER, Compatibility, 1440p / 4x MSAA.
+Hall median 40.20ms, plant 45.33ms. 720p barely helps (40.11 / 45.17ms); hiding rails
+helps (25.37 / 27.08ms), local shadows off helps more (16.61 / 24.17ms). Repeated
+baselines agree within 0.7%, draw counts identical. Prior same-scene toggle pilot was
+discarded because restoring shadows changed draw counts. Dedicated shadow counter is
+zero even with shadows active; do not interpret that as no shadow work.
+
+2,259 separate rail meshes plus multipass shadowed lights are substantial contributors;
+shared finishes enabled shadows on 60 lamps. Next: batch rail visuals into local sections
+while preserving geometry/collision/editor visibility, and limit overlapping shadow lamps
+room by room; remeasure and inspect lighting before accepting. Do not reduce detail or
+resolution blindly. This benchmark freezes gameplay and is not combat/fullscreen FPS.
+No production scene/settings changed, no rebake, no commit during profiling.
+
+**Latest, September 18, 2026: 17-marker polish pass.** Read the actual 7:14 gameplay
+run (50 kills, 145 shots), preserved as .godot/user_factory_polish_2026_09_18.log. User's
+ordered list matches all 17 Q markers, from 51.19s to 420.15s. Camera/hit records and issue
+labels retained in art/material_studies/factory_polish/markers.json; 17 before and 17
+after Compatibility views captured and every after view inspected.
+
+Moved Sign9 HOOMAN WORKING STATIONS from empty office space onto the east wall at
+x=-50.28. Seated marked Sign12/13/21/22/23/24 against their walls and Sign14 against the
+silo tangent, adding two metal brackets for its curved mounting surface. All 31 factory
+placards now use measured font widths/heights with margins, applied after local art so
+scaled/beveled boards fit too. Text/styles retained. Plan source updated and re-exported;
+no direct edits to plan.json. New tools/factory_polish.gd runs after shared art.
+
+Door jamb width .40 -> .44 and lintel bottom 3.20 -> 3.18 relative to each opening
+separate their visible faces from the wall returns (decorative only). Trimmed wall visuals
+155, 11, 13, 27 and 28 flush against the facade, including wall155 admin trim. Lowered
+38 remaining basement wall caps 25mm, including marked Wall38/46; existing 25 pit/service
+caps retained. Walls/floors and their original collision remain unchanged physically.
+
+Upper stairs now receive rails from their landing: open-rise is max(0,1-low.y), so only
+ground-floor stairs retain the deliberate first-metre opening. Fix includes marked hall
+Stair3 plus the upper tank/plant/warehouse stairs. Matching rail collision updated.
+Counts: hall 227 posts, other factory 536; 763 total. Deck/support collision unchanged.
+
+Validation: new factory_polish_test passes measured fitting, mounting rays, supports,
+seam positions, frame clearance and an actual ray into the restored Stair3 rail. Full
+route 1,208 units / 206.7s / zero failures, all 48 stair probes pass, shared/admin art and
+collision audits pass. Baselines exclude only the intentionally extended hall Stair3
+rail shapes in addition to already authorized factory rail replacements. Fixed the shared
+art test to freeze gameplay without disabling world collision, so its entry ray is real.
+Saved editor load checked. Public factory wrapper SHA unchanged; ManualDressing preserved.
+No commit. Ready for another user walkthrough; room-specific props still future work.
+
+**Latest, September 18, 2026: factory-wide shared finishes.** User approved the hall
+prop feedback pass, then requested general textures, rails and grating across the factory;
+machinery/props should continue room by room. Implemented tools/factory_shared_art.gd
+as a separate shared structural pass after admin/hall art. Hall palette extracted into
+make_palette() and reused unchanged. Admin exterior now also uses approved Bricks005
+at 2.8m, retaining its tint. No new external assets or gameplay systems.
+
+739 remaining structural meshes now use approved 128px / 50% colour blending, distant
+mips and restrained maps where appropriate. Floors/ground, walls, roofs, stair surfaces,
+fences and closed panels covered; exterior paving uses dark-tinted Concrete034. Existing
+room finishes take precedence. Room ceiling heights come from source-plan art_regions
+export metadata; tunnels and lowered mixing/compressor floors get correct contact heights.
+60 remaining lamps get saved housings/diffusers and shadows, retaining light count,
+energy, range and distance fades. Other open doorway frames follow plan metadata.
+
+FactoryWalkways extends the existing HallWalkways recipe without rebuilding hall nodes:
+64 additional rail runs (including circular plant rail), 529 posts, 51 grated decks.
+Combined hall/factory: 87 runs, 752 posts, 72 decks. Rail collision is actual bars/posts;
+walking slabs remain unchanged and still block bullets. The circular platform retains
+its original cylinder support, replaces CSG rail collision with bars, and clips the grate
+at the exit-bridge footprint to prevent coplanar overlap. Perimeter has a metal edge.
+Remaining machines, containers, pipes and prop designs intentionally retain old treatment
+for later room passes. Shared finishes do not remodel them.
+
+Validation: full route 1,208 units / 206.7 seconds / zero failures (par remains 10:20),
+all 48 stair-side probes pass, ten secrets reachable, machine set piece passes, original
+hall walkway turns and prop/pause tests pass. Admin regression and both collision audits
+pass: only explicitly marked rail replacements differ. Final circular seam check and
+600-frame saved-scene editor load pass. Existing screen-space-AA/Compatibility warning
+also appeared before this pass; renderer/project settings not changed here.
+Public factory/city wrappers verified byte-identical, so ManualDressing is preserved.
+10 in-engine views inspected under art/material_studies/factory_shared_finishes/;
+final round-platform view refreshed after clipping. Ready for user walkthrough; no commit.
+
+**Latest, September 18, 2026: Q-marked hall feedback implemented.** User chose the pit
+as a delivery area with supply cases and a parked forklift. Original user log retained
+locally in .godot/user_hall_feedback_2026_09_18.log; markers identify crate stack, presses,
+production sign, pit washer, incident placard and hall entry.
+
+HallMachinery now contains 10 saved groups / 343 visible meshes / 15,200 triangles
+(excluding labels/particles). Main stack is six cases with slight upper offsets, plus a
+seventh on the floor at (-51.4, 0, -30.7). Added the loose case at the END of plan blockers
+(index 103), preserving existing stable paths. Pit washer placeholders replaced with
+matching cases on pallets and a parked project-authored forklift; old DrumWasher node
+names remain deliberately stable. The western case stack retains tunnel concealment.
+
+Both presses have open working bays, actual structural collision and animated heads
+with matching moving collision. scripts/props/hall_press.gd animates a 5.2-second cycle,
+phase offset between machines, and a small project-authored CPU steam puff from an
+exhaust. Animation respects pause; no crush-damage or audio system added. Seven original
+prop blockers are explicitly disabled/replaced (50, 51, 52, 55, 56, 57, 103). The audit
+preserves all 1,898 original shapes/transforms/properties except these marked disabled
+flags; new detailed prop shapes are checked separately. Anonymous shape keys are
+canonicalized because appending a blocker renumbers Godot-generated shape names.
+
+Production sign is wall-mounted at (-37, 6.6, -69.72), above the rail, with fitted text.
+Incident sign is 12m wide with cream lettering on a dark board. Five hall door openings
+have metal jambs/lintels from exported door metadata, without adding sills/collision.
+ManualDressing/public wrappers untouched. Plan export reports no placement problems.
+
+Validation: final full route 1,209 units / 206.7s / zero failures; shortcut 145 units /
+zero failures; population 67 enemies, 48 Johns, 5 ambushes / zero failures. Focused hall
+feedback test covers open rays, moving collision, missing crate collision, cases/forklift,
+pause/resume, steam, sign fits and doorway clearance. Art regression and original-collision
+audit pass, 600-frame editor load clean. Eight final Compatibility renders inspected in
+art/material_studies/factory_hall_feedback/. Ready for user playtest; no commit.
+
+**Latest, September 18, 2026: hall machinery first pass and rail budget.** User likes
+brick filtering and catwalk appearance, asked about rail triangles and identified props
+as the next weak point. Counted saved visible rail meshes: posts 223 / 9,812 triangles,
+handrails 218 / 9,592, midrails 218 / 9,592 = 659 pieces / 28,996 triangles. Frames and
+grates add 193 meshes / 2,106 triangles. Left rails unchanged. Continuous rail runs would
+reduce segment/end geometry and render submissions; shorter posts alone do not reduce
+triangles. Counts are not a frame-time profile; make no hardware performance guarantee.
+
+New tools/factory_hall_machinery.gd builds 9 saved groups under HallMachinery, named after
+original blockers: 2 enclosed presses, 3 drum washers, roller conveyor, twin feed bins,
+feed elevator tower, and 8 shipping cases replacing the crate mass. Reuses Metal038,
+approved colour filtering and restrained maps with steel/rubber/case tints. 337 visible
+meshes / 16,532 triangles for the new machinery (labels excluded from mesh tally).
+Original box visuals hidden; opaque housings remain. Existing press joke now fits crown.
+Old shallow machine panels removed. Container office and other factory rooms unchanged.
+
+All 1,898 collision shapes/properties/transforms/disabled flags exactly match the saved
+pre-pass snapshot, including rails. Public ManualDressing remains untouched. Visual
+recesses and bevels use approximate existing blocker collision; these are not newly
+walk-through machines. Saved geometry has stable prop/vent node names and metadata for
+its collision source. Rendered 6 actual Compatibility views in art/material_studies/
+factory_machinery/; press, washer, conveyor, hoppers, cases, room. 600-frame editor load
+and complete collision audit pass; final name-only rebake clean. No gameplay/route change
+or commit. User visual/playtest review next; props are a first pass, not final production art.
+
+
+**Latest, September 18, 2026: brick moire / distance filtering fixed.** User screenshot
+showed clear interference bands on the large brick wall. Root cause: factory_surface
+forced mip level 0 for colour/normal/roughness and Bricks005 had mip generation disabled.
+Factory shader now keeps the exact approved nearest/linear blend when magnified, fades
+to gradient-based anisotropic mip filtering at 0.5-1.0 texels per screen pixel, and uses
+automatic mip filtering for normal/roughness. Enabled mip generation for all 3 Bricks005
+128px maps; other used factory imports already had it. Shared factory surfaces benefit;
+comparison-room shader and grating are unchanged. No texture scale/colour or geometry change.
+
+Verified actual Compatibility renders at 896x560: tools/preview_brick_filter.gd writes
+art/material_studies/brick_filter_before/ and brick_filter_after/ (4 PNGs each). --before
+reconstructs old filtering in the preview instance only. Clear wide/angled views show
+reduced interference; near wall is pixel-identical (mean/max difference zero). Distant
+wall crop x300:650/y250:274 under a 4cm camera translation drops mean RGB difference
+6.954 -> 1.352/255. This is a targeted image comparison, not a universal aliasing metric.
+Editor import and render logs clean, whitespace check passes. User movement playtest
+pending; no route rerun needed for shader/import-only change. No commit.
+
+
+**Latest, September 17, 2026: larger brick approved and applied.** User selected the
+larger Bricks005 variant, noting small bricks cause aliasing. Production hall now uses
+Bricks005 at 2.8m repeat with 128px colour, 50% filtering, normal strength 0.1 and
+existing tint/roughness. Admin keeps its previous material. Builder and generated scene
+updated; public scene/manual dressing preserved. Source manifest and attribution updated.
+Saved-level renders verified in art/material_studies/factory_brick_approved/; art/collision
+regression passes. No gameplay/geometry changes or commit. Next: machinery/conveyors.
+
+
+**Latest, September 17, 2026: brick-source comparison.** User asked whether to modify
+current brick or replace it. Recommendation: quieter source, add sparse grime separately.
+Acquired CC0 ambientCG Bricks005 (2K colour/NormalGL/roughness, 128px Lanczos reductions);
+source hashes/provenance in sources.json, docs/ATTRIBUTIONS.md updated. Saved factory
+still uses red_brick. New tools/preview_factory_bricks.gd changes only the transient
+preview instance, capturing 8 labelled real-engine views in art/material_studies/
+brick_comparison/: A current at 2.8m, B current at provider 1.4m, C Bricks005 at 2.8m,
+D Bricks005 at trial 1.5m (not a verified provider measurement). All use existing tint,
+50% filtering, 0.1 normals and hall roughness. C clearly reduces conspicuous pale
+repeat patches; D shows smaller bricks. Source and scale need user visual review.
+Render pass succeeds; no geometry/gameplay changes or commit. Brick sampling still has
+some regularity; don't claim the new source eliminates tiling altogether.
+
+
+**Latest, September 17, 2026: hall walkways / Q-marked overlaps.** User approves plaster
+and ceiling; brick still tiles heavily. Requested open uprights every 3-4 feet, mid/top
+rails, and framed alpha grating. Machines/conveyors remain box placeholders for a later
+modeling pass. Hall now has 23 open rail sections, 223 posts <=1.1m apart, 21 grated
+flat/sloped decks; geometry saved under HallWalkways. Original solid rail collision is
+replaced with actual post/bar colliders. Deck collision stays solid (including to shots)
+for now; only the grating appearance is see-through. Explain this if discussing firing.
+
+Found both user POINTER markers in logs/superzero.log (21:44): Floor177Solid at 25.90s,
+Floor168Solid at 29.96s. The exact overlaps were Wall92/Wall91 top faces at y=0 sharing
+floor faces. User clarified corridors out of the pit also flicker. Extended the scan/fix
+through the service corridor to the pump room: 25 wall-cap visuals lowered 25mm, walking
+floors and original collision unchanged. User log preserved in .godot/user_walkway_markers.log.
+Seven rendered views, including exact Q perspectives, in art/material_studies/
+factory_walkways_after/. Helper tools/factory_hall_walkways.gd and grating shader added.
+
+Targeted rail-gap/bar-hit checks and flat/high deck side-containment probes pass. Original
+collision-baseline test passes with explicit new/disabled rail exceptions. All 48 stair containment probes and the 600-frame editor load pass. A route snag at the north-catwalk/pit-crossing
+junction was addressed by flaring the two shared entrance posts 140mm; the full approach
+regression now passes. Full route passes: 1,209 units in 206.7 seconds, zero failures
+(.godot/walkway_junction_route.log). Corridor-mouth rendering also exposed vertical
+wall-end overlap: 14 visual wall boxes now meet flush, including the doorway lintel.
+Rendered entrance is clean; original wall/floor collision is unchanged. Final join/rail
+regressions, collision baseline, and 600-frame editor load pass. No commit. Brick and machine modeling
+still pending review.
+
+
+**Latest, September 17, 2026: large-room wall review.** User likes admin so far but wants
+one larger room before approving rollout. Production hall (54x44m, 13m high, x -62..-8,
+z -70..-26) now reuses the approved colour filtering and materials. Broad side walls are
+brick at 2.8m repeat; long north wall is plaster at 3.2m. Full-height expanses remain exposed
+between narrow structural ribs. Concrete floors/pit, painted metal catwalks/machinery,
+shallow machine panels, roof beams and six suspended fixtures provide context. Existing six
+high lamps cast shadows at energy 5.2; no new lights. No new assets or gameplay changes.
+
+Implementation: tools/factory_hall_art.gd uses the admin palette/mesh helper methods but
+owns only HallArt and hall material overrides in the generated factory base. Hall overrides
+carry art_zone=production_hall. Admin-art test now distinguishes this explicit second zone.
+Saved collision still matches the 1,239-shape pre-art snapshot. Rendered views and
+600-frame editor load pass without errors.
+Before/after four-view captures: art/material_studies/factory_hall_before/ and
+factory_hall_after/. Screenshot script: tools/preview_factory_hall.gd. User review pending;
+plaster looks quieter than brick, whose repeated patches are visible at this scale.
+No full-level rollout or commit. ManualDressing stays in the public factory scene.
+
+
+**Latest, September 17, 2026: factory admin art pass.** User agreed to start the factory
+makeover with one representative stretch before continuing. The admin block now uses the
+approved 50%-filtered plaster/brick/concrete/tile/painted-metal treatment, modest beveled
+prop detail, framed frontage/canopy, cabinet/pipe detail, shaped lamp fixtures and three
+sparse cracks. No new lights; existing admin lamps now cast shadows with tuned energy/range.
+Details in docs/VISUAL_DIRECTION.md. Four before/after renders in art/material_studies/
+factory_admin_before/ and factory_admin_after/. Next: user playtest and visual feedback.
+
+Implementation: tools/factory_admin_art.gd called by build_factory; edits generated base
+only, with added details under AdminArt. ManualDressing/public scene unchanged. Shared
+bevel helper tools/fidelity_mesh.gd also used by fidelity room builder. Factory shader has
+level-relative contact tone instead of the sample room's hard-coded corner coordinates.
+1,239 saved collision shapes and world transforms match before art. Material bounds,
+rendered views and actual dressing-preservation rebakes pass. Factory and fidelity room
+editor loads pass. Full Factory route passes: 1,209 units in 206.8 seconds, zero failures.
+No new assets or commit.
+
+User also wants direct one-off size/height changes and eventual frozen bakes. Current
+inherited overrides work without a bake but mesh/collision are separate siblings. Recorded
+future direction in docs/LEVEL_EDITING.md: common pieces get coupled mesh/collision size
+controls, then freeze settled sections gradually. Do not build a generic override system.
+
+
+**Latest, September 17, 2026: persistent level dressing and Q pointer.** Factory, District
+and fidelity_test now have permanent inherited public scenes with a ManualDressing child.
+Builders save only scenes/generated/ bases; art_kit refuses to overwrite the public scenes.
+Place editor props/mesh decals under ManualDressing and save normally. Material/transform
+changes there survive rebakes; inherited overrides depend on generated node paths staying
+stable. See docs/LEVEL_EDITING.md. Earlier whole-scene-replacement notes are superseded.
+
+Shared debug_pointer action uses Q. Player queues a camera ray for the physics tick, then
+logs world player/camera coordinates, facing, yaw/pitch, hit collider/path/normal/distance
+or an explicit miss. It does not shoot or damage anything. Playable levels retain POINTER
+entries through their run-report buffer, including Exit to Menu. Fidelity room has console
+logging only. Purely visual objects are not physics hits; wall behind them is reported.
+
+Validation: real rebakes of all three bases preserve scratch hand-placed mesh/material and
+inherited property overrides; public scene files remain unchanged. Rendered physical-Q,
+echo suppression, pause gating, hit/miss, camera orientation, no-shot and saved-quit checks
+pass. Menu flow, pause, quit reports, rendered controller checks and district interiors pass.
+All three inherited scenes pass editor loading. Both full routes pass: District 933 units
+in 161.0s, Factory 1209 units in 206.8s, zero route failures. No commit.
+
+
+**Latest, September 17, 2026: fidelity room refinement.** User rejected bright peeling,
+flagged small/repetitive brick and flat box props, and requested slightly more geometry
+plus restrained normal/roughness maps. The updated fidelity_test.tscn is ready for review:
+textured chamfered counter/cabinet, panelled walls, pipe collars/bolts, detailed fixtures;
+brick at 2.8m repeat, quieter Concrete034 floor, and sparse opaque crack materials.
+Both peeling overlays are removed; remaining grime receives shadows. Metal038 grain
+is remapped into painted finishes. Red Brick and Metal038 normals/roughness are active
+at 0.1 normal strength with conservative roughness, while colour remains 50% filtered.
+
+Credits and sources updated in docs/ATTRIBUTIONS.md; CC0 Metal038 and Concrete034 are
+new. Five renders are under art/material_studies/room_previews_v2/. Room geometry is
+3,534 visible triangles excluding player. Saved editable geometry, simple original
+collisions. Bake, editor reload, floor/spawn/mesh/material checks and mapped/unmapped
+render comparison passed. Neither playable level changed; no commit. Await user review.
+
+
+**Latest, September 17, 2026: walkable fidelity room.** scenes/fidelity_test.tscn is
+now a saved, editable 12x14m reception/loading room using the five CC0 colour maps
+at 128x128 with 50% filtering. Real-world repeats follow the provider dimensions.
+Quiet plaster repeats; seven independently placed mesh overlays add damp grime,
+small exposed-undercoat chips and contact stains. room_surface.gdshader adds subtle
+authored contact darkening at floor/wall and room corners (not screen-space AO).
+No new downloaded assets. Overlays sample the credited concrete texture or use
+project-authored procedural masks. Three shadowed lamps, ceiling beams, a counter,
+pipe, electrical cabinet and closed shutter give the material study context.
+
+Open the scene and use F6. tools/build_fidelity_test.gd regenerates it, replacing
+manual edits. tools/preview_fidelity_test.gd renders three actual Godot views to
+art/material_studies/room_previews/. Old filter gallery preserved as
+scenes/fidelity_filter_comparison.tscn; texture gallery remains separate.
+Validation: bake, rendered screenshots (all reviewed), headless editor load, four
+player floor/spawn probes and serialized overlay count passed without errors.
+Neither playable level changed. Awaiting user's visual feedback; no commit.
+
+
+**September 17, 2026: attribution register.** docs/ATTRIBUTIONS.md is the central
+CC0 credit/licence register for the existing sound packs and five texture candidates.
+Full CC0 text and copies of Kenney notices are in docs/licenses/. Keep this register
+current alongside docs/ASSETS.md as third-party assets change.
+
+**Latest, September 17, 2026: fidelity texture shortlist.** User chose 50% filtering.
+Five Poly Haven CC0 colour maps are saved as 2K originals plus 128x128 reductions:
+plastered_wall_04, concrete_wall_007, painted_metal_shutter, red_brick, floor_tiles_06.
+Candidates await visual selection; neither playable level has been changed.
+Sources, creators, licences and checksums: art/material_studies/cc0_candidates/sources.json
+and docs/ASSETS.md. Commercial use and redistribution are permitted under CC0.
+
+Open scenes/fidelity_texture_candidates.tscn with F6 for five 50% samples. Original
+fidelity_test.tscn is preserved. Gallery uses a common 4m repeat; provider dimensions
+are recorded for final sizing. Review sheet compares sources with Godot-lit reductions.
+Baking/loading/rendering passed and swatches were inspected. Plaster is quiet; concrete
+is weathered; metal is specifically a shutter; marble tiles are a reception candidate.
+No commit made. Previous baseline is 190919e, controller support.
+
 
 **Latest, September 17, 2026: controller/input pass.** Both levels and all menus support
 keyboard/mouse and a standard mapped gamepad through the shared InputBootstrap actions.

@@ -7,7 +7,7 @@ extends StaticBody3D
 
 signal broken(pipe: Node)
 
-@export var size := Vector3(0.9, 3.0, 0.9)
+var size := Vector3(0.9, 3.0, 0.9)
 ## Ten pistol hits at 22. A kick takes a third of this whatever the kick damage is.
 @export var hp := 220.0
 
@@ -20,64 +20,10 @@ var _gas: CPUParticles3D
 
 func _ready() -> void:
 	_hp = hp
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = size
-	shape.shape = box
-	add_child(shape)
-	_body = Node3D.new()
-	add_child(_body)
-	var round_pipe := absf(size.x - size.z) < 0.01
-	var mesh := MeshInstance3D.new()
-	if round_pipe:
-		var cylinder := CylinderMesh.new()
-		cylinder.top_radius = size.x / 2.0
-		cylinder.bottom_radius = size.x / 2.0
-		cylinder.height = size.y
-		cylinder.radial_segments = 10
-		mesh.mesh = cylinder
-	else:
-		var slab := BoxMesh.new()
-		slab.size = size
-		mesh.mesh = slab
-	mesh.material_override = load("res://materials/retro/metal_blue.tres")
-	_body.add_child(mesh)
-	# Hazard collars, so the pipes read as the thing to hit.
-	for y in [-0.3, 0.3]:
-		var collar := MeshInstance3D.new()
-		var band := BoxMesh.new()
-		band.size = Vector3(size.x + 0.12, 0.22, size.z + 0.12)
-		collar.mesh = band
-		collar.material_override = load("res://materials/retro/hazard.tres")
-		collar.position.y = size.y * y
-		_body.add_child(collar)
-	_gas = CPUParticles3D.new()
-	_gas.emitting = false
-	_gas.one_shot = true
-	_gas.amount = 24
-	_gas.lifetime = 0.9
-	_gas.explosiveness = 0.85
-	_gas.direction = Vector3(0, 1, 0)
-	_gas.spread = 60.0
-	_gas.initial_velocity_min = 2.0
-	_gas.initial_velocity_max = 4.5
-	_gas.gravity = Vector3(0, 1.5, 0)
-	_gas.damping_min = 2.0
-	_gas.damping_max = 3.0
-	_gas.scale_amount_min = 0.5
-	_gas.scale_amount_max = 1.4
-	var puff := QuadMesh.new()
-	puff.size = Vector2(0.6, 0.6)
-	var smoke := StandardMaterial3D.new()
-	smoke.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	smoke.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	smoke.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	smoke.albedo_color = Color(0.85, 0.95, 0.9, 0.45)
-	smoke.vertex_color_use_as_albedo = true
-	puff.material = smoke
-	_gas.mesh = puff
-	_gas.position.y = size.y * 0.3
-	add_child(_gas)
+	_body = $Body
+	_gas = $Gas
+	# Size follows the saved hitbox; no geometry or material is rebuilt here.
+	size = ($Shape.shape as BoxShape3D).size
 
 func apply_kick(_damage: float, _from: Vector3, _force: float) -> void:
 	_hit(hp / 3.0 + 0.01, "kick_prop")

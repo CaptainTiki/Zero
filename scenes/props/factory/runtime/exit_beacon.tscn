@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2yk7a"]
+albedo_color = Color(0.25, 1, 0.4, 1)
+emission_enabled = true
+emission = Color(0.25, 1, 0.4, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_k52f0"]
+resource_local_to_scene = true
+size = Vector3(12, 0.06, 8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2avut"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.3, 1, 0.45, 0.18)
+
+[sub_resource type="BoxMesh" id="BoxMesh_n43e3"]
+resource_local_to_scene = true
+size = Vector3(9.6, 24, 6.4)
+
+[node name="EndZone" type="Node3D" unique_id=1974614530]
+visible = false
+
+[node name="MeshInstance3D0" type="MeshInstance3D" parent="." unique_id=1845379308]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+material_override = SubResource("StandardMaterial3D_2yk7a")
+mesh = SubResource("BoxMesh_k52f0")
+
+[node name="MeshInstance3D1" type="MeshInstance3D" parent="." unique_id=1547173156]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, 0)
+material_override = SubResource("StandardMaterial3D_2avut")
+mesh = SubResource("BoxMesh_n43e3")
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="." unique_id=104253977]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+light_color = Color(0.4, 1, 0.5, 1)
+light_energy = 3.0
+omni_range = 14.0

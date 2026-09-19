@@ -171,11 +171,12 @@
     }
 
     // Doors cut openings; shut ones become panels.
-    const panels = [], kickDoors = [];
+    const panels = [], kickDoors = [], doorFrames = [];
     const openings = new Map();
     for (const d of P.doors) {
       const base = d.y != null ? d.y : LVY[d.lv];
       const y0 = base - 0.35, y1 = base + DOOR_H;
+      if (OPEN_DOORS[d.type]) doorFrames.push({name: d.name, at: [d.at[0],base,d.at[1]], width: d.w, height: DOOR_H, along_x: d.axis === "h"});
       if (d.type === "kick")
         kickDoors.push({ name: d.name, at: [d.at[0], base + 0.025, d.at[1]], yaw: d.axis === "h" ? 0 : -Math.PI / 2, width: d.w, height: DOOR_H, prompt: !!d.prompt });
       const c = d.axis === "h" ? d.at[0] : d.at[1];
@@ -405,7 +406,7 @@
       if (b.hollow) return { name: b.name, shape: "hollow", c: [(x0 + x1) / 2, (base + top) / 2, (z0 + z1) / 2], s: [w, top - base, d], open: b.hollow, m };
       if (b.type === "vehicle" && Math.max(w, d) <= 5 && Math.min(w, d) <= 2.6)
         return { name: b.name, shape: "car", at: [(x0 + x1) / 2, base, (z0 + z1) / 2], yaw: w >= d ? 0 : Math.PI / 2, m };
-      return { name: b.name, shape: "box", c: [(x0 + x1) / 2, (base + top) / 2, (z0 + z1) / 2], s: [w, top - base, d], m };
+      return { name: b.name, shape: "box", c: [(x0 + x1) / 2, (base + top) / 2, (z0 + z1) / 2], s: [w, top - base, d], m, art: b.art, prop_scene: b.prop_scene };
     });
 
     // Beat lines at the start of every route section after the first, the spawn and the exit.
@@ -495,7 +496,7 @@
     const YAW = { s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 };
     const johns = (P.johns || []).map(p => ({ at: godot(p.at), yaw: YAW[p.face] }));
     const ambushes = (P.ambushes || []).map(a => ({ name: a.name, at: godot(a.trigger.at), size: a.trigger.size, spawn: godot(a.spawn), count: a.count, kind: a.kind || "fodder" }));
-    const signs = (P.signs || []).map(p => ({ text: p.text, at: godot(p.at), width: p.width, height: p.height, yaw: YAW[p.face], style: p.style }));
+    const signs = (P.signs || []).map(p => ({ text: p.text, at: godot(p.at), width: p.width, height: p.height, yaw: YAW[p.face], style: p.style, prop_scene: p.prop_scene }));
     const floorText = (P.floor_text || []).map(p => ({ text: p.text, at: godot(p.at), yaw: YAW[p.face] }));
     const windows = (P.windows || []).map(p => ({ at: godot(p.at), width: p.width, yaw: YAW[p.face] }));
     const secrets = (P.secrets || []).map(p => ({ name: p.name, at: godot(p.at), reward: p.reward, trigger: p.trigger || [2.5, 2.5], path: p.path.map(godot) }));
@@ -534,7 +535,7 @@
       return { centre: [cx, top, cz], r, rail_h: RAIL_H, gaps };
     });
 
-    return { round_decks: roundDecks, pumps, alts, boxes, ramps, blockers, kick_doors: kickDoors, pickups, setpiece, enemies, johns, ambushes, signs, floor_text: floorText, windows, secrets, lights, beats, spawn, exit, route, golden_units: Math.round(units), par_seconds: par };
+    return { door_frames: doorFrames, round_decks: roundDecks, pumps, alts, boxes, ramps, blockers, kick_doors: kickDoors, pickups, setpiece, enemies, johns, ambushes, signs, floor_text: floorText, windows, secrets, lights, beats, spawn, exit, route, golden_units: Math.round(units), par_seconds: par };
   }
 
   function ptsOf(o) { return o.poly || [[o.rect[0], o.rect[1]], [o.rect[2], o.rect[1]], [o.rect[2], o.rect[3]], [o.rect[0], o.rect[3]]]; }

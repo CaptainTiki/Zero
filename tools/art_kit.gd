@@ -119,6 +119,12 @@ func window_band(label: String, at: Vector3, width: float, yaw: float = 0.0, hei
 	box(label, at, Vector3(width, height, 0.12), "glass", yaw)
 
 func save_scene(path: String) -> void:
+	# Public scenes belong to the editor/user. Builders may only replace their bases.
+	if path in ["res://scenes/levels/factory.tscn", "res://scenes/levels/l01_district04.tscn", "res://scenes/fidelity_test.tscn"]:
+		push_error("Refusing to overwrite an editable level. Save its base in res://scenes/generated/ instead.")
+		art.free()
+		quit(1)
+		return
 	var packed := PackedScene.new()
 	assert(packed.pack(art) == OK)
 	assert(ResourceSaver.save(packed, path) == OK)

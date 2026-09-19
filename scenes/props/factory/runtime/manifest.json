@@ -1,0 +1,323 @@
+{
+  "doors": [],
+  "johns": [
+    "res://scenes/props/john_cutout.tscn",
+    "res://scenes/props/factory/runtime/john_1.tscn",
+    "res://scenes/props/factory/runtime/john_2.tscn",
+    "res://scenes/props/factory/runtime/john_3.tscn",
+    "res://scenes/props/factory/runtime/john_4.tscn",
+    "res://scenes/props/factory/runtime/john_5.tscn"
+  ],
+  "signs": [
+    {
+      "index": 0,
+      "position": [
+        -86.0,
+        3.40000009536743,
+        48.2999992370605
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_00.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 1,
+      "position": [
+        -50.2999992370605,
+        2.0,
+        70.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_01.tscn",
+      "yaw": -1.57099997997284
+    },
+    {
+      "index": 2,
+      "position": [
+        -70.0,
+        3.20000004768372,
+        34.2999992370605
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_02.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 3,
+      "position": [
+        -50.2999992370605,
+        3.40000009536743,
+        41.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_03.tscn",
+      "yaw": -1.57099997997284
+    },
+    {
+      "index": 4,
+      "position": [
+        -50.2999992370605,
+        2.29999995231628,
+        39.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_04.tscn",
+      "yaw": -1.57099997997284
+    },
+    {
+      "index": 5,
+      "position": [
+        -50.2999992370605,
+        2.29999995231628,
+        41.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_05.tscn",
+      "yaw": -1.57099997997284
+    },
+    {
+      "index": 6,
+      "position": [
+        -50.2999992370605,
+        2.29999995231628,
+        43.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_06.tscn",
+      "yaw": -1.57099997997284
+    },
+    {
+      "index": 7,
+      "position": [
+        -94.0,
+        3.20000004768372,
+        34.2999992370605
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_07.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 8,
+      "position": [
+        -96.6999969482422,
+        2.40000009536743,
+        27.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_08.tscn",
+      "yaw": 1.57099997997284
+    },
+    {
+      "index": 9,
+      "position": [
+        -50.2799987792969,
+        3.5,
+        12.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_09.tscn",
+      "yaw": -1.57099997997284
+    },
+    {
+      "index": 10,
+      "position": [
+        -55.5,
+        3.70000004768372,
+        8.30000019073486
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_10.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 11,
+      "position": [
+        -95.5,
+        3.79999995231628,
+        10.3000001907349
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_11.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 12,
+      "position": [
+        -12.0,
+        2.0,
+        29.7199993133545
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_12.tscn",
+      "yaw": -3.14118528366089
+    },
+    {
+      "index": 13,
+      "position": [
+        -30.0,
+        4.80000019073486,
+        -25.7199993133545
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_13.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 14,
+      "position": [
+        -2.07999992370605,
+        7.0,
+        23.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_14.tscn",
+      "yaw": -1.57099997997284
+    },
+    {
+      "index": 15,
+      "position": [
+        -44.0,
+        5.5,
+        -26.2800006866455
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_15.tscn",
+      "yaw": -3.14118528366089
+    },
+    {
+      "index": 16,
+      "position": [
+        -37.0,
+        6.59999990463257,
+        -69.7200012207031
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_16.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 17,
+      "position": [
+        -23.0,
+        4.65000009536743,
+        -34.7999992370605
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_17.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 18,
+      "position": [
+        -12.0,
+        6.5,
+        -29.7000007629395
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_18.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 19,
+      "position": [
+        -28.0,
+        6.0,
+        -95.9000015258789
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_19.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 20,
+      "position": [
+        -10.0,
+        6.0,
+        -99.4000015258789
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_20.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 21,
+      "position": [
+        3.0,
+        -1.79999995231628,
+        -109.220001220703
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_21.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 22,
+      "position": [
+        -21.0,
+        1.0,
+        -157.720001220703
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_22.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 23,
+      "position": [
+        61.7200012207031,
+        1.5,
+        -145.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_23.tscn",
+      "yaw": -1.57099997997284
+    },
+    {
+      "index": 24,
+      "position": [
+        47.0,
+        0.200000002980232,
+        -130.279998779297
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_24.tscn",
+      "yaw": -3.14118528366089
+    },
+    {
+      "index": 25,
+      "position": [
+        47.0,
+        5.0,
+        -89.9000015258789
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_25.tscn",
+      "yaw": 0.0
+    },
+    {
+      "index": 26,
+      "position": [
+        50.0999984741211,
+        -1.20000004768372,
+        -97.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_26.tscn",
+      "yaw": 1.57099997997284
+    },
+    {
+      "index": 27,
+      "position": [
+        47.0,
+        10.1999998092651,
+        -101.150001525879
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_27.tscn",
+      "yaw": -3.14118528366089
+    },
+    {
+      "index": 28,
+      "position": [
+        20.2999992370605,
+        7.0,
+        -35.0
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_28.tscn",
+      "yaw": 1.57099997997284
+    },
+    {
+      "index": 29,
+      "position": [
+        46.0,
+        2.20000004768372,
+        5.19999980926514
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_29.tscn",
+      "yaw": -3.14118528366089
+    },
+    {
+      "index": 30,
+      "position": [
+        74.0,
+        2.0,
+        51.6500015258789
+      ],
+      "scene": "res://scenes/props/signs/factory_sign_30.tscn",
+      "yaw": -3.14118528366089
+    }
+  ]
+}

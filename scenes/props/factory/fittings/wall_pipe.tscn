@@ -1,0 +1,325 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://materials/fidelity/factory_surface.gdshader" id="1_rvdw4"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/normal_128.png" id="2_ddb23"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/roughness_128.png" id="3_rj23w"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/albedo_128.png" id="4_vvfcd"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hfp56"]
+render_priority = 0
+shader = ExtResource("1_rvdw4")
+shader_parameter/normal_texture = ExtResource("2_ddb23")
+shader_parameter/roughness_texture = ExtResource("3_rj23w")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_vvfcd")
+shader_parameter/tint = Color(0.23, 0.43, 0.39, 1)
+shader_parameter/repeat_metres = 0.8
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_a28rr"]
+material = SubResource("ShaderMaterial_hfp56")
+top_radius = 0.085
+bottom_radius = 0.085
+height = 4.25
+radial_segments = 12
+rings = 1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cfodi"]
+render_priority = 0
+shader = ExtResource("1_rvdw4")
+shader_parameter/normal_texture = ExtResource("2_ddb23")
+shader_parameter/roughness_texture = ExtResource("3_rj23w")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_vvfcd")
+shader_parameter/tint = Color(0.32, 0.47, 0.43, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_txx57"]
+material = SubResource("ShaderMaterial_cfodi")
+top_radius = 0.115
+bottom_radius = 0.115
+height = 0.11
+radial_segments = 12
+rings = 1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_j7pp5"]
+render_priority = 0
+shader = ExtResource("1_rvdw4")
+shader_parameter/normal_texture = ExtResource("2_ddb23")
+shader_parameter/roughness_texture = ExtResource("3_rj23w")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_vvfcd")
+shader_parameter/tint = Color(0.15, 0.18, 0.19, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_q62mj"]
+material = SubResource("ShaderMaterial_j7pp5")
+size = Vector3(0.25, 0.08, 0.16)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dm20q"]
+render_priority = 0
+shader = ExtResource("1_rvdw4")
+shader_parameter/normal_texture = ExtResource("2_ddb23")
+shader_parameter/roughness_texture = ExtResource("3_rj23w")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_vvfcd")
+shader_parameter/tint = Color(0.32, 0.47, 0.43, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_q1efl"]
+material = SubResource("ShaderMaterial_dm20q")
+top_radius = 0.115
+bottom_radius = 0.115
+height = 0.11
+radial_segments = 12
+rings = 1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vd0c6"]
+render_priority = 0
+shader = ExtResource("1_rvdw4")
+shader_parameter/normal_texture = ExtResource("2_ddb23")
+shader_parameter/roughness_texture = ExtResource("3_rj23w")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_vvfcd")
+shader_parameter/tint = Color(0.15, 0.18, 0.19, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_yotwl"]
+material = SubResource("ShaderMaterial_vd0c6")
+size = Vector3(0.25, 0.08, 0.16)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7pv7l"]
+render_priority = 0
+shader = ExtResource("1_rvdw4")
+shader_parameter/normal_texture = ExtResource("2_ddb23")
+shader_parameter/roughness_texture = ExtResource("3_rj23w")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_vvfcd")
+shader_parameter/tint = Color(0.32, 0.47, 0.43, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_iq23n"]
+material = SubResource("ShaderMaterial_7pv7l")
+top_radius = 0.115
+bottom_radius = 0.115
+height = 0.11
+radial_segments = 12
+rings = 1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_k3d1a"]
+render_priority = 0
+shader = ExtResource("1_rvdw4")
+shader_parameter/normal_texture = ExtResource("2_ddb23")
+shader_parameter/roughness_texture = ExtResource("3_rj23w")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_vvfcd")
+shader_parameter/tint = Color(0.15, 0.18, 0.19, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_fsspj"]
+material = SubResource("ShaderMaterial_k3d1a")
+size = Vector3(0.25, 0.08, 0.16)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_w5g3h"]
+render_priority = 0
+shader = ExtResource("1_rvdw4")
+shader_parameter/normal_texture = ExtResource("2_ddb23")
+shader_parameter/roughness_texture = ExtResource("3_rj23w")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_vvfcd")
+shader_parameter/tint = Color(0.32, 0.47, 0.43, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ttepn"]
+material = SubResource("ShaderMaterial_w5g3h")
+top_radius = 0.115
+bottom_radius = 0.115
+height = 0.11
+radial_segments = 12
+rings = 1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0bauh"]
+render_priority = 0
+shader = ExtResource("1_rvdw4")
+shader_parameter/normal_texture = ExtResource("2_ddb23")
+shader_parameter/roughness_texture = ExtResource("3_rj23w")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_vvfcd")
+shader_parameter/tint = Color(0.15, 0.18, 0.19, 1)
+shader_parameter/repeat_metres = 0.7
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_sywop"]
+material = SubResource("ShaderMaterial_0bauh")
+size = Vector3(0.25, 0.08, 0.16)
+
+[node name="WallPipe" type="Node3D" unique_id=50414898]
+
+[node name="CorridorPipe" type="MeshInstance3D" parent="." unique_id=70317969]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+mesh = SubResource("CylinderMesh_a28rr")
+
+[node name="PipeCollar0_18" type="MeshInstance3D" parent="." unique_id=900613928]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
+mesh = SubResource("CylinderMesh_txx57")
+
+[node name="PipeBracket0_18" type="MeshInstance3D" parent="." unique_id=469674090]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16000366, 0.18, 0)
+mesh = SubResource("BoxMesh_q62mj")
+
+[node name="PipeCollar1_25" type="MeshInstance3D" parent="." unique_id=673665908]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+mesh = SubResource("CylinderMesh_q1efl")
+
+[node name="PipeBracket1_25" type="MeshInstance3D" parent="." unique_id=722613204]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16000366, 1.25, 0)
+mesh = SubResource("BoxMesh_yotwl")
+
+[node name="PipeCollar2_55" type="MeshInstance3D" parent="." unique_id=218432872]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.55, 0)
+mesh = SubResource("CylinderMesh_iq23n")
+
+[node name="PipeBracket2_55" type="MeshInstance3D" parent="." unique_id=417604796]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16000366, 2.55, 0)
+mesh = SubResource("BoxMesh_fsspj")
+
+[node name="PipeCollar4_14" type="MeshInstance3D" parent="." unique_id=1649996988]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.14, 0)
+mesh = SubResource("CylinderMesh_ttepn")
+
+[node name="PipeBracket4_14" type="MeshInstance3D" parent="." unique_id=209917748]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16000366, 4.14, 0)
+mesh = SubResource("BoxMesh_sywop")

@@ -54,6 +54,10 @@ const MENU := "res://scenes/ui/main_menu.tscn"
 const LEVEL_LIST := preload("res://scripts/levels/level_list.gd")
 const PAUSE_MENU := preload("res://scripts/ui/pause_menu.gd")
 
+## Five-second active-play frame samples retained with the normal run report.
+@export var performance_logging := true
+var _frame_sampler = preload("res://scripts/debug/frame_sampler.gd").new()
+
 var _elapsed := 0.0
 var _label: Label
 var _hint: Label
@@ -281,6 +285,10 @@ func _process(delta: float) -> void:
 		if not Input.is_action_pressed("primary") and not Input.is_action_pressed("kick") and not Input.is_action_pressed("ui_accept"):
 			_end_input_armed = true
 		return
+	if performance_logging:
+		var frame_window: Dictionary=_frame_sampler.tick(Time.get_ticks_usec())
+		if not frame_window.is_empty():
+			_say("%s PERF at %.2fs %s" % [level_tag,_elapsed,JSON.stringify(_performance_context(frame_window))])
 	_elapsed += delta
 	_track_player(delta)
 	_label.text = "%s  %s" % [level_tag, _stamp(_elapsed)]
@@ -606,6 +614,44 @@ func finish() -> void:
 ## Everything a playtest wants that would be noise as it happened.
 ## Print and keep, so the run report says exactly what the console said.
 
+func _notification(what: int) -> void:
+	if what==NOTIFICATION_PAUSED or what==NOTIFICATION_UNPAUSED:
+		if _frame_sampler: _frame_sampler.restart_clock()
+
+func _performance_context(window: Dictionary) -> Dictionary:
+	var record:=window.duplicate(true)
+	var player:=get_tree().get_first_node_in_group("player") as Node3D
+	var viewport:=get_viewport()
+	var camera:=viewport.get_camera_3d()
+	record["scene"]=scene_file_path
+	record["elapsed_seconds"]=snappedf(_elapsed,0.01)
+	record["beat"]=_unstuck_beat
+	if player: record["player_position"]=preload("res://scripts/debug/debug_pointer.gd").vector(player.global_position)
+	if camera:
+		var facing: Vector3=-camera.global_basis.z.normalized()
+		record["camera_position"]=preload("res://scripts/debug/debug_pointer.gd").vector(camera.global_position)
+		record["facing"]=preload("res://scripts/debug/debug_pointer.gd").vector(facing)
+		record["yaw_degrees"]=snappedf(rad_to_deg(atan2(-facing.x,-facing.z)),0.01)
+		record["pitch_degrees"]=snappedf(rad_to_deg(asin(clampf(facing.y,-1.0,1.0))),0.01)
+	record["viewport_pixels"]=[viewport.get_visible_rect().size.x,viewport.get_visible_rect().size.y]
+	record["window_pixels"]=[get_window().size.x,get_window().size.y]
+	record["render_target_pixels"]=[viewport.get_texture().get_width(),viewport.get_texture().get_height()]
+	record["render_scale"]=viewport.scaling_3d_scale
+	record["msaa_3d"]=viewport.msaa_3d
+	record["vsync"]=DisplayServer.window_get_vsync_mode()
+	record["fps_cap"]=Engine.max_fps
+	record["display_server"]=DisplayServer.get_name()
+	record["draw_calls"]=viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE,Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)
+	record["primitives"]=viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE,Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME)
+	return record
+
+func record_debug_pointer(marker: Dictionary) -> void:
+	if _finished:
+		return
+	marker=marker.duplicate(true)
+	marker["performance"]=_performance_context(_frame_sampler.snapshot())
+	_say("%s POINTER at %.2fs %s" % [level_tag, _elapsed, JSON.stringify(marker)])
+
 func _say(text: String) -> void:
 	print(text)
 	_report.append(text)
@@ -650,7 +696,10 @@ func _write_report() -> String:
 	if file == null:
 		push_warning("Could not write a run report")
 		return ""
-	file.store_string("\n".join(header + _report) + "\n")
+	var report_lines:=_report.duplicate()
+	if performance_logging:
+		report_lines.append("%s PERF FINAL at %.2fs %s" % [level_tag,_elapsed,JSON.stringify(_performance_context(_frame_sampler.snapshot()))])
+	file.store_string("\n".join(header + report_lines) + "\n")
 	file.flush()
 	var error := file.get_error()
 	file.close()

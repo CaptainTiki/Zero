@@ -1,0 +1,38 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/props/editable_sign.gd" id="sign_script"]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_w1csq"]
+[ext_resource type="Texture2D" path="res://textures/plaster.png" id="2_5d7u6"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rfojy"]
+render_priority = 0
+shader = ExtResource("1_w1csq")
+shader_parameter/surface_texture = ExtResource("2_5d7u6")
+shader_parameter/tint = Color(0.76862746, 0.6431373, 0.47058824, 1)
+shader_parameter/texels_per_metre = 24.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_xt8xo"]
+resource_local_to_scene = true
+material = SubResource("ShaderMaterial_rfojy")
+size = Vector3(7, 0.8, 0.14)
+
+[sub_resource type="SystemFont" id="SystemFont_x65nx"]
+font_names = PackedStringArray("Comic Sans MS", "Arial")
+font_weight = 700
+
+[node name="Sign" type="Node3D" unique_id=28491043]
+script = ExtResource("sign_script")
+
+[node name="Board" type="MeshInstance3D" parent="." unique_id=1381017678]
+mesh = SubResource("BoxMesh_xt8xo")
+
+[node name="Text" type="Label3D" parent="." unique_id=1647592078]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.08999634)
+pixel_size = 0.0051497007
+modulate = Color(0.6901961, 0.1882353, 0.16470589, 1)
+text = "TO THE MACHINE (PLEASE DON'T)"
+font = SubResource("SystemFont_x65nx")
+font_size = 64
+outline_size = 0
+metadata/measured_board_fit = true

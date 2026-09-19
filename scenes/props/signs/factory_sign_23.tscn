@@ -1,0 +1,31 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/props/editable_sign.gd" id="sign_script"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m5kxq"]
+albedo_color = Color(0.78, 0.62, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_3kb44"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_m5kxq")
+size = Vector3(8, 0.9, 0.14)
+
+[sub_resource type="SystemFont" id="SystemFont_hg23a"]
+font_names = PackedStringArray("Arial Black", "Arial")
+font_weight = 800
+
+[node name="Sign" type="Node3D" unique_id=581492170]
+script = ExtResource("sign_script")
+
+[node name="Board" type="MeshInstance3D" parent="." unique_id=1583142520]
+mesh = SubResource("BoxMesh_3kb44")
+
+[node name="Text" type="Label3D" parent="." unique_id=867659556]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.09000015)
+pixel_size = 0.0053499225
+modulate = Color(0.08235294, 0.08627451, 0.101960786, 1)
+text = "COMPRESSORS: DO NOT COMPRESS"
+font = SubResource("SystemFont_hg23a")
+font_size = 64
+outline_size = 0
+metadata/measured_board_fit = true

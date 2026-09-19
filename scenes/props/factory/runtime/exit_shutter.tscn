@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_4mvpc"]
+[ext_resource type="Texture2D" path="res://textures/metal.png" id="2_i2b4f"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w6rj1"]
+resource_local_to_scene = true
+size = Vector3(2.6, 3.3, 0.5)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rwcik"]
+render_priority = 0
+shader = ExtResource("1_4mvpc")
+shader_parameter/surface_texture = ExtResource("2_i2b4f")
+shader_parameter/tint = Color(0.36, 0.44, 0.52, 1)
+shader_parameter/texels_per_metre = 24.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_gvbsn"]
+resource_local_to_scene = true
+size = Vector3(2.6, 3.3, 0.5)
+
+[node name="ExitShutter" type="StaticBody3D" unique_id=2041250980]
+
+[node name="Shape" type="CollisionShape3D" parent="." unique_id=1718983877]
+shape = SubResource("BoxShape3D_w6rj1")
+
+[node name="Panel" type="MeshInstance3D" parent="." unique_id=1167773671]
+material_override = SubResource("ShaderMaterial_rwcik")
+mesh = SubResource("BoxMesh_gvbsn")

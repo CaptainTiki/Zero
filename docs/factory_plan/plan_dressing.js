@@ -135,32 +135,32 @@
     secret("Open trailer", 71.5, 42.8, 0, "boost", [[71.5, 49, 0], [71.5, 42.8, 0]], [1.8, 2.2]),
   ];
 
-  // Signs: text, where, width, face, style. Styles are set in the builder.
+  // Signs: placement and plan labels. Finished appearance/text live in the referenced source scenes.
   const s = (text, x, z, y, width, face, style, height) => ({ text, at: [x, z, y], width, face, style, height: height || 1.1 });
   P.signs = [
     s("TOTALLY NORMAL MANUFACTURING", -86, 48.3, 3.4, 12, "s", "corporate", 1.2),
-    s("STAFF PARKING  ·  ALL STAFF: JOHN", -50.3, 70, 2.0, 7, "w", "corporate", 0.9),
+    s("STAFF PARKING  Â·  ALL STAFF: JOHN", -50.3, 70, 2.0, 7, "w", "corporate", 0.9),
     s("WELCOME, FELLOW HOOMANS", -70, 34.3, 3.2, 10, "s", "corporate", 1.0),
     s("EMPLOYEE OF THE MONTH", -50.3, 41, 3.4, 6, "w", "office", 0.7),
     s("JOHN", -50.3, 39, 2.3, 1.2, "w", "frame", 1.0), s("JOHN", -50.3, 41, 2.3, 1.2, "w", "frame", 1.0), s("JOHN", -50.3, 43, 2.3, 1.2, "w", "frame", 1.0),
     s("OXYGEN BREAK AREA", -94, 34.3, 3.2, 8, "s", "office", 0.9),
-    s("EXIT  →", -96.7, 27, 2.4, 2.6, "e", "wrong", 0.7),
-    s("HOOMAN WORKING STATIONS", -60, 12, 3.5, 7, "w", "office", 0.8),
+    s("EXIT  â†’", -96.7, 27, 2.4, 2.6, "e", "wrong", 0.7),
+    s("HOOMAN WORKING STATIONS", -50.28, 12, 3.5, 7, "w", "office", 0.8),
     s("MANAGER: JOHN", -55.5, 8.3, 3.7, 3, "s", "office", 0.6),
     s("RECORDS (NORMAL)", -95.5, 10.3, 3.8, 3, "s", "office", 0.6),
-    s("AUTHORIZED JOHNS ONLY", -12, 29.65, 2.0, 6, "n", "hazard", 0.8),
-    s("PRODUCTION HALL: NOW PRODUCING", -30, -25.7, 4.8, 10, "s", "corporate", 1.2),
-    s("DEFINITELY NOT SMOG", -2.1, 23, 7, 5, "w", "wrong", 1.0),
-    s("DAYS WITHOUT A HOOMAN INCIDENT: 0", -44, -26.3, 5.5, 9, "n", "hazard", 1.0),
-    s("PRODUCTION LINE (PRODUCING)", -37, -65, 3.0, 7, "s", "office", 0.8),
-    s("PRESS (DO NOT PRESS)", -23, -34.8, 3.5, 5, "s", "hazard", 0.8),
+    s("AUTHORIZED JOHNS ONLY", -12, 29.72, 2.0, 6, "n", "hazard", 0.8),
+    s("PRODUCTION HALL: NOW PRODUCING", -30, -25.72, 4.8, 10, "s", "corporate", 1.2),
+    s("DEFINITELY NOT SMOG", -2.08, 23, 7, 5, "w", "wrong", 1.0),
+    s("DAYS WITHOUT A HOOMAN INCIDENT: 0", -44, -26.28, 5.5, 12, "n", "office", 1.0),
+    s("PRODUCTION LINE (PRODUCING)", -37, -69.72, 6.6, 8, "s", "office", 0.9),
+    s("PRESS (DO NOT PRESS)", -23, -34.8, 4.65, 5, "s", "hazard", 0.8),
     s("FOREMAN: JOHN", -12, -29.7, 6.5, 5, "s", "office", 0.8),
     s("VAT A: SMOG (ORGANIC)", -28, -95.9, 6, 6, "s", "wrong", 1.0),
     s("VAT B: SMOG (DECAF)", -10, -99.4, 6, 5.5, "s", "wrong", 1.0),
-    s("SERVICE TUNNEL (FOR SERVICING)", 3, -109.35, -1.8, 5, "s", "hazard", 0.7),
-    s("SMOG MIXING (GENTLE)", -21, -157.65, 1.0, 6, "s", "wrong", 1.0),
-    s("COMPRESSORS: DO NOT COMPRESS", 61.65, -145, 1.5, 8, "w", "hazard", 0.9),
-    s("TO THE MACHINE (PLEASE DON'T)", 47, -130.35, 0.2, 7, "n", "wrong", 0.8),
+    s("SERVICE TUNNEL (FOR SERVICING)", 3, -109.22, -1.8, 5, "s", "hazard", 0.7),
+    s("SMOG MIXING (GENTLE)", -21, -157.72, 1.0, 6, "s", "wrong", 1.0),
+    s("COMPRESSORS: DO NOT COMPRESS", 61.72, -145, 1.5, 8, "w", "hazard", 0.9),
+    s("TO THE MACHINE (PLEASE DON'T)", 47, -130.28, 0.2, 7, "n", "wrong", 0.8),
     s("AIR IMPROVEMENT MACHINE", 47, -89.9, 5, 5, "s", "corporate", 1.2),
     s("COOLANT PIPES: PLEASE DO NOT KICK", 50.1, -97, -1.2, 2.5, "e", "hazard", 0.8),
     s("ACTIVATE", 47, -101.15, 10.2, 3, "n", "hazard", 0.8),
@@ -168,6 +168,9 @@
     s("MIND THE DROP", 46, 5.2, 2.2, 3, "n", "hazard", 0.6),
     s("THANK YOU FOR VISITING, JOHN", 74, 51.65, 2.0, 8, "n", "corporate", 0.9),
   ];
+
+  // Stable IDs match the existing placards; changing an asset does not require a level bake.
+  P.signs.forEach((sign, i) => { sign.prop_scene = `res://scenes/props/signs/factory_sign_${String(i).padStart(2, "0")}.tscn`; });
 
   // JOHN painted on every parking bay, read from the aisle between the rows.
   P.floor_text = P.blockers

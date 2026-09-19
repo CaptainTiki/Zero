@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/props/factory/fittings/fixture_neutral.tscn" id="1_ycq31"]
+
+[node name="CeilingLight" type="OmniLight3D" unique_id=936401611]
+light_color = Color(0.95, 0.97, 1, 1)
+light_energy = 7.0
+shadow_enabled = true
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+omni_range = 30.0
+
+[node name="Fixture" type="Node3D" parent="." unique_id=1658110006 instance=ExtResource("1_ycq31")]

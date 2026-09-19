@@ -1,0 +1,121 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/props/kick_door.gd" id="1_ebab8"]
+[ext_resource type="AudioStream" path="res://audio/sfx/props/door_kick.wav" id="2_18g4j"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y81es"]
+albedo_color = Color(0.47, 0.45, 0.4, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_u6ffx"]
+resource_local_to_scene = true
+size = Vector3(0.5, 3.2, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vbs8b"]
+resource_local_to_scene = true
+size = Vector3(0.5, 3.2, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_o47q7"]
+resource_local_to_scene = true
+size = Vector3(0.5, 3.2, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w7hmb"]
+resource_local_to_scene = true
+size = Vector3(0.5, 3.2, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_3oyvq"]
+resource_local_to_scene = true
+size = Vector3(2, 0.4, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yv2jn"]
+resource_local_to_scene = true
+size = Vector3(2, 0.4, 0.6)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ral2b"]
+albedo_color = Color(0.28, 0.37, 0.32, 1)
+roughness = 0.75
+
+[sub_resource type="BoxMesh" id="BoxMesh_2yhfo"]
+resource_local_to_scene = true
+size = Vector3(1.96, 2.76, 0.14)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w2a2k"]
+albedo_color = Color(0.13, 0.15, 0.16, 1)
+metallic = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_jdi64"]
+resource_local_to_scene = true
+size = Vector3(1.8, 0.35, 0.17)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lld5s"]
+resource_local_to_scene = true
+size = Vector3(0.12, 0.28, 0.23)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_86e5q"]
+resource_local_to_scene = true
+size = Vector3(2, 2.8, 0.18)
+
+[node name="KickDoor1OfficeDoor" type="StaticBody3D" unique_id=1174143131]
+script = ExtResource("1_ebab8")
+
+[node name="ImpactAudio" type="AudioStreamPlayer3D" parent="." unique_id=2022340046]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
+stream = ExtResource("2_18g4j")
+volume_db = -5.0
+
+[node name="StaticBody3D1" type="StaticBody3D" parent="." unique_id=425109720]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 1.6, 0)
+
+[node name="MeshInstance3D0" type="MeshInstance3D" parent="StaticBody3D1" unique_id=1476116359]
+material_override = SubResource("StandardMaterial3D_y81es")
+mesh = SubResource("BoxMesh_u6ffx")
+
+[node name="CollisionShape3D1" type="CollisionShape3D" parent="StaticBody3D1" unique_id=1853069654]
+shape = SubResource("BoxShape3D_vbs8b")
+
+[node name="StaticBody3D2" type="StaticBody3D" parent="." unique_id=599702396]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.25, 1.6, 0)
+
+[node name="MeshInstance3D0" type="MeshInstance3D" parent="StaticBody3D2" unique_id=2094600367]
+material_override = SubResource("StandardMaterial3D_y81es")
+mesh = SubResource("BoxMesh_o47q7")
+
+[node name="CollisionShape3D1" type="CollisionShape3D" parent="StaticBody3D2" unique_id=1805083800]
+shape = SubResource("BoxShape3D_w7hmb")
+
+[node name="StaticBody3D3" type="StaticBody3D" parent="." unique_id=609357702]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+
+[node name="MeshInstance3D0" type="MeshInstance3D" parent="StaticBody3D3" unique_id=908893466]
+material_override = SubResource("StandardMaterial3D_y81es")
+mesh = SubResource("BoxMesh_3oyvq")
+
+[node name="CollisionShape3D1" type="CollisionShape3D" parent="StaticBody3D3" unique_id=227392053]
+shape = SubResource("BoxShape3D_yv2jn")
+
+[node name="Hinge" type="Node3D" parent="." unique_id=1259763409]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 0)
+
+[node name="Panel" type="MeshInstance3D" parent="Hinge" unique_id=1573924870]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.4, 0)
+material_override = SubResource("StandardMaterial3D_ral2b")
+mesh = SubResource("BoxMesh_2yhfo")
+
+[node name="KickPlate" type="MeshInstance3D" parent="Hinge" unique_id=1105830912]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.35, 0)
+material_override = SubResource("StandardMaterial3D_w2a2k")
+mesh = SubResource("BoxMesh_jdi64")
+
+[node name="Handle" type="MeshInstance3D" parent="Hinge" unique_id=1465302297]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.78, 1.25, 0)
+material_override = SubResource("StandardMaterial3D_w2a2k")
+mesh = SubResource("BoxMesh_lld5s")
+
+[node name="Prompt" type="Label3D" parent="Hinge" unique_id=832290113]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.95, 0.09)
+pixel_size = 0.003
+text = ""
+font_size = 56
+
+[node name="PanelCollision" type="CollisionShape3D" parent="." unique_id=326517348]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+shape = SubResource("BoxShape3D_86e5q")

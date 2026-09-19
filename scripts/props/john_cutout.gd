@@ -1,5 +1,6 @@
 @tool
 extends StaticBody3D
+@export var fallen_scene: PackedScene
 ## A cardboard cutout of John: the aliens' idea of a human employee. Human
 ## shaped, goofy eyes, fixed smile, t-shirt and jeans, one hand waving forever.
 ##
@@ -20,13 +21,7 @@ const PROP_LAYER := 4
 const FALLEN_MASK := 1
 const CARD_MASS := 1.5
 
-## Shared by every John, so each colour is one material rather than one per card.
-static var _materials := {}
-static var _cardboard: PhysicsMaterial
 
-@export var shirt: Color = Color("c8443a")
-@export var card: Color = Color("cfa972")
-@export var denim: Color = Color("3d5a80")
 ## Seconds a fallen John lies around before it shrinks away.
 @export var debris_seconds := 8.0
 
@@ -39,85 +34,13 @@ var _age := 0.0
 var _bumpers: Array[Node3D] = []
 
 func _ready() -> void:
-	_build()
-	# A tool script so the editor shows the cutout; it does nothing else there.
-	if Engine.is_editor_hint():
-		set_physics_process(false)
-		return
+	_art = $Art
+	_zone = $KnockOver
+	set_physics_process(false)
+	if Engine.is_editor_hint(): return
 	add_to_group("johns")
-	collision_layer = PROP_LAYER
-	collision_mask = 0
-	_hitbox(Vector3(0.9, 1.92, 0.45), Vector3(0, 0.96, 0))
-	# The waving arm and hand stick out past the body.
-	_hitbox(Vector3(0.42, 0.58, 0.45), Vector3(0.51, 1.47, 0))
-	_zone = Area3D.new()
-	_zone.name = "KnockOver"
-	_zone.collision_layer = 0
-	_zone.collision_mask = 3
-	_zone.monitorable = false
-	var reach := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = Vector3(0.8, 1.5, 0.3)
-	reach.shape = box
-	reach.position = Vector3(0, 0.75, 0)
-	_zone.add_child(reach)
-	add_child(_zone)
 	_zone.body_entered.connect(_on_bump_entered)
 	_zone.body_exited.connect(_on_bump_exited)
-	set_physics_process(false)
-
-func _hitbox(size: Vector3, at: Vector3) -> void:
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = size
-	shape.shape = box
-	shape.position = at
-	add_child(shape)
-
-static func _flat(color: Color) -> StandardMaterial3D:
-	if not _materials.has(color):
-		var m := StandardMaterial3D.new()
-		m.albedo_color = color
-		m.roughness = 1.0
-		_materials[color] = m
-	return _materials[color]
-
-func _card(label: String, size: Vector3, at: Vector3, color: Color, roll := 0.0) -> void:
-	var mesh := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = size
-	box.material = _flat(color)
-	mesh.mesh = box
-	mesh.position = at
-	mesh.rotation.z = roll
-	mesh.name = label
-	_art.add_child(mesh)
-
-## Flat panels only: this is a cutout, so everything is 0.05 thick.
-func _build() -> void:
-	_art = Node3D.new()
-	_art.name = "Art"
-	add_child(_art)
-	_card("Foot", Vector3(0.34, 0.06, 0.26), Vector3(0, 0.03, 0.06), card)
-	_card("Legs", Vector3(0.56, 0.74, 0.05), Vector3(0, 0.42, 0), denim)
-	_card("LegGap", Vector3(0.06, 0.52, 0.06), Vector3(0, 0.32, 0), Color(0.12, 0.14, 0.2))
-	_card("Shirt", Vector3(0.62, 0.68, 0.05), Vector3(0, 1.12, 0), shirt)
-	_card("ArmDown", Vector3(0.14, 0.62, 0.05), Vector3(-0.37, 1.08, 0), card)
-	# The waving hand, stuck mid-wave forever.
-	_card("ArmUp", Vector3(0.14, 0.62, 0.05), Vector3(0.40, 1.40, 0), card, -0.85)
-	_card("Hand", Vector3(0.17, 0.17, 0.05), Vector3(0.62, 1.66, 0), card)
-	_card("Head", Vector3(0.44, 0.48, 0.05), Vector3(0, 1.64, 0), card)
-	# Goofy eyes: different sizes, not quite level, pupils looking two ways.
-	_card("EyeL", Vector3(0.15, 0.15, 0.06), Vector3(-0.10, 1.73, 0.01), Color("f4f1e6"))
-	_card("EyeR", Vector3(0.12, 0.12, 0.06), Vector3(0.11, 1.70, 0.01), Color("f4f1e6"))
-	_card("PupL", Vector3(0.05, 0.05, 0.07), Vector3(-0.07, 1.72, 0.02), Color("15161a"))
-	_card("PupR", Vector3(0.05, 0.05, 0.07), Vector3(0.13, 1.71, 0.02), Color("15161a"))
-	# Fixed smile, far too wide.
-	_card("Smile", Vector3(0.26, 0.04, 0.06), Vector3(0, 1.53, 0.01), Color("15161a"))
-	_card("SmileL", Vector3(0.09, 0.04, 0.06), Vector3(-0.15, 1.56, 0.01), Color("15161a"), 0.7)
-	_card("SmileR", Vector3(0.09, 0.04, 0.06), Vector3(0.15, 1.56, 0.01), Color("15161a"), -0.7)
-	# Name badge. Always John.
-	_card("Badge", Vector3(0.17, 0.09, 0.06), Vector3(-0.17, 1.30, 0.01), Color("f4f1e6"))
 
 func apply_kick(_damage: float, from: Vector3, force: float) -> void:
 	# The boot lands a little below the player's eye line.
@@ -202,27 +125,8 @@ func _topple(point: Vector3, push: Vector3) -> void:
 	var world: Node = get_parent()
 	if world == null:
 		world = get_tree().current_scene
-	_fallen = RigidBody3D.new()
+	_fallen = fallen_scene.instantiate()
 	_fallen.name = name + "Fallen"
-	_fallen.collision_layer = 0
-	_fallen.collision_mask = FALLEN_MASK
-	_fallen.mass = CARD_MASS
-	_fallen.center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
-	_fallen.center_of_mass = Vector3(0, 0.95, 0)
-	_fallen.continuous_cd = true
-	_fallen.linear_damp = 0.4
-	_fallen.angular_damp = 1.5
-	if _cardboard == null:
-		_cardboard = PhysicsMaterial.new()
-		_cardboard.friction = 0.9
-		_cardboard.bounce = 0.05
-	_fallen.physics_material_override = _cardboard
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = Vector3(0.62, 1.9, 0.08)
-	shape.shape = box
-	shape.position = Vector3(0, 0.95, 0)
-	_fallen.add_child(shape)
 	world.add_child(_fallen)
 	_fallen.global_transform = global_transform
 	_art.reparent(_fallen)

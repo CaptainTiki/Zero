@@ -1,0 +1,78 @@
+{
+  "status": "draw-count diagnostic only; timing contaminated by concurrent Stationeers GPU load",
+  "warmup_frames": 15,
+  "sampled_frames": 20,
+  "gpu": "NVIDIA GeForce RTX 2080 SUPER",
+  "results": [
+    {
+      "view": "hall",
+      "mode": "rail_sources",
+      "visible_draw_calls": {
+        "mean": 25327.0,
+        "median": 25327,
+        "p95": 25327
+      },
+      "visible_primitives": {
+        "mean": 111920.0,
+        "median": 111920,
+        "p95": 111920
+      }
+    },
+    {
+      "view": "hall",
+      "mode": "rail_batches",
+      "visible_draw_calls": {
+        "mean": 16402.0,
+        "median": 16402,
+        "p95": 16402
+      },
+      "visible_primitives": {
+        "mean": 114516.0,
+        "median": 114516,
+        "p95": 114516
+      }
+    },
+    {
+      "view": "hall",
+      "mode": "rails_hidden",
+      "visible_draw_calls": {
+        "mean": 15146.0,
+        "median": 15146,
+        "p95": 15146
+      },
+      "visible_primitives": {
+        "mean": 58064.0,
+        "median": 58064,
+        "p95": 58064
+      }
+    },
+    {
+      "view": "hall",
+      "mode": "rail_sources_unshadowed",
+      "visible_draw_calls": {
+        "mean": 3528.0,
+        "median": 3528,
+        "p95": 3528
+      },
+      "visible_primitives": {
+        "mean": 111920.0,
+        "median": 111920,
+        "p95": 111920
+      }
+    },
+    {
+      "view": "hall",
+      "mode": "rail_batches_unshadowed",
+      "visible_draw_calls": {
+        "mean": 2452.0,
+        "median": 2452,
+        "p95": 2452
+      },
+      "visible_primitives": {
+        "mean": 114516.0,
+        "median": 114516,
+        "p95": 114516
+      }
+    }
+  ]
+}

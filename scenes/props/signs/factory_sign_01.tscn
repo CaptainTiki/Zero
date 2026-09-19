@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/props/editable_sign.gd" id="sign_script"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lsd27"]
+albedo_color = Color(0.74, 0.72, 0.65, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_2b7k4"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_lsd27")
+size = Vector3(7, 0.9, 0.14)
+
+[sub_resource type="SystemFont" id="SystemFont_n4gy8"]
+font_names = PackedStringArray("Arial", "Helvetica")
+font_weight = 700
+
+[node name="Sign" type="Node3D" unique_id=101348934]
+script = ExtResource("sign_script")
+
+[node name="Board" type="MeshInstance3D" parent="." unique_id=58196408]
+mesh = SubResource("BoxMesh_2b7k4")
+
+[node name="Text" type="Label3D" parent="." unique_id=1783874955]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.09000015)
+pixel_size = 0.0051896553
+modulate = Color(0.11372549, 0.20784314, 0.34117648, 1)
+text = "STAFF PARKING  Â·  ALL STAFF: JOHN"
+font = SubResource("SystemFont_n4gy8")
+font_size = 64
+outline_size = 0
+metadata/measured_board_fit = true

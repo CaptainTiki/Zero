@@ -1,0 +1,66 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/props/editable_sign.gd" id="sign_script"]
+
+[ext_resource type="Shader" path="res://materials/fidelity/factory_surface.gdshader" id="1_2sjrj"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/normal_128.png" id="2_tjdt1"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/roughness_128.png" id="3_lh76d"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/albedo_128.png" id="4_lgdj4"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7i74f"]
+render_priority = 0
+shader = ExtResource("1_2sjrj")
+shader_parameter/normal_texture = ExtResource("2_tjdt1")
+shader_parameter/roughness_texture = ExtResource("3_lh76d")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_lgdj4")
+shader_parameter/tint = Color(0.7, 0.66, 0.52, 1)
+shader_parameter/repeat_metres = 0.8
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_stmrw"]
+resource_local_to_scene = true
+_surfaces = [{
+"aabb": AABB(-5, -0.5, -0.07, 10, 1, 0.14),
+"format": 34359738375,
+"material": SubResource("ShaderMaterial_7i74f"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 132,
+"vertex_data": PackedByteArray("AACgwDMz877sUTi9AACgwDMz8z7sUTi9AACgwDMz8z7sUTg9AACgwDMz877sUTi9AACgwDMz8z7sUTg9AACgwDMz877sUTg9AACgQDMz877sUTg9AACgQDMz8z7sUTg9AACgQDMz8z7sUTi9AACgQDMz877sUTg9AACgQDMz8z7sUTi9AACgQDMz877sUTi9MzOfwAAAAL/sUTi9MzOfwAAAAL/sUTg9MzOfQAAAAL/sUTg9MzOfwAAAAL/sUTi9MzOfQAAAAL/sUTg9MzOfQAAAAL/sUTi9MzOfQAAAAD/sUTi9MzOfQAAAAD/sUTg9MzOfwAAAAD/sUTg9MzOfQAAAAD/sUTi9MzOfwAAAAD/sUTg9MzOfwAAAAD/sUTi9MzOfwDMz874pXI+9MzOfQDMz874pXI+9MzOfQDMz8z4pXI+9MzOfwDMz874pXI+9MzOfQDMz8z4pXI+9MzOfwDMz8z4pXI+9MzOfwDMz8z4pXI89MzOfQDMz8z4pXI89MzOfQDMz874pXI89MzOfwDMz8z4pXI89MzOfQDMz874pXI89MzOfwDMz874pXI89MzOfwAAAAL/sUTi9MzOfQAAAAL/sUTi9MzOfQDMz874pXI+9MzOfwAAAAL/sUTi9MzOfQDMz874pXI+9MzOfwDMz874pXI+9MzOfwDMz874pXI89MzOfQDMz874pXI89MzOfQAAAAL/sUTg9MzOfwDMz874pXI89MzOfQAAAAL/sUTg9MzOfwAAAAL/sUTg9MzOfwDMz8z4pXI+9MzOfQDMz8z4pXI+9MzOfQAAAAD/sUTi9MzOfwDMz8z4pXI+9MzOfQAAAAD/sUTi9MzOfwAAAAD/sUTi9MzOfwAAAAD/sUTg9MzOfQAAAAD/sUTg9MzOfQDMz8z4pXI89MzOfwAAAAD/sUTg9MzOfQDMz8z4pXI89MzOfwDMz8z4pXI89MzOfwDMz874pXI+9MzOfwDMz8z4pXI+9AACgwDMz8z7sUTi9MzOfwDMz874pXI+9AACgwDMz8z7sUTi9AACgwDMz877sUTi9AACgQDMz877sUTi9AACgQDMz8z7sUTi9MzOfQDMz8z4pXI+9AACgQDMz877sUTi9MzOfQDMz8z4pXI+9MzOfQDMz874pXI+9AACgwDMz877sUTg9AACgwDMz8z7sUTg9MzOfwDMz8z4pXI89AACgwDMz877sUTg9MzOfwDMz8z4pXI89MzOfwDMz874pXI89MzOfQDMz874pXI89MzOfQDMz8z4pXI89AACgQDMz8z7sUTg9MzOfQDMz874pXI89AACgQDMz8z7sUTg9AACgQDMz877sUTg9AACgwDMz877sUTi9AACgwDMz877sUTg9MzOfwAAAAL/sUTg9AACgwDMz877sUTi9MzOfwAAAAL/sUTg9MzOfwAAAAL/sUTi9MzOfwAAAAD/sUTi9MzOfwAAAAD/sUTg9AACgwDMz8z7sUTg9MzOfwAAAAD/sUTi9AACgwDMz8z7sUTg9AACgwDMz8z7sUTi9MzOfQAAAAL/sUTi9MzOfQAAAAL/sUTg9AACgQDMz877sUTg9MzOfQAAAAL/sUTi9AACgQDMz877sUTg9AACgQDMz877sUTi9AACgQDMz8z7sUTi9AACgQDMz8z7sUTg9MzOfQAAAAD/sUTg9AACgQDMz8z7sUTi9MzOfQAAAAD/sUTg9MzOfQAAAAD/sUTi9AACgwDMz877sUTi9MzOfwAAAAL/sUTi9MzOfwDMz874pXI+9MzOfwDMz874pXI89MzOfwAAAAL/sUTg9AACgwDMz877sUTg9MzOfwDMz8z4pXI+9MzOfwAAAAD/sUTi9AACgwDMz8z7sUTi9AACgwDMz8z7sUTg9MzOfwAAAAD/sUTg9MzOfwDMz8z4pXI89MzOfQDMz874pXI+9MzOfQAAAAL/sUTi9AACgQDMz877sUTi9AACgQDMz877sUTg9MzOfQAAAAL/sUTg9MzOfQDMz874pXI89AACgQDMz8z7sUTi9MzOfQAAAAD/sUTi9MzOfQDMz8z4pXI+9MzOfQDMz8z4pXI89MzOfQAAAAD/sUTg9AACgQDMz8z7sUTg9AAD/f/9//78AAP9//3//vwAA/3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/////f/9//7////9//3//v////3//f/+/////f/9//7////9//3//v////3//f/+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//3///wAA/7//f///AAD/v/9///8AAP+//3///wAA/7//f///AAD/v/9///8AAP+///////9/AID//////38AgP//////fwCA//////9/AID//////38AgP//////fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA/78AAFVVqar/vwAAVVWpqv+/AABVVamq/78AAFVVqar/vwAAVVWpqv+/AABVVamq/3//P6oqVJX/f/8/qipUlf9//z+qKlSV/3//P6oqVJX/f/8/qipUlf9//z+qKlSV/7///6oqVJX/v///qipUlf+///+qKlSV/7///6oqVJX/v///qipUlf+///+qKlSV/3//v1VVqar/f/+/VVWpqv9//79VVamq/3//v1VVqar/f/+/VVWpqv9//79VVamqAAD/v1VVqaoAAP+/VVWpqgAA/79VVamqAAD/v1VVqaoAAP+/VVWpqgAA/79VVamq////v6mqqar///+/qaqpqv///7+pqqmq////v6mqqar///+/qaqpqv///7+pqqmq/z//f6mqqar/P/9/qaqpqv8//3+pqqmq/z//f6mqqar/P/9/qaqpqv8//3+pqqmq/7//f1VVqar/v/9/VVWpqv+//39VVamq/7//f1VVqar/v/9/VVWpqv+//39VVamq/z//P1RVVNX/P/8/VFVU1f8//z9UVVTV/z//P1RVVNX/P/8/VFVU1f8//z9UVVTV/z//v1RVqqr/P/+/VFWqqv8//79UVaqq/z//v1RVqqr/P/+/VFWqqv8//79UVaqq/7//P1RVqqr/v/8/VFWqqv+//z9UVaqq/7//P1RVqqr/v/8/VFWqqv+//z9UVaqq/7//v1RVVNX/v/+/VFVU1f+//79UVVTV/7//v1RVVNX/v/+/VFVU1f+//79UVVTVqiqqKv8//7+qKqoq/z//v6oqqir/P/+/VVVUVVokAo5VVVRVWiQCjlVVVFVaJAKOqipU1f8//5+qKlTV/z//n6oqVNX/P/+fVVWqqv9//59VVaqq/3//n1VVqqr/f/+fVNWqKv9//59U1aoq/3//n1TVqir/f/+fqapUVf8//5+pqlRV/z//n6mqVFX/P/+fVNVU1VokAo5U1VTVWiQCjlTVVNVaJAKOqaqqqv8//7+pqqqq/z//v6mqqqr/P/+/")
+}]
+
+[sub_resource type="SystemFont" id="SystemFont_ripyp"]
+font_names = PackedStringArray("Arial", "Helvetica")
+font_weight = 700
+
+[node name="Sign" type="Node3D" unique_id=1466778875]
+script = ExtResource("sign_script")
+
+[node name="Board" type="MeshInstance3D" parent="." unique_id=1251690478]
+material_override = SubResource("ShaderMaterial_7i74f")
+mesh = SubResource("ArrayMesh_stmrw")
+
+[node name="Text" type="Label3D" parent="." unique_id=818508210]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.09000015)
+pixel_size = 0.008181818
+modulate = Color(0.11372549, 0.20784314, 0.34117648, 1)
+text = "WELCOME, FELLOW HOOMANS"
+font = SubResource("SystemFont_ripyp")
+font_size = 64
+outline_size = 0
+metadata/measured_board_fit = true

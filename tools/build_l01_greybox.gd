@@ -1,6 +1,7 @@
 extends "res://tools/level_kit.gd"
 ## Bakes the Level 01 greybox: scenes/levels/l01_district04.tscn.
-## Layout numbers match docs/LEVEL01_PLAN.md. Regenerating replaces manual edits.
+## Layout numbers match docs/LEVEL01_PLAN.md. Only scenes/generated/ is replaced.
+## Add editor dressing in the public inherited scene; see docs/LEVEL_EDITING.md.
 ##   godot --headless --path . -s res://tools/build_l01_greybox.gd
 
 const ROAD_W := 22.0
@@ -26,7 +27,7 @@ func build() -> void:
 	plaza()
 	museum()
 	actors()
-	save_scene("res://scenes/levels/l01_district04.tscn")
+	save_scene("res://scenes/generated/l01_district04.tscn")
 
 # --- helpers -----------------------------------------------------------------
 

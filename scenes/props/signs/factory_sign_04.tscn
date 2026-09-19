@@ -1,0 +1,66 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/props/editable_sign.gd" id="sign_script"]
+
+[ext_resource type="Shader" path="res://materials/fidelity/factory_surface.gdshader" id="1_tjr1a"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/normal_128.png" id="2_y0l6y"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/roughness_128.png" id="3_3d8ww"]
+[ext_resource type="Texture2D" path="res://art/material_studies/cc0_candidates/Metal038/albedo_128.png" id="4_18cf3"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7i74f"]
+render_priority = 0
+shader = ExtResource("1_tjr1a")
+shader_parameter/normal_texture = ExtResource("2_y0l6y")
+shader_parameter/roughness_texture = ExtResource("3_3d8ww")
+shader_parameter/surface_maps = true
+shader_parameter/bump_strength = 0.1
+shader_parameter/roughness_range = Vector2(0.5, 0.85)
+shader_parameter/soft_texture = ExtResource("4_18cf3")
+shader_parameter/tint = Color(0.7, 0.66, 0.52, 1)
+shader_parameter/repeat_metres = 0.8
+shader_parameter/rectangular_texture = false
+shader_parameter/painted_finish = true
+shader_parameter/emission_strength = null
+shader_parameter/diffuser_ribs = null
+shader_parameter/crack_variant = null
+shader_parameter/crack_origin = null
+shader_parameter/contact_strength = null
+shader_parameter/lower_paint = null
+shader_parameter/floor_height = null
+shader_parameter/ceiling_height = null
+shader_parameter/lower_tint = null
+shader_parameter/sample_origin = null
+shader_parameter/softness = 0.5
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_e5rjh"]
+resource_local_to_scene = true
+_surfaces = [{
+"aabb": AABB(-0.6, -0.5, -0.07, 1.2, 1, 0.14),
+"format": 34359738375,
+"material": SubResource("ShaderMaterial_7i74f"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 132,
+"vertex_data": PackedByteArray("mpkZvzMz877sUTi9mpkZvzMz8z7sUTi9mpkZvzMz8z7sUTg9mpkZvzMz877sUTi9mpkZvzMz8z7sUTg9mpkZvzMz877sUTg9mpkZPzMz877sUTg9mpkZPzMz8z7sUTg9mpkZPzMz8z7sUTi9mpkZPzMz877sUTg9mpkZPzMz8z7sUTi9mpkZPzMz877sUTi9NDMTvwAAAL/sUTi9NDMTvwAAAL/sUTg9NDMTPwAAAL/sUTg9NDMTvwAAAL/sUTi9NDMTPwAAAL/sUTg9NDMTPwAAAL/sUTi9NDMTPwAAAD/sUTi9NDMTPwAAAD/sUTg9NDMTvwAAAD/sUTg9NDMTPwAAAD/sUTi9NDMTvwAAAD/sUTg9NDMTvwAAAD/sUTi9NDMTvzMz874pXI+9NDMTPzMz874pXI+9NDMTPzMz8z4pXI+9NDMTvzMz874pXI+9NDMTPzMz8z4pXI+9NDMTvzMz8z4pXI+9NDMTvzMz8z4pXI89NDMTPzMz8z4pXI89NDMTPzMz874pXI89NDMTvzMz8z4pXI89NDMTPzMz874pXI89NDMTvzMz874pXI89NDMTvwAAAL/sUTi9NDMTPwAAAL/sUTi9NDMTPzMz874pXI+9NDMTvwAAAL/sUTi9NDMTPzMz874pXI+9NDMTvzMz874pXI+9NDMTvzMz874pXI89NDMTPzMz874pXI89NDMTPwAAAL/sUTg9NDMTvzMz874pXI89NDMTPwAAAL/sUTg9NDMTvwAAAL/sUTg9NDMTvzMz8z4pXI+9NDMTPzMz8z4pXI+9NDMTPwAAAD/sUTi9NDMTvzMz8z4pXI+9NDMTPwAAAD/sUTi9NDMTvwAAAD/sUTi9NDMTvwAAAD/sUTg9NDMTPwAAAD/sUTg9NDMTPzMz8z4pXI89NDMTvwAAAD/sUTg9NDMTPzMz8z4pXI89NDMTvzMz8z4pXI89NDMTvzMz874pXI+9NDMTvzMz8z4pXI+9mpkZvzMz8z7sUTi9NDMTvzMz874pXI+9mpkZvzMz8z7sUTi9mpkZvzMz877sUTi9mpkZPzMz877sUTi9mpkZPzMz8z7sUTi9NDMTPzMz8z4pXI+9mpkZPzMz877sUTi9NDMTPzMz8z4pXI+9NDMTPzMz874pXI+9mpkZvzMz877sUTg9mpkZvzMz8z7sUTg9NDMTvzMz8z4pXI89mpkZvzMz877sUTg9NDMTvzMz8z4pXI89NDMTvzMz874pXI89NDMTPzMz874pXI89NDMTPzMz8z4pXI89mpkZPzMz8z7sUTg9NDMTPzMz874pXI89mpkZPzMz8z7sUTg9mpkZPzMz877sUTg9mpkZvzMz877sUTi9mpkZvzMz877sUTg9NDMTvwAAAL/sUTg9mpkZvzMz877sUTi9NDMTvwAAAL/sUTg9NDMTvwAAAL/sUTi9NDMTvwAAAD/sUTi9NDMTvwAAAD/sUTg9mpkZvzMz8z7sUTg9NDMTvwAAAD/sUTi9mpkZvzMz8z7sUTg9mpkZvzMz8z7sUTi9NDMTPwAAAL/sUTi9NDMTPwAAAL/sUTg9mpkZPzMz877sUTg9NDMTPwAAAL/sUTi9mpkZPzMz877sUTg9mpkZPzMz877sUTi9mpkZPzMz8z7sUTi9mpkZPzMz8z7sUTg9NDMTPwAAAD/sUTg9mpkZPzMz8z7sUTi9NDMTPwAAAD/sUTg9NDMTPwAAAD/sUTi9mpkZvzMz877sUTi9NDMTvwAAAL/sUTi9NDMTvzMz874pXI+9NDMTvzMz874pXI89NDMTvwAAAL/sUTg9mpkZvzMz877sUTg9NDMTvzMz8z4pXI+9NDMTvwAAAD/sUTi9mpkZvzMz8z7sUTi9mpkZvzMz8z7sUTg9NDMTvwAAAD/sUTg9NDMTvzMz8z4pXI89NDMTPzMz874pXI+9NDMTPwAAAL/sUTi9mpkZPzMz877sUTi9mpkZPzMz877sUTg9NDMTPwAAAL/sUTg9NDMTPzMz874pXI89mpkZPzMz8z7sUTi9NDMTPwAAAD/sUTi9NDMTPzMz8z4pXI+9NDMTPzMz8z4pXI89NDMTPwAAAD/sUTg9mpkZPzMz8z7sUTg9AAD/f/9//78AAP9//3//vwAA/3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/////f/9//7////9//3//v////3//f/+/////f/9//7////9//3//v////3//f/+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//3///wAA/7//f///AAD/v/9///8AAP+//3///wAA/7//f///AAD/v/9///8AAP+///////9/AID//////38AgP//////fwCA//////9/AID//////38AgP//////fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA/78AAFVVqar/vwAAVVWpqv+/AABVVamq/78AAFVVqar/vwAAVVWpqv+/AABVVamq/3//P6oqVJX/f/8/qipUlf9//z+qKlSV/3//P6oqVJX/f/8/qipUlf9//z+qKlSV/7///6oqVJX/v///qipUlf+///+qKlSV/7///6oqVJX/v///qipUlf+///+qKlSV/3//v1VVqar/f/+/VVWpqv9//79VVamq/3//v1VVqar/f/+/VVWpqv9//79VVamqAAD/v1VVqqoAAP+/VVWqqgAA/79VVaqqAAD/v1VVqqoAAP+/VVWqqgAA/79VVaqq////v6mqqqr///+/qaqqqv///7+pqqqq////v6mqqqr///+/qaqqqv///7+pqqqq/z//f6mqqqr/P/9/qaqqqv8//3+pqqqq/z//f6mqqqr/P/9/qaqqqv8//3+pqqqq/7//f1VVqqr/v/9/VVWqqv+//39VVaqq/7//f1VVqqr/v/9/VVWqqv+//39VVaqq/z//P1VVVNX/P/8/VVVU1f8//z9VVVTV/z//P1VVVNX/P/8/VVVU1f8//z9VVVTV/z//v1VVqar/P/+/VVWpqv8//79VVamq/z//v1VVqar/P/+/VVWpqv8//79VVamq/7//P1VVqar/v/8/VVWpqv+//z9VVamq/7//P1VVqar/v/8/VVWpqv+//z9VVamq/7//v1VVVNX/v/+/VVVU1f+//79VVVTV/7//v1VVVNX/v/+/VVVU1f+//79VVVTVqiqqKv8//7+qKqoq/z//v6oqqir/P/+/VFVVVRWy9MZUVVVVFbL0xlRVVVUVsvTGqipU1f8//5+qKlTV/z//n6oqVNX/P/+fVFWpqv9//59UVamq/3//n1RVqar/f/+fVNWqKv9//59U1aoq/3//n1TVqir/f/+fqqpVVf8//5+qqlVV/z//n6qqVVX/P/+fVNVU1RWy9MZU1VTVFbL0xlTVVNUVsvTGqqqpqv8//7+qqqmq/z//v6qqqar/P/+/")
+}]
+
+[sub_resource type="SystemFont" id="SystemFont_h8e7n"]
+font_names = PackedStringArray("Georgia")
+font_italic = true
+
+[node name="Sign" type="Node3D" unique_id=1952792720]
+script = ExtResource("sign_script")
+
+[node name="Board" type="MeshInstance3D" parent="." unique_id=1985048034]
+material_override = SubResource("ShaderMaterial_7i74f")
+mesh = SubResource("ArrayMesh_e5rjh")
+
+[node name="Text" type="Label3D" parent="." unique_id=503928100]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.09000015)
+pixel_size = 0.005701658
+modulate = Color(0.08235294, 0.08627451, 0.101960786, 1)
+text = "JOHN"
+font = SubResource("SystemFont_h8e7n")
+font_size = 64
+outline_size = 0
+metadata/measured_board_fit = true

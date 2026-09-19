@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_3nsl7"]
+[ext_resource type="Texture2D" path="res://textures/metal.png" id="2_c1u1j"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dsomd"]
+resource_local_to_scene = true
+size = Vector3(4, 0.8, 0.8)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wwvji"]
+render_priority = 0
+shader = ExtResource("1_3nsl7")
+shader_parameter/surface_texture = ExtResource("2_c1u1j")
+shader_parameter/tint = Color(0.6313726, 0.41960785, 0.27450982, 1)
+shader_parameter/texels_per_metre = 24.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_nscty"]
+resource_local_to_scene = true
+size = Vector3(4, 0.8, 0.8)
+
+[node name="FallingDebris" type="StaticBody3D" unique_id=1550858030]
+
+[node name="Shape" type="CollisionShape3D" parent="." unique_id=1100659901]
+shape = SubResource("BoxShape3D_dsomd")
+disabled = true
+
+[node name="Body" type="MeshInstance3D" parent="." unique_id=1970645790]
+material_override = SubResource("ShaderMaterial_wwvji")
+mesh = SubResource("BoxMesh_nscty")

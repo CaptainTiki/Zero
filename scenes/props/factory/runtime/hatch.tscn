@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://materials/retro/world_surface.gdshader" id="1_pq366"]
+[ext_resource type="Texture2D" path="res://textures/metal.png" id="2_n8w0x"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4xk3a"]
+render_priority = 0
+shader = ExtResource("1_pq366")
+shader_parameter/surface_texture = ExtResource("2_n8w0x")
+shader_parameter/tint = Color(0.20392157, 0.23529412, 0.22352941, 1)
+shader_parameter/texels_per_metre = 24.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_abhg0"]
+resource_local_to_scene = true
+size = Vector3(1.6, 0.06, 1.6)
+
+[node name="Hatch" type="MeshInstance3D" unique_id=749179178]
+material_override = SubResource("ShaderMaterial_4xk3a")
+mesh = SubResource("BoxMesh_abhg0")

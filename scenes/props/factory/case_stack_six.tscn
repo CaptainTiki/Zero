@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/props/factory/shipping_case.tscn" id="1_yeq5v"]
+
+[node name="CaseStackSix" type="Node3D" unique_id=1401429180]
+
+[node name="Case000" type="Node3D" parent="." unique_id=1291138963 instance=ExtResource("1_yeq5v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.7, -1)
+
+[node name="Case100" type="Node3D" parent="." unique_id=302921883 instance=ExtResource("1_yeq5v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.7, -1)
+
+[node name="Case001" type="Node3D" parent="." unique_id=268935815 instance=ExtResource("1_yeq5v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.7, 1)
+
+[node name="Case101" type="Node3D" parent="." unique_id=1252196018 instance=ExtResource("1_yeq5v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.7, 1)
+
+[node name="Case110" type="Node3D" parent="." unique_id=1304895154 instance=ExtResource("1_yeq5v")]
+transform = Transform3D(0.99904823, 0, 0.043619387, 0, 1, 0, -0.043619387, 0, 0.99904823, 1.05, 2.1, -0.96)
+
+[node name="Case111" type="Node3D" parent="." unique_id=1727522246 instance=ExtResource("1_yeq5v")]
+transform = Transform3D(0.99904823, 0, 0.043619387, 0, 1, 0, -0.043619387, 0, 0.99904823, 1.05, 2.1, 0.96)

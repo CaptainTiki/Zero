@@ -11,7 +11,7 @@ const SETTINGS_PATH := "user://controls.cfg"
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	for pair in [["move_left", KEY_A], ["move_right", KEY_D], ["move_forward", KEY_W], ["move_back", KEY_S], ["jump", KEY_SPACE], ["sprint", KEY_SHIFT], ["interact", KEY_E], ["kick", KEY_F], ["weapon_fists", KEY_1], ["weapon_pistol", KEY_2], ["weapon_shotgun", KEY_3], ["debug_toggle", KEY_QUOTELEFT]]:
+	for pair in [["move_left", KEY_A], ["move_right", KEY_D], ["move_forward", KEY_W], ["move_back", KEY_S], ["jump", KEY_SPACE], ["sprint", KEY_SHIFT], ["interact", KEY_E], ["kick", KEY_F], ["weapon_fists", KEY_1], ["weapon_pistol", KEY_2], ["weapon_shotgun", KEY_3], ["debug_toggle", KEY_QUOTELEFT], ["debug_pointer", KEY_Q]]:
 		_bind_key(pair[0], pair[1])
 	_bind_key("pause", KEY_ESCAPE)
 	_bind_button("pause", JOY_BUTTON_START)
@@ -81,7 +81,7 @@ func menu_hint() -> String:
 func gameplay_hint() -> String:
 	if using_controller:
 		return "LS move · RS aim · RT/R2 fire · LT/L2 aim · %s jump · %s click kick\nLB/RB (L1/R1) weapons · X/Square interact · LS/L3 hold sprint · Start/Options pause" % [button_label("ui_accept"), button_label("kick")]
-	return "1 fists · 2 pistol · 3 shotgun · LMB use · RMB ADS · F kick · E throw · Esc pause · ` debug · ~ hud"
+	return "1 fists · 2 pistol · 3 shotgun · LMB use · RMB ADS · F kick · E throw · Esc pause · Q pointer · ` debug · ~ hud"
 
 func _add(action: String, event: InputEvent) -> void:
 	if not InputMap.has_action(action):

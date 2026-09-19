@@ -16,6 +16,7 @@ Prompts follow intentional input from the active device; small stick noise is ig
 | Sprint (hold) | Shift | Left-stick click | L3 |
 | Next / previous weapon | Mouse wheel; 1/2/3 directly | RB / LB | R1 / L1 |
 | Pause | Escape | Start / Menu | Options |
+| Debug pointer | Q | Unassigned | Unassigned |
 | Menu navigation | Arrows / mouse | D-pad / left stick | D-pad / left stick |
 | Menu confirm | Enter / click | A | Cross |
 | Menu back | Escape | B | Circle |
@@ -39,3 +40,7 @@ actual firing/kicking/jumping, analog movement, drift rejection, frame-rate-inde
 invert Y, owned-weapon cycling, menu/settings navigation, keyboard fallback, controller loss,
 and completion/failure navigation. No physical controller was connected during development;
 device-specific mapping and stick feel still need a user playtest.
+
+Q logs the crosshair ray hit, player position, camera facing and recent frame timing.
+Playable levels also record performance about every five seconds; both kinds of records
+survive in the saved run report. See `docs/LEVEL_EDITING.md` for details.

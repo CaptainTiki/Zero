@@ -20,8 +20,9 @@ const lines = [
   `"golden_units": ${out.golden_units}, "par_seconds": ${out.par_seconds},`,
   `"spawn": ${tidy(out.spawn)}, "exit": ${tidy(out.exit)},`,
   `"route": ${tidy(out.route)},`,
+  `"art_regions": ${tidy(window.PLAN.shells.map(s => ({name:s.name,rect:s.rect,ceiling:s.h})))},`,
   `"setpiece": ${tidy(out.setpiece)},`,
-  ["round_decks", "pumps", "alts", "beats", "ramps", "blockers", "kick_doors", "pickups", "enemies", "johns", "ambushes", "signs", "floor_text", "windows", "secrets", "lights", "boxes"].map(list).join(",\n"),
+  ["door_frames", "round_decks", "pumps", "alts", "beats", "ramps", "blockers", "kick_doors", "pickups", "enemies", "johns", "ambushes", "signs", "floor_text", "windows", "secrets", "lights", "boxes"].map(list).join(",\n"),
   "}",
 ];
 const file = path.join(__dirname, "plan.json");

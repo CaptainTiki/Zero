@@ -1,0 +1,166 @@
+{
+  "engine": "4.7.2-stable (steam)",
+  "gpu": "NVIDIA GeForce RTX 2080 SUPER",
+  "method": "fresh scene and viewport per case; uncapped; 4x MSAA; game scripts/physics paused; same shadow atlas as root; no saved level changes",
+  "rail_mesh_count": 271,
+  "results": [
+    {
+      "frame_ms": {
+        "mean": 26.55228,
+        "median": 26.392,
+        "p95": 27.869
+      },
+      "mode": "baseline",
+      "render_cpu_ms": {
+        "mean": 25.4855200322469,
+        "median": 25.253999710083,
+        "p95": 26.6669998168945
+      },
+      "render_gpu_ms": {
+        "mean": 22.333513361613,
+        "median": 22.0669994354248,
+        "p95": 24.1270008087158
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "hall",
+      "visible_draw_calls": {
+        "mean": 16402.0,
+        "median": 16402,
+        "p95": 16402
+      },
+      "visible_primitives": {
+        "mean": 114516.0,
+        "median": 114516,
+        "p95": 114516
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 12.5641133333333,
+        "median": 12.419,
+        "p95": 14.927
+      },
+      "mode": "local_shadows_off",
+      "render_cpu_ms": {
+        "mean": 10.5048733520508,
+        "median": 10.3120002746582,
+        "p95": 11.8000001907349
+      },
+      "render_gpu_ms": {
+        "mean": 8.11342662811279,
+        "median": 8.16300010681152,
+        "p95": 10.3339996337891
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "hall",
+      "visible_draw_calls": {
+        "mean": 8664.0,
+        "median": 8664,
+        "p95": 8664
+      },
+      "visible_primitives": {
+        "mean": 114516.0,
+        "median": 114516,
+        "p95": 114516
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 7.17918,
+        "median": 7.06,
+        "p95": 8.336
+      },
+      "mode": "all_shadows_off",
+      "render_cpu_ms": {
+        "mean": 5.87173332214355,
+        "median": 5.81300020217896,
+        "p95": 6.44099998474121
+      },
+      "render_gpu_ms": {
+        "mean": 2.59955999453863,
+        "median": 3.04500007629395,
+        "p95": 3.7739999294281
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "hall",
+      "visible_draw_calls": {
+        "mean": 2452.0,
+        "median": 2452,
+        "p95": 2452
+      },
+      "visible_primitives": {
+        "mean": 114516.0,
+        "median": 114516,
+        "p95": 114516
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 27.3227533333333,
+        "median": 26.698,
+        "p95": 29.748
+      },
+      "mode": "baseline_repeat",
+      "render_cpu_ms": {
+        "mean": 26.382679977417,
+        "median": 25.6529998779297,
+        "p95": 28.9039993286133
+      },
+      "render_gpu_ms": {
+        "mean": 23.1052666219076,
+        "median": 22.738000869751,
+        "p95": 25.5669994354248
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "hall",
+      "visible_draw_calls": {
+        "mean": 16402.0,
+        "median": 16402,
+        "p95": 16402
+      },
+      "visible_primitives": {
+        "mean": 114516.0,
+        "median": 114516,
+        "p95": 114516
+      }
+    }
+  ],
+  "sampled_frames": 150,
+  "warmup_frames": 90
+}

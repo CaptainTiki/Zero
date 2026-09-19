@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[node name="ExplosionFlash" type="OmniLight3D" unique_id=141963326]
+light_color = Color(1, 0.6, 0.25, 1)
+light_energy = 10.0
+omni_range = 6.0

@@ -1,0 +1,686 @@
+{
+  "engine": "4.7.2-stable (steam)",
+  "gpu": "NVIDIA GeForce RTX 2080 SUPER",
+  "method": "fresh scene and viewport per case; uncapped; 4x MSAA; game scripts/physics paused; same shadow atlas as root; no saved level changes",
+  "rail_mesh_count": 271,
+  "results": [
+    {
+      "frame_ms": {
+        "mean": 38.8617666666667,
+        "median": 38.555,
+        "p95": 40.699
+      },
+      "mode": "rail_sources",
+      "render_cpu_ms": {
+        "mean": 37.8216733805339,
+        "median": 37.507999420166,
+        "p95": 39.5779991149902
+      },
+      "render_gpu_ms": {
+        "mean": 34.2530267079671,
+        "median": 34.0200004577637,
+        "p95": 35.7249984741211
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "hall",
+      "visible_draw_calls": {
+        "mean": 25327.0,
+        "median": 25327,
+        "p95": 25327
+      },
+      "visible_primitives": {
+        "mean": 111920.0,
+        "median": 111920,
+        "p95": 111920
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 26.79326,
+        "median": 26.459,
+        "p95": 28.071
+      },
+      "mode": "rail_batches",
+      "render_cpu_ms": {
+        "mean": 25.7412533950806,
+        "median": 25.3689994812012,
+        "p95": 26.9930000305176
+      },
+      "render_gpu_ms": {
+        "mean": 22.3682999547323,
+        "median": 22.1089992523193,
+        "p95": 23.8649997711182
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "hall",
+      "visible_draw_calls": {
+        "mean": 16402.0,
+        "median": 16402,
+        "p95": 16402
+      },
+      "visible_primitives": {
+        "mean": 114516.0,
+        "median": 114516,
+        "p95": 114516
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 39.1924533333333,
+        "median": 38.778,
+        "p95": 42.135
+      },
+      "mode": "rail_sources_repeat",
+      "render_cpu_ms": {
+        "mean": 37.9543332417806,
+        "median": 37.5769996643066,
+        "p95": 39.9669990539551
+      },
+      "render_gpu_ms": {
+        "mean": 34.4638066609701,
+        "median": 34.2639999389648,
+        "p95": 36.5509986877441
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "hall",
+      "visible_draw_calls": {
+        "mean": 25327.0,
+        "median": 25327,
+        "p95": 25327
+      },
+      "visible_primitives": {
+        "mean": 111920.0,
+        "median": 111920,
+        "p95": 111920
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 26.75218,
+        "median": 26.662,
+        "p95": 28.026
+      },
+      "mode": "rail_batches_repeat",
+      "render_cpu_ms": {
+        "mean": 25.5909666697184,
+        "median": 25.4860000610352,
+        "p95": 26.7080001831055
+      },
+      "render_gpu_ms": {
+        "mean": 22.5464665985107,
+        "median": 22.3799991607666,
+        "p95": 24.2439994812012
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "hall",
+      "visible_draw_calls": {
+        "mean": 16402.0,
+        "median": 16402,
+        "p95": 16402
+      },
+      "visible_primitives": {
+        "mean": 114516.0,
+        "median": 114516,
+        "p95": 114516
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 20.03704,
+        "median": 19.939,
+        "p95": 20.916
+      },
+      "mode": "rail_sources",
+      "render_cpu_ms": {
+        "mean": 18.8149867121379,
+        "median": 18.7159996032715,
+        "p95": 19.7649993896484
+      },
+      "render_gpu_ms": {
+        "mean": 14.5147600046794,
+        "median": 14.4879999160767,
+        "p95": 15.2299995422363
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "tank",
+      "visible_draw_calls": {
+        "mean": 15449.0,
+        "median": 15449,
+        "p95": 15449
+      },
+      "visible_primitives": {
+        "mean": 31272.0,
+        "median": 31272,
+        "p95": 31272
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 12.8648866666667,
+        "median": 12.834,
+        "p95": 13.642
+      },
+      "mode": "rail_batches",
+      "render_cpu_ms": {
+        "mean": 11.1697666486104,
+        "median": 11.0979995727539,
+        "p95": 11.8210000991821
+      },
+      "render_gpu_ms": {
+        "mean": 8.60735332806905,
+        "median": 8.58699989318848,
+        "p95": 9.51099967956543
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "tank",
+      "visible_draw_calls": {
+        "mean": 8805.0,
+        "median": 8805,
+        "p95": 8805
+      },
+      "visible_primitives": {
+        "mean": 33824.0,
+        "median": 33824,
+        "p95": 33824
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 19.7219333333333,
+        "median": 19.676,
+        "p95": 20.445
+      },
+      "mode": "rail_sources_repeat",
+      "render_cpu_ms": {
+        "mean": 18.6390200297038,
+        "median": 18.5650005340576,
+        "p95": 19.2600002288818
+      },
+      "render_gpu_ms": {
+        "mean": 14.2513266436259,
+        "median": 14.2340002059937,
+        "p95": 14.8290004730225
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "tank",
+      "visible_draw_calls": {
+        "mean": 15449.0,
+        "median": 15449,
+        "p95": 15449
+      },
+      "visible_primitives": {
+        "mean": 31272.0,
+        "median": 31272,
+        "p95": 31272
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 12.30538,
+        "median": 12.319,
+        "p95": 13.013
+      },
+      "mode": "rail_batches_repeat",
+      "render_cpu_ms": {
+        "mean": 11.1579800287882,
+        "median": 11.1569995880127,
+        "p95": 11.7670001983643
+      },
+      "render_gpu_ms": {
+        "mean": 8.08248000780741,
+        "median": 8.07699966430664,
+        "p95": 8.86499977111816
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "tank",
+      "visible_draw_calls": {
+        "mean": 8805.0,
+        "median": 8805,
+        "p95": 8805
+      },
+      "visible_primitives": {
+        "mean": 33824.0,
+        "median": 33824,
+        "p95": 33824
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 43.2427866666667,
+        "median": 43.036,
+        "p95": 44.539
+      },
+      "mode": "rail_sources",
+      "render_cpu_ms": {
+        "mean": 42.1964931996663,
+        "median": 41.9980010986328,
+        "p95": 43.4710006713867
+      },
+      "render_gpu_ms": {
+        "mean": 38.2637199656169,
+        "median": 38.2150001525879,
+        "p95": 40.2220001220703
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "plant",
+      "visible_draw_calls": {
+        "mean": 26834.0,
+        "median": 26834,
+        "p95": 26834
+      },
+      "visible_primitives": {
+        "mean": 196334.0,
+        "median": 196334,
+        "p95": 196334
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 28.91636,
+        "median": 28.458,
+        "p95": 31.199
+      },
+      "mode": "rail_batches",
+      "render_cpu_ms": {
+        "mean": 27.9123933410645,
+        "median": 27.5009994506836,
+        "p95": 30.2770004272461
+      },
+      "render_gpu_ms": {
+        "mean": 24.0356466929118,
+        "median": 23.7819995880127,
+        "p95": 26.0030002593994
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "plant",
+      "visible_draw_calls": {
+        "mean": 16685.0,
+        "median": 16685,
+        "p95": 16685
+      },
+      "visible_primitives": {
+        "mean": 196554.0,
+        "median": 196554,
+        "p95": 196554
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 43.9930466666667,
+        "median": 43.762,
+        "p95": 45.866
+      },
+      "mode": "rail_sources_repeat",
+      "render_cpu_ms": {
+        "mean": 42.8592799886068,
+        "median": 42.6940002441406,
+        "p95": 44.7039985656738
+      },
+      "render_gpu_ms": {
+        "mean": 38.6202933247884,
+        "median": 38.439998626709,
+        "p95": 40.7820014953613
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "plant",
+      "visible_draw_calls": {
+        "mean": 26834.0,
+        "median": 26834,
+        "p95": 26834
+      },
+      "visible_primitives": {
+        "mean": 196334.0,
+        "median": 196334,
+        "p95": 196334
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 28.1587266666666,
+        "median": 28.02,
+        "p95": 29.325
+      },
+      "mode": "rail_batches_repeat",
+      "render_cpu_ms": {
+        "mean": 27.1171067174276,
+        "median": 26.9589996337891,
+        "p95": 28.2870006561279
+      },
+      "render_gpu_ms": {
+        "mean": 23.5365199915568,
+        "median": 23.3959999084473,
+        "p95": 24.7889995574951
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "plant",
+      "visible_draw_calls": {
+        "mean": 16685.0,
+        "median": 16685,
+        "p95": 16685
+      },
+      "visible_primitives": {
+        "mean": 196554.0,
+        "median": 196554,
+        "p95": 196554
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 12.89384,
+        "median": 12.613,
+        "p95": 13.936
+      },
+      "mode": "rail_sources",
+      "render_cpu_ms": {
+        "mean": 11.9185200119019,
+        "median": 11.6319999694824,
+        "p95": 12.6319999694824
+      },
+      "render_gpu_ms": {
+        "mean": 8.16834003448486,
+        "median": 7.97599983215332,
+        "p95": 8.96300029754639
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "warehouse",
+      "visible_draw_calls": {
+        "mean": 6005.0,
+        "median": 6005,
+        "p95": 6005
+      },
+      "visible_primitives": {
+        "mean": 18806.0,
+        "median": 18806,
+        "p95": 18806
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 10.4007133333333,
+        "median": 10.337,
+        "p95": 11.136
+      },
+      "mode": "rail_batches",
+      "render_cpu_ms": {
+        "mean": 9.27764000574748,
+        "median": 9.17599964141846,
+        "p95": 9.86699962615967
+      },
+      "render_gpu_ms": {
+        "mean": 5.84031333287557,
+        "median": 5.79500007629395,
+        "p95": 6.21299982070923
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "warehouse",
+      "visible_draw_calls": {
+        "mean": 4657.0,
+        "median": 4657,
+        "p95": 4657
+      },
+      "visible_primitives": {
+        "mean": 19114.0,
+        "median": 19114,
+        "p95": 19114
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 12.8308933333333,
+        "median": 12.75,
+        "p95": 13.401
+      },
+      "mode": "rail_sources_repeat",
+      "render_cpu_ms": {
+        "mean": 11.5012866655986,
+        "median": 11.4409999847412,
+        "p95": 12.0819997787476
+      },
+      "render_gpu_ms": {
+        "mean": 8.20194664955139,
+        "median": 8.16600036621094,
+        "p95": 8.64799976348877
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "warehouse",
+      "visible_draw_calls": {
+        "mean": 6005.0,
+        "median": 6005,
+        "p95": 6005
+      },
+      "visible_primitives": {
+        "mean": 18806.0,
+        "median": 18806,
+        "p95": 18806
+      }
+    },
+    {
+      "frame_ms": {
+        "mean": 10.40758,
+        "median": 10.277,
+        "p95": 10.975
+      },
+      "mode": "rail_batches_repeat",
+      "render_cpu_ms": {
+        "mean": 9.36710666020711,
+        "median": 9.22999954223633,
+        "p95": 9.75599956512451
+      },
+      "render_gpu_ms": {
+        "mean": 5.80492666244507,
+        "median": 5.72900009155273,
+        "p95": 6.30499982833862
+      },
+      "resolution": [
+        2560,
+        1440
+      ],
+      "shadow_atlas_size": 4096,
+      "shadow_draw_calls": {
+        "mean": 0.0,
+        "median": 0,
+        "p95": 0
+      },
+      "view": "warehouse",
+      "visible_draw_calls": {
+        "mean": 4657.0,
+        "median": 4657,
+        "p95": 4657
+      },
+      "visible_primitives": {
+        "mean": 19114.0,
+        "median": 19114,
+        "p95": 19114
+      }
+    }
+  ],
+  "sampled_frames": 150,
+  "warmup_frames": 90,
+  "run_context": "Stationeers closed; Godot editor remained open; no concurrent tests or other game process; paired fresh-scene comparisons with unchanged lights and settings",
+  "summary_method": "Arithmetic mean of the two per-case frame-time medians; approximate FPS is 1000 divided by that value; p95 summary is mean of per-case p95s, not a pooled percentile",
+  "summary": [
+    {
+      "view": "hall",
+      "before_ms": 38.6665,
+      "after_ms": 26.560499999999998,
+      "before_fps": 25.862180440432933,
+      "after_fps": 37.649893639050475,
+      "reduction": 31.308755641188114,
+      "before_p95": 41.417,
+      "after_p95": 28.0485,
+      "before_draws": 25327,
+      "after_draws": 16402
+    },
+    {
+      "view": "tank",
+      "before_ms": 19.807499999999997,
+      "after_ms": 12.5765,
+      "before_fps": 50.485927047835425,
+      "after_fps": 79.51337812586968,
+      "reduction": 36.50637384828978,
+      "before_p95": 20.680500000000002,
+      "after_p95": 13.3275,
+      "before_draws": 15449,
+      "after_draws": 8805
+    },
+    {
+      "view": "plant",
+      "before_ms": 43.399,
+      "after_ms": 28.238999999999997,
+      "before_fps": 23.042005576165348,
+      "after_fps": 35.412018839194026,
+      "reduction": 34.931680453466676,
+      "before_p95": 45.2025,
+      "after_p95": 30.262,
+      "before_draws": 26834,
+      "after_draws": 16685
+    },
+    {
+      "view": "warehouse",
+      "before_ms": 12.6815,
+      "after_ms": 10.306999999999999,
+      "before_fps": 78.85502503647045,
+      "after_fps": 97.02144173862425,
+      "reduction": 18.724125694909922,
+      "before_p95": 13.6685,
+      "after_p95": 11.055499999999999,
+      "before_draws": 6005,
+      "after_draws": 4657
+    }
+  ]
+}

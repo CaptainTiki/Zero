@@ -1,5 +1,8 @@
 # Third-party assets
 
+Central credits and retained licence texts: [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+Update that register whenever third-party assets are added, replaced or removed.
+
 Everything under `audio/cc0/` is CC0 (public domain) unless noted. Keep this list current when adding or removing files. Generated placeholder sounds under `audio/sfx/` and `audio/vo/temp/` are project-made and remain fallbacks.
 
 | Folder | Pack | Author | Licence | Source | Used for |
@@ -28,3 +31,27 @@ Everything under `audio/cc0/` is CC0 (public domain) unless noted. Keep this lis
 ## Event map
 
 `scripts/audio/sound_bank.gd` maps every gameplay event to one or more files with volume and pitch jitter. Add or swap files there; missing files are skipped silently.
+
+## Fidelity texture candidates (September 17, 2026)
+
+Review only: `art/material_studies/cc0_candidates/`. Originals are 2K JPEG colour maps;
+reduced copies are 128x128 PNG. All use CC0-1.0, verified on each source page and
+[Poly Haven licence](https://polyhaven.com/license). Commercial use, modification
+and redistribution permitted; attribution optional and retained here.
+
+| Asset | Creator(s) | Source |
+|---|---|---|
+| plastered_wall_04 | Rob Tuytel | https://polyhaven.com/a/plastered_wall_04 |
+| concrete_wall_007 | Charlotte Baglioni, Dario Barresi, Rico Cilliers | https://polyhaven.com/a/concrete_wall_007 |
+| painted_metal_shutter | Charlotte Baglioni, Dario Barresi, Rico Cilliers | https://polyhaven.com/a/painted_metal_shutter |
+| red_brick | Rob Tuytel | https://polyhaven.com/a/red_brick |
+| floor_tiles_06 | Rob Tuytel | https://polyhaven.com/a/floor_tiles_06 |
+
+Download links, checksums and conversion details: `art/material_studies/cc0_candidates/sources.json`.
+
+### Fidelity room refinement
+
+The room additionally uses ambientCG Metal038 and Concrete034 (CC0), with sources,
+credits and adaptations in [ATTRIBUTIONS.md](ATTRIBUTIONS.md). The existing Red Brick
+and new Metal038 include reduced normal-GL and roughness maps. These remain isolated
+room-study assets, not replacements in playable levels.

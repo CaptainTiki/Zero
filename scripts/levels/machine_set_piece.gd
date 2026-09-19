@@ -1,5 +1,12 @@
 @tool
 extends Node3D
+@export var exit_open_material: Material
+@export var seal_scene: PackedScene
+@export var debris_scenes: Dictionary = {}
+@export var steam_scene: PackedScene
+@export var explosion_scene: PackedScene
+@export var smoke_scene: PackedScene
+@export var flash_scene: PackedScene
 ## The plant room climax: the smog machine's pressure arms. A set piece like
 ## arena_set_piece.gd: drop it into a level.
 ##
@@ -26,12 +33,9 @@ extends Node3D
 ## The level it sits in is its parent, running scripts/levels/level_base.gd. It sits at the
 ## world origin, so every point here is a world point.
 ##
-## A tool script: in the editor it builds the arms, button, hatches, shutter and end zone, plus
-## see-through stand-ins for what only appears mid-run (the seal pipe, falling debris), so the
-## editor's fly camera shows the plant room as it plays. None of that is saved in the scene.
+## Saved assembly owns all visible pieces, collision and future-event assets. This script
+## only binds those nodes, runs the encounter and spawns the saved effect scenes.
 
-const ARM := preload("res://scripts/props/pressure_arm.gd")
-const BUTTON := preload("res://scripts/props/kick_button.gd")
 const FODDER := preload("res://scenes/enemies/fodder.tscn")
 const HUNTER := preload("res://scenes/enemies/hunter.tscn")
 const RAMMER := preload("res://scenes/enemies/rammer.tscn")
@@ -48,22 +52,22 @@ const ALARM_EVERY := 0.55
 const HISS_EVERY := 2.4
 
 ## Box the player walks into to start the fight: centre and size.
-@export var start_at := Vector3.ZERO
-@export var start_size := Vector3(8, 4, 8)
+@export_storage var start_at := Vector3.ZERO
+@export_storage var start_size := Vector3(8, 4, 8)
 ## The pipe that falls across the way back: where it lands, radius, and length, along z or,
 ## turned by seal_yaw, along x.
-@export var seal_at := Vector3.ZERO
-@export var seal_radius := 1.6
-@export var seal_length := 6.0
-@export var seal_yaw := 0.0
+@export_storage var seal_at := Vector3.ZERO
+@export_storage var seal_radius := 1.6
+@export_storage var seal_length := 6.0
+@export_storage var seal_yaw := 0.0
 ## Where a death respawns the player once the seal is down.
-@export var respawn_at := Vector3.ZERO
+@export_storage var respawn_at := Vector3.ZERO
 ## The arms, each a Dictionary: n, shoulder, elbow and socket (elbow and socket with it down).
 @export var arms: Array = []
 ## Arm numbers in the order they come down.
 @export var order: Array = []
 ## How far a lifted arm's elbow rises above its down pose.
-@export var lift := 5.0
+@export_storage var lift := 5.0
 ## Seconds from the fight starting to the first arm's warning.
 @export var first_arm_seconds := 4.0
 ## The beacon and alarm run this long before an arm comes down.
@@ -82,20 +86,20 @@ const HISS_EVERY := 2.4
 @export var melee_hatches: Array = []
 @export var ranged_hatches: Array = []
 ## The button kicked after the last pipe: where it stands and which way its front faces.
-@export var button_at := Vector3.ZERO
-@export var button_yaw := 0.0
+@export_storage var button_at := Vector3.ZERO
+@export_storage var button_yaw := 0.0
 ## The shut high exit: centre and size of the shutter.
-@export var exit_at := Vector3.ZERO
-@export var exit_size := Vector3(2.5, 3.2, 0.5)
+@export_storage var exit_at := Vector3.ZERO
+@export_storage var exit_size := Vector3(2.5, 3.2, 0.5)
 ## The lit pad at the level exit, shown once the machine goes critical.
-@export var end_zone_at := Vector3.ZERO
-@export var end_zone_size := Vector3(8, 4, 12)
+@export_storage var end_zone_at := Vector3.ZERO
+@export_storage var end_zone_size := Vector3(8, 4, 12)
 ## Where steam jets out. The ones in the pit also show pressure building between arms.
 @export var vents: Array = []
 @export var escape_seconds := 90.0
 ## The box that counts as out of the building: the truck yard, past the dock edge.
-@export var outside_at := Vector3.ZERO
-@export var outside_size := Vector3.ZERO
+@export_storage var outside_at := Vector3.ZERO
+@export_storage var outside_size := Vector3.ZERO
 ## Booms and smoke once the player is out. Each is a Dictionary: kind "boom" or "smoke", "at",
 ## "delay" seconds after getting out, and a boom's "size" across.
 @export var finale: Array = []
@@ -160,107 +164,46 @@ var _finale_fired := {}
 var _rumble_in := 0.0
 
 func _ready() -> void:
-	if Engine.is_editor_hint():
-		_build_editor_view()
-		return
+	_exit = $ExitShutter
+	_exit_lamp = $ExitIndicator
+	_end_zone = $EndZone
+	button = $ActivateButton
+	melee_hatches = []
+	ranged_hatches = []
+	vents = []
+	for child in get_children():
+		if child.get_meta("melee_hatch",false): melee_hatches.append(child.global_position-Vector3(0,0.03,0))
+		if child.get_meta("ranged_hatch",false): ranged_hatches.append(child.global_position-Vector3(0,0.03,0))
+		if str(child.name).begins_with("PressureArm"):
+			_arm_nodes[int(child.number)] = child
+		elif child is CPUParticles3D and str(child.name).begins_with("Vent"):
+			_steam.append(child)
+			vents.append(child.position)
+			if child.get_meta("pit_vent",false): _pit_steam.append(child)
+		elif child is OmniLight3D and str(child.name).begins_with("Alarm"):
+			_alarm_lights.append(child)
+	escape_events = escape_events.duplicate(true)
+	seal_at = $EditorPreview/SealLanding.position
+	respawn_at = $FightCheckpoint.global_position
+	for i in escape_events.size():
+		var landing := get_node_or_null("EditorPreview/DebrisLanding%d" % i)
+		if landing: escape_events[i]["at"] = landing.position
+	if Engine.is_editor_hint(): return
 	_level = get_parent()
-	# Children are ready before their parent, so the level's kill total picks these up.
 	var total := 0
 	for wave in waves:
-		total += int(wave[0]) + int(wave[1]) + int(wave[2]) + (int(wave[3]) if wave.size() > 3 else 0)
-	if _level and "extra_expected_kills" in _level:
-		_level.extra_expected_kills += total
-	_build_arms_and_button()
-	for arm in _arm_nodes.values():
-		arm.connect("broken", _on_arm_broken)
-	button.connect("pressed", _on_button_pressed)
-	_build_exit()
-	_build_start()
-	_build_end_zone()
-	_build_outside()
-	for at in vents:
-		var jet := _steam_jet(at)
-		_steam.append(jet)
-		if (at as Vector3).y < 0.0:
-			_pit_steam.append(jet)
-	var lids := {}
-	for at in melee_hatches + ranged_hatches:
-		lids[at] = true
-	for at in lids:
-		_hatch(at)
-	for at in alarms:
-		var lamp := OmniLight3D.new()
-		lamp.light_color = Color(1.0, 0.12, 0.08)
-		lamp.light_energy = 0.0
-		lamp.omni_range = 22.0
-		lamp.distance_fade_enabled = true
-		lamp.distance_fade_begin = 45.0
-		lamp.distance_fade_length = 10.0
-		lamp.position = at
-		lamp.visible = false
-		add_child(lamp)
-		_alarm_lights.append(lamp)
+		total += int(wave[0])+int(wave[1])+int(wave[2])+(int(wave[3]) if wave.size()>3 else 0)
+	if _level and "extra_expected_kills" in _level: _level.extra_expected_kills += total
+	for arm in _arm_nodes.values(): arm.connect("broken",_on_arm_broken)
+	button.connect("pressed",_on_button_pressed)
+	$StartTrigger.body_entered.connect(_on_enter)
+	$OutsideTrigger.body_entered.connect(_on_outside)
+	# Derive moving-piece endpoints from saved geometry, so editor adjustments survive.
+	exit_at = _exit.position
+	exit_size = _exit.get_node("Shape").shape.size
 	for area in get_tree().get_nodes_in_group("level_exit"):
 		area.body_entered.connect(_on_exit)
 
-func _build_arms_and_button() -> void:
-	for spec in arms:
-		var arm := Node3D.new()
-		arm.set_script(ARM)
-		arm.name = "PressureArm%d" % int(spec["n"])
-		arm.set("number", int(spec["n"]))
-		arm.set("shoulder", spec["shoulder"])
-		arm.set("elbow", spec["elbow"])
-		arm.set("socket", spec["socket"])
-		arm.set("lift", lift)
-		add_child(arm)
-		_arm_nodes[int(spec["n"])] = arm
-	button = StaticBody3D.new()
-	button.set_script(BUTTON)
-	button.name = "ActivateButton"
-	button.position = button_at
-	button.rotation.y = button_yaw
-	add_child(button)
-
-## What the editor shows: the fight's pieces as they stand before it starts, the end zone lit,
-## and see-through orange stand-ins where the seal pipe and the escape's debris land.
-func _build_editor_view() -> void:
-	_build_arms_and_button()
-	_build_exit()
-	_build_end_zone()
-	_end_zone.visible = true
-	var lids := {}
-	for at in melee_hatches + ranged_hatches:
-		lids[at] = true
-	for at in lids:
-		_hatch(at)
-	var ghost := StandardMaterial3D.new()
-	ghost.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	ghost.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	ghost.albedo_color = Color(1.0, 0.45, 0.1, 0.35)
-	var seal := MeshInstance3D.new()
-	var tube := CylinderMesh.new()
-	tube.top_radius = seal_radius
-	tube.bottom_radius = seal_radius
-	tube.height = seal_length
-	seal.mesh = tube
-	seal.material_override = ghost
-	seal.basis = _seal_basis()
-	seal.position = seal_at
-	add_child(seal)
-	for ev in escape_events:
-		if String(ev["kind"]) != "fall":
-			continue
-		var piece := MeshInstance3D.new()
-		var slab := BoxMesh.new()
-		slab.size = ev["size"]
-		piece.mesh = slab
-		piece.material_override = ghost
-		piece.position = ev["at"]
-		add_child(piece)
-
-## For the route test: the machine is already broken and the way out is open. With
-## escape_events true the place still falls apart round the walker, but no clock runs.
 func skip(with_escape_events := false) -> void:
 	state = State.CRITICAL if with_escape_events else State.DONE
 	escape_left = INF
@@ -670,47 +613,42 @@ func _fire(index: int, ev: Dictionary) -> void:
 ## Drops a pipe, beam or crate from above. It only becomes solid once it has landed, so it
 ## can't fall through, or onto, anything standing in the way.
 func _fall(at: Vector3, size: Vector3) -> void:
-	var piece := StaticBody3D.new()
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = size
-	shape.shape = box
+	var source: PackedScene = debris_scenes.get(str(size))
+	if source == null:
+		push_error("No saved debris asset for "+str(size))
+		return
+	var piece: StaticBody3D = source.instantiate()
+	var shape: CollisionShape3D = piece.get_node("Shape")
 	shape.disabled = true
-	piece.add_child(shape)
-	var mesh := MeshInstance3D.new()
-	var slab := BoxMesh.new()
-	slab.size = size
-	mesh.mesh = slab
-	mesh.material_override = load("res://materials/retro/rust.tres")
-	piece.add_child(mesh)
 	add_child(piece)
-	piece.position = at + Vector3(0, 11.0, 0)
-	piece.rotation.y = randf_range(-0.05, 0.05)
+	piece.position = at+Vector3(0,11.0,0)
+	piece.rotation.y = randf_range(-0.05,0.05)
 	var drop := create_tween()
-	drop.tween_property(piece, "position:y", at.y, 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	drop.tween_property(piece,"position:y",at.y,0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	drop.tween_callback(func() -> void:
 		shape.disabled = false
-		_sound("kick_prop", at, 6.0)
-		var burst := _steam_jet(at + Vector3(0, size.y / 2.0, 0))
-		burst.one_shot = true
-		burst.amount = 24
-		burst.initial_velocity_max = 4.0
-		burst.emitting = true
+		_sound("kick_prop",at,6.0)
+		var burst := _steam_jet(at+Vector3(0,size.y/2.0,0))
+		burst.one_shot=true
+		burst.amount=24
+		burst.initial_velocity_max=4.0
+		burst.emitting=true
 		_shake_near(at))
 
-## A fireball, a flash of light, a boom and a shake, `size` across.
 func _explode(at: Vector3, size: float) -> void:
 	_log("boom at %s" % at)
-	var fire := _burst_particles(at, 28, 1.3, size, [Color(1.0, 0.95, 0.6), Color(1.0, 0.55, 0.1), Color(0.35, 0.08, 0.02, 0.0)])
+	var fire: CPUParticles3D = explosion_scene.instantiate()
+	fire.position = at
+	fire.scale_amount_min *= size
+	fire.scale_amount_max *= size
+	add_child(fire)
 	fire.spread = 70.0
 	fire.initial_velocity_min = size * 1.2
 	fire.initial_velocity_max = size * 2.4
 	fire.gravity = Vector3(0, 3.0, 0)
 	fire.emitting = true
-	var flash := OmniLight3D.new()
-	flash.light_color = Color(1.0, 0.6, 0.25)
-	flash.light_energy = 10.0
-	flash.omni_range = size * 6.0
+	var flash: OmniLight3D = flash_scene.instantiate()
+	flash.omni_range *= size
 	flash.position = at
 	add_child(flash)
 	var fade := create_tween()
@@ -727,7 +665,9 @@ func _explode(at: Vector3, size: float) -> void:
 ## Dark smoke that keeps rising for a while, tall enough to show over the roofs.
 func _smoke_column(at: Vector3) -> void:
 	_log("smoke at %s" % at)
-	var smoke := _burst_particles(at, 40, 9.0, 9.0, [Color(0.25, 0.23, 0.22, 0.75), Color(0.2, 0.2, 0.2, 0.5), Color(0.2, 0.2, 0.2, 0.0)])
+	var smoke: CPUParticles3D = smoke_scene.instantiate()
+	smoke.position=at
+	add_child(smoke)
 	smoke.one_shot = false
 	smoke.explosiveness = 0.0
 	smoke.spread = 12.0
@@ -738,49 +678,6 @@ func _smoke_column(at: Vector3) -> void:
 	smoke.damping_max = 0.2
 	smoke.emitting = true
 
-func _burst_particles(at: Vector3, amount: int, lifetime: float, size: float, colors: Array) -> CPUParticles3D:
-	var jet := CPUParticles3D.new()
-	jet.emitting = false
-	jet.one_shot = true
-	jet.explosiveness = 0.9
-	jet.amount = amount
-	jet.lifetime = lifetime
-	jet.direction = Vector3(0, 1, 0)
-	jet.scale_amount_min = 0.5
-	jet.scale_amount_max = 1.0
-	var ramp := Gradient.new()
-	ramp.set_color(0, colors[0])
-	ramp.set_color(1, colors[colors.size() - 1])
-	if colors.size() > 2:
-		ramp.add_point(0.4, colors[1])
-	jet.color_ramp = ramp
-	# Billboarded particles lose their scale unless the material keeps it, so the quad itself
-	# carries the size and the scale only varies it.
-	var puff := QuadMesh.new()
-	puff.size = Vector2(size, size)
-	var look := StandardMaterial3D.new()
-	look.billboard_keep_scale = true
-	look.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	look.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	look.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	look.vertex_color_use_as_albedo = true
-	# A soft round puff rather than a hard square.
-	var soft := Gradient.new()
-	soft.set_color(0, Color(1, 1, 1, 1))
-	soft.set_color(1, Color(1, 1, 1, 0))
-	var dot := GradientTexture2D.new()
-	dot.gradient = soft
-	dot.fill = GradientTexture2D.FILL_RADIAL
-	dot.fill_from = Vector2(0.5, 0.5)
-	dot.fill_to = Vector2(1.0, 0.5)
-	dot.width = 64
-	dot.height = 64
-	look.albedo_texture = dot
-	puff.material = look
-	jet.mesh = puff
-	jet.position = at
-	add_child(jet)
-	return jet
 
 func _steam_burst(at: Vector3, duration: float) -> void:
 	var jet := _steam_jet(at)
@@ -804,56 +701,6 @@ func _shake_near(at: Vector3, strength := 1.0) -> void:
 
 # --- greybox pieces ------------------------------------------------------------
 
-func _build_outside() -> void:
-	if outside_size == Vector3.ZERO:
-		return
-	var area := Area3D.new()
-	area.collision_layer = 0
-	area.collision_mask = 2
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = outside_size
-	shape.shape = box
-	area.add_child(shape)
-	area.position = outside_at
-	add_child(area)
-	area.body_entered.connect(_on_outside)
-
-func _build_start() -> void:
-	var area := Area3D.new()
-	area.collision_layer = 0
-	area.collision_mask = 2
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = start_size
-	shape.shape = box
-	area.add_child(shape)
-	area.position = start_at
-	add_child(area)
-	area.body_entered.connect(_on_enter)
-
-func _build_exit() -> void:
-	_exit = StaticBody3D.new()
-	_exit.position = exit_at
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = exit_size
-	shape.shape = box
-	_exit.add_child(shape)
-	var mesh := MeshInstance3D.new()
-	var slab := BoxMesh.new()
-	slab.size = exit_size
-	mesh.mesh = slab
-	mesh.material_override = load("res://materials/retro/metal_blue.tres")
-	_exit.add_child(mesh)
-	add_child(_exit)
-	_exit_lamp = MeshInstance3D.new()
-	var bulb := BoxMesh.new()
-	bulb.size = Vector3(0.5, 0.3, 0.3)
-	_exit_lamp.mesh = bulb
-	_exit_lamp.material_override = _glow(Color(1.0, 0.15, 0.1))
-	_exit_lamp.position = exit_at + Vector3(0, exit_size.y / 2.0 + 0.35, 0)
-	add_child(_exit_lamp)
 
 func _open_exit() -> void:
 	if _exit and is_instance_valid(_exit):
@@ -863,116 +710,30 @@ func _open_exit() -> void:
 		var up := create_tween()
 		up.tween_property(_exit, "position:y", exit_at.y + exit_size.y + 0.2, 1.2)
 	if _exit_lamp:
-		_exit_lamp.material_override = _glow(Color(0.2, 1.0, 0.3))
+		_exit_lamp.material_override = exit_open_material
 	if _level and _level.has_method("open_exit"):
 		_level.open_exit()
 
 ## A glowing pad and a tall light column over the level exit, so the way out can be
 ## seen from across the truck yard. Hidden until the machine goes critical.
-func _build_end_zone() -> void:
-	_end_zone = Node3D.new()
-	_end_zone.visible = false
-	add_child(_end_zone)
-	var floor_y := end_zone_at.y - end_zone_size.y / 2.0
-	_end_zone.position = Vector3(end_zone_at.x, floor_y, end_zone_at.z)
-	var pad := MeshInstance3D.new()
-	var plate := BoxMesh.new()
-	plate.size = Vector3(end_zone_size.x, 0.06, end_zone_size.z)
-	pad.mesh = plate
-	pad.material_override = _glow(Color(0.25, 1.0, 0.4))
-	pad.position.y = 0.04
-	_end_zone.add_child(pad)
-	var column := MeshInstance3D.new()
-	var beam := BoxMesh.new()
-	beam.size = Vector3(end_zone_size.x * 0.8, 24.0, end_zone_size.z * 0.8)
-	column.mesh = beam
-	var haze := StandardMaterial3D.new()
-	haze.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	haze.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	haze.cull_mode = BaseMaterial3D.CULL_DISABLED
-	haze.albedo_color = Color(0.3, 1.0, 0.45, 0.18)
-	column.material_override = haze
-	column.position.y = 12.0
-	_end_zone.add_child(column)
-	var lamp := OmniLight3D.new()
-	lamp.light_color = Color(0.4, 1.0, 0.5)
-	lamp.light_energy = 3.0
-	lamp.omni_range = 14.0
-	lamp.position.y = 2.5
-	_end_zone.add_child(lamp)
 
-## A cylinder lies along z, then turns by seal_yaw.
 func _seal_basis() -> Basis:
-	return Basis(Vector3.UP, seal_yaw) * Basis(Vector3.RIGHT, PI / 2.0)
+	return $EditorPreview/SealLanding.basis
 
 func _drop_seal() -> void:
-	var seal := StaticBody3D.new()
-	var shape := CollisionShape3D.new()
-	var cylinder := CylinderShape3D.new()
-	cylinder.radius = seal_radius
-	cylinder.height = seal_length
-	shape.shape = cylinder
-	seal.add_child(shape)
-	var mesh := MeshInstance3D.new()
-	var tube := CylinderMesh.new()
-	tube.top_radius = seal_radius
-	tube.bottom_radius = seal_radius
-	tube.height = seal_length
-	tube.radial_segments = 12
-	mesh.mesh = tube
-	mesh.material_override = load("res://materials/retro/rust.tres")
-	seal.add_child(mesh)
-	# Lying across the doorway, along z or turned by seal_yaw.
+	var seal: StaticBody3D = seal_scene.instantiate()
 	seal.basis = _seal_basis()
 	add_child(seal)
-	seal.position = seal_at + Vector3(0, 12.0, 0)
+	seal.position = seal_at+Vector3(0,12.0,0)
 	var drop := create_tween()
-	drop.tween_property(seal, "position:y", seal_at.y, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	drop.tween_callback(func() -> void:
-		_sound("kick_prop", seal.global_position, 6.0))
+	drop.tween_property(seal,"position:y",seal_at.y,0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	drop.tween_callback(func() -> void: _sound("kick_prop",seal.global_position,6.0))
 
 func _steam_jet(at: Vector3) -> CPUParticles3D:
-	var jet := CPUParticles3D.new()
-	jet.emitting = false
-	jet.amount = 40
-	jet.lifetime = 1.2
-	jet.direction = Vector3(0, 1, 0)
-	jet.spread = 15.0
-	jet.initial_velocity_min = 6.0
-	jet.initial_velocity_max = 9.0
-	jet.damping_min = 2.0
-	jet.damping_max = 4.0
-	jet.scale_amount_min = 0.8
-	jet.scale_amount_max = 2.0
-	var puff := QuadMesh.new()
-	puff.size = Vector2(0.8, 0.8)
-	var steam := StandardMaterial3D.new()
-	steam.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	steam.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	steam.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	steam.albedo_color = Color(0.95, 0.95, 0.95, 0.5)
-	puff.material = steam
-	jet.mesh = puff
-	jet.position = at
+	var jet: CPUParticles3D = steam_scene.instantiate()
+	jet.position=at
 	add_child(jet)
 	return jet
-
-func _hatch(at: Vector3) -> void:
-	var lid := MeshInstance3D.new()
-	var plate := BoxMesh.new()
-	plate.size = Vector3(1.6, 0.06, 1.6)
-	lid.mesh = plate
-	lid.material_override = load("res://materials/retro/dark.tres")
-	lid.position = at + Vector3(0, 0.03, 0)
-	add_child(lid)
-
-func _glow(color: Color) -> StandardMaterial3D:
-	var m := StandardMaterial3D.new()
-	m.albedo_color = color
-	m.emission_enabled = true
-	m.emission = color
-	m.emission_energy_multiplier = 2.0
-	return m
 
 func _sound(event: String, at: Vector3, volume_offset := 0.0) -> void:
 	var bank := get_tree().root.get_node_or_null("Sound")

@@ -51,15 +51,15 @@
     b("Scaffold", "crates", "G", [-62, -86, -60, -70], 6, "Blocks the lane's west end; the city carries on past it."),
 
     { ...b("Container office", "container", "G", [-44, -38, -34, -32], 2.8), hollow: "w" },
-    b("Crates", "crates", "G", [-50, -32, -46, -28], 3),
-    b("Press A", "machine", "G", [-26, -40, -20, -35], 5),
-    b("Press B", "machine", "G", [-20, -50, -15, -45], 5),
-    b("Hoppers", "machine", "G", [-60, -66, -54, -58], 6),
-    b("Conveyor", "machine", "G", [-48, -67, -26, -63], 1.2, "Waist high: stops you, doesn't hide anyone standing."),
-    b("Drum washer", "machine", "B", [-50, -60, -44, -55], 3, "Hides the pit tunnel door behind it."),
-    b("Drum washer", "machine", "B", [-50, -49, -45, -46], 3),
-    b("Drum washer", "machine", "B", [-30, -54, -26, -47], 3),
-    b("Hopper tower", "machine", "B", [-36, -52, -32, -48], 16, "Rises from the pit floor through both catwalks, like the column in reference 3."),
+    { ...b("Crates", "crates", "G", [-50, -32, -46, -28], 3), prop_scene: "res://scenes/props/factory/case_stack_six.tscn" },
+    { ...b("Press A", "machine", "G", [-26, -40, -20, -35], 5), prop_scene: "res://scenes/props/factory/press_wide.tscn" },
+    { ...b("Press B", "machine", "G", [-20, -50, -15, -45], 5), prop_scene: "res://scenes/props/factory/press_compact.tscn" },
+    { ...b("Hoppers", "machine", "G", [-60, -66, -54, -58], 6), prop_scene: "res://scenes/props/factory/feed_hoppers.tscn" },
+    { ...b("Conveyor", "machine", "G", [-48, -67, -26, -63], 1.2, "Waist high: stops you, doesn't hide anyone standing."), prop_scene: "res://scenes/props/factory/sorting_conveyor.tscn" },
+    { ...b("Drum washer", "machine", "B", [-50, -60, -44, -55], 3, "Supply cases hide the pit tunnel door. Legacy name preserves editor paths."), art: "delivery_stack", prop_scene: "res://scenes/props/factory/delivery_stack_large.tscn" },
+    { ...b("Drum washer", "machine", "B", [-50, -49, -45, -46], 3, "Smaller stack of the same supply cases."), art: "delivery_stack", prop_scene: "res://scenes/props/factory/delivery_stack_small.tscn" },
+    { ...b("Drum washer", "machine", "B", [-30, -54, -26, -47], 3, "Parked forklift; original reserved footprint."), art: "forklift", prop_scene: "res://scenes/props/factory/parked_forklift.tscn" },
+    { ...b("Hopper tower", "machine", "B", [-36, -52, -32, -48], 16, "Rises from the pit floor through both catwalks, like the column in reference 3."), prop_scene: "res://scenes/props/factory/feed_tower.tscn" },
 
     round("Vat A", "tank", "G", [-28, -102], 6, 14),
     round("Vat B", "tank", "G", [-10, -104], 4.5, 12),
@@ -108,6 +108,7 @@
     b("Box truck", "vehicle", "G", [60, 14, 63, 24], 3.5),
     { ...b("Open trailer", "vehicle", "G", [70, 30, 73, 44], 4), hollow: "s" },
     b("Container stack", "container", "G", [26, 48, 38, 51], 5.2),
+    { ...b("Loose supply case", "crates", "G", [-52.4, -31.7, -50.4, -29.7], 1.4, "Single case beside the six-case stack."), art: "loose_case", prop_scene: "res://scenes/props/factory/loose_supply_case.tscn" },
   ];
 
   // Compressor pumps over the housings above. Each ram drives down in half a second, hisses
